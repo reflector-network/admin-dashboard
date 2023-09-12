@@ -1,0 +1,31 @@
+{
+  "name": "@reflector/admin-dashboard",
+  "private": true,
+  "version": "0.2.0",
+  "author": "team@stellar.expert",
+  "description": "Admin dashboard for Reflector nodes",
+  "scripts": {
+    "build": "webpack --mode=production --config ./webpack-config.js",
+    "dev-server": "webpack serve --mode=development --config ./webpack-config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reflector-network/admin-dashboard.git"
+  },
+  "devDependencies": {
+    "@albedo-link/intent": "^0.12.0",
+    "@stellar-expert/eslint-config-js": "github:stellar-expert/eslint-config-js",
+    "@stellar-expert/eslint-config-react": "github:stellar-expert/eslint-config-react",
+    "@stellar-expert/formatter": "github:stellar-expert/formatter#v2.2.0",
+    "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
+    "@stellar-expert/ui-framework": "github:stellar-expert/ui-framework#v1.6.21",
+    "@stellar-expert/webpack-template": "github:stellar-expert/webpack-template#v1.3.0",
+    "classnames": "^2.3.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router": "^5.2.1",
+    "mobx": "^6.6.2",
+    "mobx-react": "^7.5.3",
+    "stellar-sdk": "^10.4.1"
+  }
+}
