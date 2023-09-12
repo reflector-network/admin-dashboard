@@ -15,8 +15,7 @@ module.exports = initWebpackConfig({
         additionalData: '@import "~@stellar-expert/ui-framework/basic-styles/variables.scss";'
     },
     define: {
-        appVersion: pkgInfo.version,
-        apiOrigin: process.env.REFLECTOR_NODE_URL || 'http://localhost:3000/'
+        appVersion: pkgInfo.version
     },
     devServer: {
         host: '0.0.0.0',
