@@ -1,6 +1,6 @@
 import React from 'react'
-import config, {resetNode} from '../../api/config'
 import {BlockSelect} from '@stellar-expert/ui-framework'
+import config, {resetNode} from '../../api/config'
 
 export default function ConnectionStatusView() {
     if (!config.httpApiUrl)

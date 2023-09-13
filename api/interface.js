@@ -1,4 +1,4 @@
-import albedo from '@albedo-link/intent'
+import {signData} from '../views/util/albedo-provider'
 import config from './config'
 
 async function getApi(endpoint, data) {
@@ -49,14 +49,10 @@ export function getReflectorNodeInfo(nodeApiUrl) {
 }
 
 function generateAuthHeaders(data) {
-    return albedo.signMessage({
-        message: JSON.stringify(data),
-        pubkey: config.nodePubkey
-    })
-        .then(({message_signature}) => ({
-            'Content-Type': 'application/json',
-            Authorization: 'Signature ' + message_signature
-        }))
+    return signData(data).then(message_signature => ({
+        'Content-Type': 'application/json',
+        Authorization: 'Signature ' + message_signature
+    }))
 }
 
 function getNonce() {

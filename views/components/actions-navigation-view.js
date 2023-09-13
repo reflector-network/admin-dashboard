@@ -31,7 +31,6 @@ export default function UpdateNodeNavigationView() {
     }, [createLink])
 
 
-
     return <>
         <ul style={{margin: 0}}>
             {allSections.map(section => {
@@ -48,7 +47,10 @@ export default function UpdateNodeNavigationView() {
             {!configLink ?
                 <Button onClick={generateConfigLink} className="button-block">Generate config link</Button> :
                 <CopyToClipboard text={configLink}><Button className="button-block">Copy config link</Button></CopyToClipboard>}
-            <Button onClick={resetNode} className="space button-block">Connect to another Reflector node</Button>
+            <Button onClick={resetNode} className="space button-block">
+                <span className="text-overflow nowrap block">
+                    Connect to another Reflector node</span>
+            </Button>
         </div>
     </>
 }

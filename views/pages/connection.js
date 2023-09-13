@@ -45,7 +45,7 @@ export default function ConnectionPage() {
                    placeholder="URL of your Reflector node, e.g. http://10.17.0.1:3000"/>
         </label>
         <div className="dimmed text-tiny">
-            An absolute path, including an IP address fo the server or fully-qualified domain name, and port.
+            An absolute path, including an IP address for the server or fully-qualified domain name, and port.
             Please make sure that the port is accessible from outside and you have corresponding firewall rules configured.
         </div>
         <div className="row micro-space">

@@ -10,10 +10,12 @@ export default observer(function ActionFormLayout({settings, children}) {
     }, [settings])
 
     return <div className='row'>
-        <div className="column column-66 space">
+        <div className="column column-66">
+            <div className="space"/>
             {children}
         </div>
-        <div className="column column-33 space">
+        <div className="column column-33">
+            <div className="space"/>
             <b>Scheduled quorum update (UTC)</b>
             <DateSelector className="micro-space" style={{width: '100%'}}
                           value={settings.data.timestamp || ''} onChange={updateTimestamp}/>

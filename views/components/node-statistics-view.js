@@ -1,5 +1,6 @@
-import React from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {ElapsedTime, UtcTimestamp, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {shortenString} from '@stellar-expert/formatter'
 
 export default withErrorBoundary(function NodeStatisticsView({statistics}) {
     return <div className="segment blank">
@@ -12,6 +13,16 @@ export default withErrorBoundary(function NodeStatisticsView({statistics}) {
 })
 
 function AllNodeStats({stat}) {
+    const [isSmallScreen, setIsSmallScreen] = useState(false)
+
+    const checkScreenSize = useCallback(() => setIsSmallScreen(window.innerWidth < 600), [])
+
+    useEffect(() => {
+        checkScreenSize()
+        window.addEventListener('resize', checkScreenSize)
+        return () => window.removeEventListener('resize', checkScreenSize)
+    }, [checkScreenSize])
+
     if (!stat || stat.error)
         return <div className="loader"/>
 
@@ -57,7 +68,7 @@ function AllNodeStats({stat}) {
             {stat.connectedNodes.length ?
                 <div className="text-small block-indent">
                     {stat.connectedNodes?.map(node => <div key={node.pubkey} className="nano-space">
-                        <i className="icon-hexagon-dice color-success"/>{node.pubkey}
+                        <i className="icon-hexagon-dice color-success"/>{isSmallScreen ? shortenString(node.pubkey, 16) : node.pubkey}
                     </div>)}
                 </div> :
                 <span className="d-line-block"><i className="icon-warning"/>Peer nodes not connected</span>}

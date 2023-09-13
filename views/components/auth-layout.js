@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
-import SimplePageLayout from './simple-page-layout'
 import {checkAlbedoSession, requestAlbedoSession} from '../util/albedo-provider'
+import SimplePageLayout from './simple-page-layout'
 
 export default function AuthLayout({children}) {
     const [_, forceRefresh] = useState(0)

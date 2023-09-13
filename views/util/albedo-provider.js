@@ -1,5 +1,5 @@
 import albedo from '@albedo-link/intent'
-import config, {setGlobalConfigParam,} from '../../api/config'
+import config, {setGlobalConfigParam} from '../../api/config'
 
 /**
  * Check whether we have alive Albedo session

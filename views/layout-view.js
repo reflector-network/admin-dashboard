@@ -26,10 +26,10 @@ export default function Layout({children}) {
                     <div>
                         Dashboard <span className="dimmed">v{appVersion}</span>&emsp;
                         &copy;&nbsp;Reflector&nbsp;{new Date().getFullYear()}&emsp;
-                        <a href="mailto:info@stellar.expert" target="_blank" rel="noreferrer" className="dimmed">
+                        <a href="mailto:info@stellar.expert" target="_blank" rel="noreferrer" className="dimmed inline-block">
                             <i className="icon-email"/> Contact us</a>&emsp;
                         <a href="https://github.com/reflector-network/admin-dashboard.git" target="_blank" rel="noreferrer"
-                           className="dimmed"> <i className="icon-github"/> Source code</a>
+                           className="dimmed inline-block"> <i className="icon-github"/> Source code</a>
                     </div>
                 </div>
             </div>

@@ -22,8 +22,12 @@ export default function Dashboard() {
 
     const getStatisticsData = useCallback(() => {
         getStatistics()
-            .then(statistics => checkNodeStatus(statistics))
-            .catch(({error}) => notify({type: 'error', message: error?.message || 'Failed to get statistics'}))
+            .then(statistics => {
+                if (statistics.error)
+                    throw new Error(statistics.error)
+                checkNodeStatus(statistics)
+            })
+            .catch((error) => notify({type: 'error', message: 'Failed to get statistics. ' + error?.message || 'Failed to get statistics'}))
     }, [checkNodeStatus])
 
     useEffect(() => {
