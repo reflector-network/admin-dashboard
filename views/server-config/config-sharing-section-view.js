@@ -26,7 +26,7 @@ export default function ConfigSharingSectionView() {
                     </div>
                     <textarea readOnly style={{width: '100%', height: '10em'}}>{configLink}</textarea>
                     <div className="row">
-                        <div className="column column-50 column-offset-50">
+                        <div className="column column-33 column-offset-66">
                             <CopyToClipboard text={configLink}><Button className="button-block">Copy config link</Button></CopyToClipboard>
                         </div>
                     </div>
