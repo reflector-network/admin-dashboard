@@ -9,6 +9,9 @@ class ClientStatus {
         this.apiOrigin = localStorage.getItem('apiOrigin') || ''
         makeAutoObservable(this)
         scheduleSessionPolling()
+        if (this.apiOrigin) {
+            setTimeout(() => nodeStatus.updateNodeInfo(), 1000)
+        }
     }
 
     /**

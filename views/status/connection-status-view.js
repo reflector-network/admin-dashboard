@@ -3,24 +3,39 @@ import {observer} from 'mobx-react'
 import {AccountAddress, BlockSelect} from '@stellar-expert/ui-framework'
 import {dropSession} from '../../providers/albedo-provider'
 import clientStatus from '../../state/client-status'
+import nodeStatus from '../../state/node-status'
 
 export default observer(function ConnectionStatusView() {
-    const disconnect = useCallback(() => {
-        clientStatus.setApiOrigin('')
-    }, [clientStatus])
-
     if (!clientStatus.apiOrigin)
         return <span>
             <i className="icon-circle color-danger"/> Not connected
         </span>
     return <div>
-        <div>
-            <i className="icon-ok color-success"/> Connected to&nbsp;
-            <BlockSelect inline>{clientStatus.apiOrigin.replace(/\/$/, '')}</BlockSelect>
-            &emsp;|&emsp;
-            <a href="#" className="dimmed text-tiny" onClick={disconnect} title="Disconnect from current Reflector node">change</a>
-        </div>
+        <ConnectionStatus/>
         <AuthStatus/>
+    </div>
+})
+
+const ConnectionStatus = observer(function () {
+    const disconnect = useCallback(() => {
+        clientStatus.setApiOrigin('')
+    }, [clientStatus])
+
+    let status
+    switch (nodeStatus.status) {
+        case 'unknown':
+            status = <><i className="icon-circle color-warning"/> Connecting to </>
+            break
+        case 'init':
+            status = <><i className="icon-circle color-warning"/> Waiting for the initialization of </>
+            break
+        case 'ready':
+            status = <><i className="icon-ok color-success"/> Connected to </>
+            break
+    }
+    return <div>
+        {status} <BlockSelect inline>{clientStatus.apiOrigin.replace(/\/$/, '')}</BlockSelect>&emsp;|&emsp;
+        <a href="#" className="dimmed text-tiny" onClick={disconnect} title="Disconnect from current Reflector node">change</a>
     </div>
 })
 

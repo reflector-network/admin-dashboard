@@ -47,7 +47,7 @@ class NodeStatus {
 
     updateNodeInfo() {
         getReflectorNodeInfo()
-            .then(({name, pubkey, nodeStatus, version}) => {
+            .then(({name, pubkey, status, version}) => {
                 runInAction(() => {
                     if (name !== 'reflector') {
                         this.status = 'unknown'
@@ -55,10 +55,10 @@ class NodeStatus {
                         this.version = ''
                         return
                     }
-                    this.status = nodeStatus
+                    this.status = status
                     this.version = version
                     this.pubkey = pubkey || ''
-                    if (nodeStatus === 'init') {
+                    if (status === 'init') {
                         navigation.navigate('/initialization-progress')
                     }
                 })

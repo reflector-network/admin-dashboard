@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {observer} from 'mobx-react'
 import {AccountAddress, ElapsedTime, UtcTimestamp, useWindowWidth, withErrorBoundary} from '@stellar-expert/ui-framework'
 import nodeStatus from '../../state/node-status'
@@ -17,6 +17,11 @@ const AllNodeStats = observer(function AllNodeStats() {
     const screenWidth = useWindowWidth()
     const isSmallScreen = screenWidth < 600
     const stat = nodeStatus.statistics
+    useEffect(() => {
+        if (!nodeStatus.statistics) {
+            nodeStatus.updateStatistics()
+        }
+    }, [])
     if (!stat || stat.error)
         return <div className="loader"/>
 
