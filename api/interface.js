@@ -1,7 +1,9 @@
 import {signData} from '../providers/albedo-provider'
 import clientStatus from '../state/client-status'
 
-function proxy(originalUrl) {
+function getUrl(originalUrl) {
+    if (originalUrl.startsWith('https://') || originalUrl.startsWith('http://localhost') || originalUrl.startsWith('http://127.0.0.1'))
+        return originalUrl
     return 'https://tunnel.reflector.world/?tunnel=' + encodeURIComponent(originalUrl)
 }
 
@@ -10,7 +12,7 @@ async function getApi(endpoint, data) {
         data = {nonce: generateNonce()}
     }
     const payload = new URLSearchParams(data).toString()
-    const res = await fetch(proxy(clientStatus.apiOrigin + endpoint + `?${payload}`), {
+    const res = await fetch(getUrl(clientStatus.apiOrigin + endpoint + `?${payload}`), {
         method: 'GET',
         headers: await generateAuthHeaders(payload)
     })
@@ -18,13 +20,13 @@ async function getApi(endpoint, data) {
 }
 
 async function getNoAuthApi(endpoint, apiUrl) {
-    const res = await fetch(proxy((apiUrl || clientStatus.apiOrigin) + endpoint), {method: 'GET'})
+    const res = await fetch(getUrl((apiUrl || clientStatus.apiOrigin) + endpoint), {method: 'GET'})
     return res.json()
 }
 
 export async function postApi(action, data) {
     const payload = {...data, nonce: generateNonce()}
-    const res = await fetch(proxy(clientStatus.apiOrigin + action), {
+    const res = await fetch(getUrl(clientStatus.apiOrigin + action), {
         method: 'POST',
         headers: await generateAuthHeaders(payload),
         body: JSON.stringify(payload)
