@@ -1,37 +1,29 @@
 import {signData} from '../providers/albedo-provider'
 import clientStatus from '../state/client-status'
 
-function getUrl(originalUrl) {
-    if (originalUrl.startsWith('https://') || originalUrl.startsWith('http://localhost') || originalUrl.startsWith('http://127.0.0.1'))
-        return originalUrl
-    return 'https://tunnel.reflector.world/?tunnel=' + encodeURIComponent(originalUrl)
-}
+const tunnelServer = 'https://tunnel.reflector.world/'
 
 async function getApi(endpoint, data) {
     if (!data) {
         data = {nonce: generateNonce()}
     }
     const payload = new URLSearchParams(data).toString()
-    const res = await fetch(getUrl(clientStatus.apiOrigin + endpoint + `?${payload}`), {
-        method: 'GET',
-        headers: await generateAuthHeaders(payload)
+    return fetchApi(endpoint + `?${payload}`, {
+        signature: await signData(payload)
     })
-    return res.json()
 }
 
-async function getNoAuthApi(endpoint, apiUrl) {
-    const res = await fetch(getUrl((apiUrl || clientStatus.apiOrigin) + endpoint), {method: 'GET'})
-    return res.json()
+async function getNoAuthApi(endpoint, apiOrigin) {
+    return fetchApi('', {apiOrigin})
 }
 
 export async function postApi(action, data) {
     const payload = {...data, nonce: generateNonce()}
-    const res = await fetch(getUrl(clientStatus.apiOrigin + action), {
+    return await fetchApi(action, {
         method: 'POST',
-        headers: await generateAuthHeaders(payload),
+        signature: await signData(payload),
         body: JSON.stringify(payload)
     })
-    return res.json()
 }
 
 export function getCurrentSettings() {
@@ -54,12 +46,55 @@ export function getReflectorNodeInfo(nodeApiUrl) {
     return getNoAuthApi('', nodeApiUrl)
 }
 
-function generateAuthHeaders(data) {
-    return signData(data).then(message_signature => ({
-        'Content-Type': 'application/json',
-        Authorization: 'Signature ' + message_signature
-    }))
+async function fetchApi(relativeUrl, {method = 'GET', apiOrigin = undefined, signature = null, body = undefined}) {
+    if (!apiOrigin) {
+        apiOrigin = clientStatus.apiOrigin
+    }
+    const tunnelRequired = !(apiOrigin.startsWith('https://') || apiOrigin.startsWith('http://localhost') || apiOrigin.startsWith('http://127.0.0.1'))
+    const url = (tunnelRequired ? tunnelServer : apiOrigin) + relativeUrl
+    const headers = {'Content-Type': 'application/json'}
+    if (signature) {
+        headers.Authorization = 'Signature ' + signature
+    }
+    if (tunnelRequired) {
+        headers['X-TUNNEL'] = apiOrigin
+    }
+    const res = await fetch(url, {
+        method,
+        headers,
+        body
+    })
+    return res.json()
 }
+
+function generateAuthHeaders(data, origin) {
+    return signData(data)
+        .then(message_signature => ({
+            'Authorization': 'Signature ' + message_signature
+
+        }))
+}
+
+function getUrl(relativeUrl, origin = null) {
+    if (!origin) {
+        origin = clientStatus.apiOrigin
+    }
+    if (!origin.startsWith('https://') && !origin.startsWith('http://localhost') && !origin.startsWith('http://127.0.0.1')) {
+        origin = tunnelServer
+    }
+    return origin + relativeUrl
+}
+
+function wrapTunnel(headers, url) {
+    if (!origin) {
+        origin = clientStatus.apiOrigin
+    }
+    if (origin.startsWith('https://') || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1'))
+        return headers
+    //add proxy
+    return {...headers, 'X-TUNNEL': clientStatus.apiOrigin}
+}
+
 
 function generateNonce() {
     return new Date().getTime()
