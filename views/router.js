@@ -1,8 +1,8 @@
 import React from 'react'
 import {Switch, Router, Route, Redirect} from 'react-router'
-import config from '../api/config'
-import Layout from './layout-view'
-import AuthLayout from './components/auth-layout'
+import clientStatus from '../state/client-status'
+import Layout from './top-layout/layout-view'
+import AuthLayout from './layout/auth-layout'
 import NotFoundPage from './pages/not-found'
 import Dashboard from './pages/dashboard'
 import ConnectionPage from './pages/connection'
@@ -14,12 +14,12 @@ export default function AppRouter({history}) {
         <Layout>
             <Switch>
                 <Route path="/" exact>
-                    {!config.httpApiUrl ?
+                    {!clientStatus.apiOrigin ?
                         <Redirect to="/connect"/> :
                         <AuthLayout><Dashboard/></AuthLayout>}
                 </Route>
                 <Route path="/config">
-                    {!config.httpApiUrl ?
+                    {!clientStatus.apiOrigin ?
                         <Redirect to="/connect"/> :
                         <ServerConfigurationPage/>}
                 </Route>

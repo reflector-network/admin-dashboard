@@ -1,5 +1,5 @@
 import React from 'react'
-import SimplePageLayout from '../components/simple-page-layout'
+import SimplePageLayout from '../layout/simple-page-layout'
 
 export default function InitializationProgressPage() {
     return <SimplePageLayout title="Waiting for node initialization">

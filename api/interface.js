@@ -1,12 +1,12 @@
-import {signData} from '../views/util/albedo-provider'
-import config from './config'
+import {signData} from '../providers/albedo-provider'
+import clientStatus from '../state/client-status'
 
 async function getApi(endpoint, data) {
     if (!data) {
-        data = {nonce: getNonce()}
+        data = {nonce: generateNonce()}
     }
     const payload = new URLSearchParams(data).toString()
-    const res = await fetch(config.httpApiUrl + endpoint + `?${payload}`, {
+    const res = await fetch(clientStatus.apiOrigin + endpoint + `?${payload}`, {
         method: 'GET',
         headers: await generateAuthHeaders(payload)
     })
@@ -14,13 +14,13 @@ async function getApi(endpoint, data) {
 }
 
 async function getNoAuthApi(endpoint, apiUrl) {
-    const res = await fetch((apiUrl || config.httpApiUrl) + endpoint, {method: 'GET'})
+    const res = await fetch((apiUrl || clientStatus.apiOrigin) + endpoint, {method: 'GET'})
     return res.json()
 }
 
 export async function postApi(action, data) {
-    const payload = {...data, nonce: getNonce()}
-    const res = await fetch(config.httpApiUrl + action, {
+    const payload = {...data, nonce: generateNonce()}
+    const res = await fetch(clientStatus.apiOrigin + action, {
         method: 'POST',
         headers: await generateAuthHeaders(payload),
         body: JSON.stringify(payload)
@@ -55,6 +55,6 @@ function generateAuthHeaders(data) {
     }))
 }
 
-function getNonce() {
+function generateNonce() {
     return new Date().getTime()
 }

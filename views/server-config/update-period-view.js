@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
-import parseExternalUpdateRequest from '../../util/external-update-request-parser'
+import parseExternalUpdateRequest from '../util/external-update-request-parser'
 import ActionNodeLayout from './action-node-layout'
 import ActionFormLayout from './action-form-layout'
 

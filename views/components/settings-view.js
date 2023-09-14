@@ -1,10 +1,11 @@
 import React, {useEffect, useMemo} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
-import NodeSettings, {UPDATE_ASSETS, UPDATE_NODES, UPDATE_PERIOD} from './sections/node-settings'
-import UpdateNodeView from './sections/update-node-view'
-import AddAssetsView from './sections/add-assets-view'
-import UpdatePeriodView from './sections/update-period-view'
+import NodeSettings, {UPDATE_ASSETS, UPDATE_NODES, UPDATE_PERIOD} from '../server-config/node-settings'
+import UpdateNodeView from '../server-config/update-node-view'
+import AddAssetsView from '../server-config/add-assets-view'
+import UpdatePeriodView from '../server-config/update-period-view'
+import ConfigSharingSectionView from '../server-config/config-sharing-section-view'
 
 export default observer(function SettingsSectionView({sectionName}) {
     const settings = useMemo(() => new NodeSettings(), [])
@@ -27,6 +28,8 @@ export default observer(function SettingsSectionView({sectionName}) {
         case 'timeframe':
             settings.action = UPDATE_PERIOD
             return <UpdatePeriodView settings={settings}/>
+        case 'share-config':
+            return <ConfigSharingSectionView/>
         default:
             return <div className="segment blank">
                 <div>

@@ -1,17 +1,17 @@
 import React, {useCallback, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
-import {setGlobalConfigParam} from '../../api/config'
 import {getReflectorNodeInfo} from '../../api/interface'
-import SimplePageLayout from '../components/simple-page-layout'
+import clientStatus from '../../state/client-status'
+import SimplePageLayout from '../layout/simple-page-layout'
 
-function pingServer(nodeApiUrl, initialUrl) {
-    const apiUrl = (nodeApiUrl.endsWith('/')) ? nodeApiUrl : nodeApiUrl + '/'
+function pingServer(apiOrigin, initialUrl) {
+    const normalizedApiOrigin = apiOrigin.endsWith('/') ? apiOrigin : (apiOrigin + '/')
 
-    getReflectorNodeInfo(apiUrl)
+    getReflectorNodeInfo(normalizedApiOrigin)
         .then(res => {
             if (res.name !== 'reflector')
                 throw new Error('Unexpected response')
-            setGlobalConfigParam('httpApiUrl', apiUrl)
+            clientStatus.setApiOrigin(normalizedApiOrigin)
             window.location.href = initialUrl.startsWith('/config?update=') ? initialUrl : '/'
         })
         .catch(({error}) => notify({type: 'error', message: error?.message || 'Invalid API url'}))

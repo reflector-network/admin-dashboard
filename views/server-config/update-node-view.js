@@ -4,7 +4,7 @@ import {runInAction} from 'mobx'
 import {CopyToClipboard} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import {StrKey} from 'stellar-sdk'
-import parseExternalUpdateRequest from '../../util/external-update-request-parser'
+import parseExternalUpdateRequest from '../util/external-update-request-parser'
 import ActionNodeLayout from './action-node-layout'
 import ActionFormLayout from './action-form-layout'
 import AddNodeEntry from './add-node-entry-form'
@@ -56,7 +56,7 @@ export default observer(function UpdateNodeView({settings}) {
         <h3>Update nodes</h3>
         <hr className="flare"/>
         <ActionFormLayout settings={settings}>
-            <b>List of nodes</b>
+            <h3>Quorum nodes</h3>
             {settings.data.nodes?.map(node => {
                 if (node.remove)
                     return false
@@ -96,7 +96,7 @@ const NodeEntryLayout = observer(({settings, node, validation, save}) => {
         <div className="dual-layout space">
             <div className="v-center-block">
                 <span><i className="icon-hexagon-dice color-success"/>{shortenString(node.pubkey, 16)}</span>
-                <span className="dimmed text-small">{node.url}</span>
+                <span className="dimmed text-small">&emsp;&emsp;{node.url}</span>
             </div>
             <div style={{marginRight: 'auto'}}>
                 <CopyToClipboard text={node.pubkey} title="Copy public key to clipboard"/>

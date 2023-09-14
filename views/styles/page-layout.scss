@@ -3,12 +3,15 @@ $top-menu-line-height: 2.2em;
 .page-container {
   background: var(--color-dashboard-bg);
   padding-bottom: 2rem;
-  min-height: calc(100vh - 5.5rem);
+  min-height: calc(100vh - 8.2rem);
+}
+
+.segment {
+  padding: 2rem 4rem;
 }
 
 .footer {
-  font-size: 1.4rem;
-  padding: 1.2rem 0 1.2rem;
+  padding: $space-micro 0;
   line-height: 2;
   border-top: 1px solid var(--color-contrast-border);
 

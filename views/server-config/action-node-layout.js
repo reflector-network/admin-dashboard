@@ -2,8 +2,8 @@ import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
 import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
-import {postApi} from '../../../api/interface'
-import parseExternalUpdateRequest from '../../util/external-update-request-parser'
+import {postApi} from '../../api/interface'
+import parseExternalUpdateRequest from '../util/external-update-request-parser'
 
 export default observer(function ActionNodeLayout({settings, children}) {
     const [inProgress, setInProgress] = useState(false)

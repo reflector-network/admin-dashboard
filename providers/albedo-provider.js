@@ -1,12 +1,12 @@
 import albedo from '@albedo-link/intent'
-import config, {setGlobalConfigParam} from '../../api/config'
+import clientStatus from '../state/client-status'
 
 /**
  * Check whether we have alive Albedo session
  * @return {boolean}
  */
 export function checkAlbedoSession() {
-    return albedo.isImplicitSessionAllowed('sign_message', config.nodePubkey)
+    return albedo.isImplicitSessionAllowed('sign_message', clientStatus.pubkey)
 }
 
 /**
@@ -18,7 +18,7 @@ export async function requestAlbedoSession() {
         const {pubkey} = await albedo.implicitFlow({
             intents: 'sign_message'
         })
-        setGlobalConfigParam('nodePubkey', pubkey)
+        clientStatus.setNodePubkey(pubkey)
         return true
     } catch (e) {
         notify({type: 'error', message: e.error?.message || 'Failed to obtain session permission'})
@@ -43,11 +43,20 @@ export async function signData(data) {
         //try to sign the payload
         const {message_signature} = await albedo.signMessage({
             message: JSON.stringify(data),
-            pubkey: config.nodePubkey
+            pubkey: clientStatus.pubkey
         })
         return message_signature
     } catch (e) {
         notify({type: 'error', message: e.error?.message || 'Failed to sign API request'})
         throw e
+    }
+}
+
+export function dropSession() {
+    if (clientStatus.pubkey) {
+        //forget session
+        albedo.forgetImplicitSession(clientStatus.pubkey)
+        //update status
+        clientStatus.pollSession()
     }
 }

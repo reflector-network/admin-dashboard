@@ -1,28 +1,22 @@
-import React, {useCallback, useEffect, useState} from 'react'
-import {ElapsedTime, UtcTimestamp, withErrorBoundary} from '@stellar-expert/ui-framework'
-import {shortenString} from '@stellar-expert/formatter'
+import React from 'react'
+import {observer} from 'mobx-react'
+import {AccountAddress, ElapsedTime, UtcTimestamp, useWindowWidth, withErrorBoundary} from '@stellar-expert/ui-framework'
+import nodeStatus from '../../state/node-status'
 
-export default withErrorBoundary(function NodeStatisticsView({statistics}) {
+export default withErrorBoundary(function NodeStatisticsView() {
     return <div className="segment blank">
         <div>
             <h3 style={{padding: 0}}><i className="icon-hexagon-dice"/>Statistics</h3>
             <hr className="flare"/>
-            <AllNodeStats stat={statistics}/>
+            <AllNodeStats/>
         </div>
     </div>
 })
 
-function AllNodeStats({stat}) {
-    const [isSmallScreen, setIsSmallScreen] = useState(false)
-
-    const checkScreenSize = useCallback(() => setIsSmallScreen(window.innerWidth < 600), [])
-
-    useEffect(() => {
-        checkScreenSize()
-        window.addEventListener('resize', checkScreenSize)
-        return () => window.removeEventListener('resize', checkScreenSize)
-    }, [checkScreenSize])
-
+const AllNodeStats = observer(function AllNodeStats() {
+    const screenWidth = useWindowWidth()
+    const isSmallScreen = screenWidth < 600
+    const stat = nodeStatus.statistics
     if (!stat || stat.error)
         return <div className="loader"/>
 
@@ -65,13 +59,14 @@ function AllNodeStats({stat}) {
         </div>
         <div>
             <span className="dimmed">Connected nodes: </span>
-            {stat.connectedNodes.length ?
+            {!!stat.connectedNodes.length ?
                 <div className="text-small block-indent">
-                    {stat.connectedNodes?.map(node => <div key={node.pubkey} className="nano-space">
-                        <i className="icon-hexagon-dice color-success"/>{isSmallScreen ? shortenString(node.pubkey, 16) : node.pubkey}
+                    {stat.connectedNodes.map(node => <div key={node} className="nano-space">
+                        <i className="icon-hexagon-dice color-success"/>
+                        <AccountAddress account={node} link={false} chars={isSmallScreen ? 'all' : 16}/>
                     </div>)}
                 </div> :
-                <span className="d-line-block"><i className="icon-warning"/>Peer nodes not connected</span>}
+                <span className="d-line-block"><i className="icon-warning color-warning"/> Peer nodes not connected</span>}
         </div>
     </>
-}
+})

@@ -54,9 +54,10 @@ export default function AddNodeEntry({title, validation, editNode, isEditFormOpe
     return <span>
         {!!title && <a onClick={toggleShowForm}>{title}</a>}
         {!!isVisible && <div className="micro-space">
-            {!editNode && <input ref={currentInput} value={node.pubkey || ''} placeholder="Put public key of node"
+            {!editNode && <input ref={currentInput} value={node.pubkey || ''} placeholder="Node public key"
                                  onChange={onChangePubkey} onKeyDown={onKeyDown}/>}
-            <input value={node.url || ''} onChange={onChangeUrl} onKeyDown={onKeyDown} placeholder="Put node url"/>
+            <input value={node.url || ''} onChange={onChangeUrl} onKeyDown={onKeyDown}
+                   placeholder="Node websocket URL, like ws://127.0.0.1:9000"/>
             <div className="row micro-space">
                 <div className="column column-50">
                     <Button block disabled={!isValid} onClick={onSave}>Save</Button>
