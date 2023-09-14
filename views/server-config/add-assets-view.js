@@ -63,7 +63,7 @@ export default observer(function AddAssetsView({settings}) {
     }, [settings, editableAssets])
 
     return <ActionNodeLayout settings={settings}>
-        <h3>Add assets</h3>
+        <h3>Tracked assets</h3>
         <hr className="flare"/>
         <ActionFormLayout settings={settings}>
             <div className="row">
@@ -76,9 +76,9 @@ export default observer(function AddAssetsView({settings}) {
                         <AssetEntryLayout key={asset.code} asset={asset} settings={settings}
                                           editableAssets={editableAssets} setEditableAssets={setEditableAssets}/>)}
                     <div className="space">
-                        <AddClassicAssetEntry title="Add stellar asset" settings={settings} save={addAsset}/>
+                        <AddClassicAssetEntry title="Add SAC asset" settings={settings} save={addAsset}/>
                         &nbsp;or&nbsp;
-                        <AddAssetEntry title="add generic asset" settings={settings} save={addAsset}/>
+                        <AddAssetEntry title="Add generic asset" settings={settings} save={addAsset}/>
                     </div>
                 </div>
             </div>

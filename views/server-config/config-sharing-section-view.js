@@ -22,7 +22,7 @@ export default function ConfigSharingSectionView() {
             {!configLink ? <div className="loader"/> :
                 <div>
                     <div className="space dimmed text-small">
-                        You can share this link with other quorum participants to add new node to the quorum set.
+                        You can share this link with new quorum participants to add new node to the quorum set.
                     </div>
                     <textarea readOnly style={{width: '100%', height: '10em'}}>{configLink}</textarea>
                     <div className="row">

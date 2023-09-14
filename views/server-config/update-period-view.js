@@ -22,7 +22,7 @@ export default observer(function UpdatePeriodView({settings}) {
     }, [settings])
 
     return <ActionNodeLayout settings={settings}>
-        <h3>Update period of node</h3>
+        <h3>Retention period</h3>
         <hr className="flare"/>
         <ActionFormLayout settings={settings}>
             <div className="row">

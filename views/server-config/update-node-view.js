@@ -53,7 +53,7 @@ export default observer(function UpdateNodeView({settings}) {
     }, [settings])
 
     return <ActionNodeLayout settings={settings}>
-        <h3>Update nodes</h3>
+        <h3>Peer nodes</h3>
         <hr className="flare"/>
         <ActionFormLayout settings={settings}>
             <h3>Quorum nodes</h3>
