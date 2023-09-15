@@ -2,17 +2,17 @@ import React, {useCallback, useEffect, useState} from 'react'
 import {StrKey} from 'stellar-sdk'
 import {Button, CodeBlock} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
+import updateRequest from '../../state/config-update-request'
 import {getConfigRequirements, postApi} from '../../api/interface'
 import invocationFormatter from '../util/invocation-formatter'
-import parseExternalUpdateRequest from '../util/external-update-request-parser'
 
 export default function ServerConfigurationPage() {
-    const updateData = parseExternalUpdateRequest()
+    const updateData = updateRequest.externalRequest
     const [config, setConfig] = useState({})
     const [isDbConnectionStringRequired, setIsDbConnectionStringRequired] = useState(true)
     const [inProgress, setInProgress] = useState(false)
     const [isValid, setIsValid] = useState(false)
-    const onlyReadFormatted = invocationFormatter(updateData || {}, 1)
+    const readonlyConfigProperties = invocationFormatter(updateData || {}, 1)
 
     useEffect(() => {
         getConfigRequirements()
@@ -22,7 +22,7 @@ export default function ServerConfigurationPage() {
                 setIsDbConnectionStringRequired(res.isDbConnectionStringRequired)
             })
             .catch((error) => {
-                notify({type: 'error', message: error?.message || "Node is already configured"})
+                notify({type: 'error', message: error?.message || 'Node is already configured'})
                 navigation.navigate('/')
             })
     }, [])
@@ -62,25 +62,29 @@ export default function ServerConfigurationPage() {
                 notify({type: 'success', message: 'Config updated'})
                 navigation.navigate('/')
             })
-            .catch(({error}) => notify({type: 'error', message: error?.message || "Failed to update data"}))
+            .catch(({error}) => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
     }, [updateData, config])
 
     return <div className="segment blank">
-        <h3>Update config</h3>
+        <h3>Initial node configuration</h3>
         <hr className="flare"/>
         <div className="space">
-            <b>Secret key</b>
-            <input type="text" className="micro-space" placeholder="Secret key starting with 'S', like 'SAK4...2PLT'"
-                   value={config.secret || ''} onChange={updateSecret}/>
+            <label>Node secret key<br/>
+                <span className="dimmed text-tiny">(Secret key used to identify your node and sign price update transactions on behalf of your node)</span>
+                <input type="text" className="micro-space" placeholder="Secret key starting with 'S', like 'SAK4...2PLT'"
+                       value={config.secret || ''} onChange={updateSecret}/>
+            </label>
         </div>
         <div className="space">
-            <b>Connection to database</b>
-            <input type="text" className="micro-space"
-                   placeholder={isDbConnectionStringRequired ? "String of connection" : "Managed by docker"}
-                   value={config.dbConnectionString || ''} onChange={updateConnection}/>
+            <label>Database connection string<br/>
+                <span className="dimmed text-tiny">(Connection string to the StellarCore database, skip if you run the bundled Docker image)</span>
+                <input type="text" className="micro-space" value={config.dbConnectionString || ''} onChange={updateConnection}
+                       placeholder={isDbConnectionStringRequired ? 'E.g. postgresql://user:password@address:port/dbname' : '(Current connection string is managed by Docker image)'}/>
+            </label>
         </div>
-        <CodeBlock className="result" style={{height: '40vh'}} lang="js">{onlyReadFormatted}</CodeBlock>
+        <h3 className="double-space">Quorum configuration file</h3>
+        <CodeBlock className="result" style={{height: '40vh'}} lang="js">{readonlyConfigProperties}</CodeBlock>
         <div className="space row">
             <div className="column column-66 text-center">
                 {!!inProgress && <>

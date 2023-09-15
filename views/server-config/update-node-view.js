@@ -1,17 +1,17 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
-import {CopyToClipboard} from '@stellar-expert/ui-framework'
+import {AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import {StrKey} from 'stellar-sdk'
-import parseExternalUpdateRequest from '../util/external-update-request-parser'
+import updateRequest from '../../state/config-update-request'
 import ActionNodeLayout from './action-node-layout'
 import ActionFormLayout from './action-form-layout'
 import AddNodeEntry from './add-node-entry-form'
 
 export default observer(function UpdateNodeView({settings}) {
     useEffect(() => {
-        const updateParams = parseExternalUpdateRequest()
+        const updateParams = updateRequest.externalRequest
         if (updateParams?.nodes) {
             runInAction(() => {
                 settings.isLimitUpdates = true
@@ -95,7 +95,7 @@ const NodeEntryLayout = observer(({settings, node, validation, save}) => {
     return <>
         <div className="dual-layout space">
             <div className="v-center-block">
-                <span><i className="icon-hexagon-dice color-success"/>{shortenString(node.pubkey, 16)}</span>
+                <span><i className="icon-hexagon-dice color-success"/><AccountAddress account={node.pubkey} chars={16} link={false}/></span>
                 <span className="dimmed text-small">&emsp;&emsp;{node.url}</span>
             </div>
             <div style={{marginRight: 'auto'}}>

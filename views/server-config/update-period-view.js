@@ -1,13 +1,13 @@
 import React, {useCallback, useEffect} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
-import parseExternalUpdateRequest from '../util/external-update-request-parser'
+import updateRequest from '../../state/config-update-request'
 import ActionNodeLayout from './action-node-layout'
 import ActionFormLayout from './action-form-layout'
 
 export default observer(function UpdatePeriodView({settings}) {
     useEffect(() => {
-        const updateParams = parseExternalUpdateRequest()
+        const updateParams = updateRequest.externalRequest
         if (updateParams?.period) {
             runInAction(() => settings.data.period = updateParams?.period)
         } else {
@@ -27,9 +27,13 @@ export default observer(function UpdatePeriodView({settings}) {
         <ActionFormLayout settings={settings}>
             <div className="row">
                 <div className="column column-50">
-                    <b>Period of update nodes</b>
-                    <input type="text" className="micro-space" placeholder="Period"
-                           value={settings.data.period || ''} onChange={updatePeriod}/>
+                    <label>Price quotes retention period<br/>
+                        <span className="dimmed text-tiny">
+                            (How long quoted prices will be available for contract consumers after creation, in milliseconds)
+                        </span>
+                        <input type="text" className="micro-space" placeholder="Period"
+                               value={settings.data.period || ''} onChange={updatePeriod}/>
+                    </label>
                 </div>
             </div>
         </ActionFormLayout>

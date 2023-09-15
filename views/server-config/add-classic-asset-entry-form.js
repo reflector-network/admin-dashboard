@@ -58,8 +58,8 @@ export default observer(function AddClassicAssetEntry({title, settings, save}) {
     return <>
         <a onClick={toggleShowForm}>{title}</a>
         {!!isVisible && <div className="micro-space">
-            <input ref={currentInput} value={asset.code || ''} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Put code of asset"/>
-            <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="Put public key"/>
+            <input ref={currentInput} value={asset.code || ''} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset code"/>
+            <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="Issuer address"/>
             <div className="row micro-space">
                 <div className="column column-50">
                     <Button block disabled={!isValid} onClick={onSave}>Save</Button>

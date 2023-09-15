@@ -1,15 +1,16 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
+import {parseQuery} from '@stellar-expert/navigation'
 import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
+import updateRequest from '../../state/config-update-request'
 import {postApi} from '../../api/interface'
-import parseExternalUpdateRequest from '../util/external-update-request-parser'
 
 export default observer(function ActionNodeLayout({settings, children}) {
     const [inProgress, setInProgress] = useState(false)
 
     useEffect(() => {
-        const updateParams = parseExternalUpdateRequest()
+        const updateParams = updateRequest.externalRequest
         if (updateParams?.timestamp) {
             runInAction(() => settings.data.timestamp = updateParams?.timestamp)
         } else {
@@ -63,11 +64,13 @@ export default observer(function ActionNodeLayout({settings, children}) {
 
 function UpdateDataLinkLayout({settings}) {
     const encodedData = encodeURIComponent(JSON.stringify(settings.updateDataLink))
-    const url = new URL(window.location)
-    const sectionName = url.searchParams.get('section')
-    const link = window.location.href.split('?')[0] + '?section=' + sectionName + '&update=' + encodedData
+    const {section} = parseQuery()
+    const link = window.location.href.split('?')[0] + '?section=' + section + '&update=' + encodedData
 
-    return <div className="warning segment space">
-        Implemented settings are available at the <a href={link}>link</a> (<CopyToClipboard text={link}/>)
+    return <div className="space">
+        <hr className="flare"/>
+        Share this quorum update with other nodes.
+        Copy the link and send it to other node operators <CopyToClipboard text={link}/>
+        <textarea readOnly style={{width: '100%', height: '5em'}}>{link}</textarea>
     </div>
 }

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react'
 import {observer} from 'mobx-react'
 import {AccountAddress, ElapsedTime, UtcTimestamp, useWindowWidth, withErrorBoundary} from '@stellar-expert/ui-framework'
-import nodeStatus from '../../state/node-status'
+import clientStatus from '../../state/client-status'
 
 export default withErrorBoundary(function NodeStatisticsView() {
     return <div className="segment blank">
@@ -16,10 +16,10 @@ export default withErrorBoundary(function NodeStatisticsView() {
 const AllNodeStats = observer(function AllNodeStats() {
     const screenWidth = useWindowWidth()
     const isSmallScreen = screenWidth < 600
-    const stat = nodeStatus.statistics
+    const stat = clientStatus.statistics
     useEffect(() => {
-        if (!nodeStatus.statistics) {
-            nodeStatus.updateStatistics()
+        if (!clientStatus.statistics) {
+            clientStatus.updateStatistics()
         }
     }, [])
     if (!stat || stat.error)

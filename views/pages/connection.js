@@ -4,7 +4,7 @@ import {getReflectorNodeInfo} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import SimplePageLayout from '../layout/simple-page-layout'
 
-function pingServer(apiOrigin, initialUrl) {
+function pingServer(apiOrigin) {
     const normalizedApiOrigin = apiOrigin.endsWith('/') ? apiOrigin : (apiOrigin + '/')
 
     getReflectorNodeInfo(normalizedApiOrigin)
@@ -12,23 +12,21 @@ function pingServer(apiOrigin, initialUrl) {
             if (res.name !== 'reflector')
                 throw new Error('Unexpected response')
             clientStatus.setApiOrigin(normalizedApiOrigin)
-            window.location.href = initialUrl.startsWith('/config?update=') ? initialUrl : '/'
         })
         .catch(({error}) => notify({type: 'error', message: error?.message || 'Invalid API url'}))
 }
 
 export default function ConnectionPage() {
     const [nodeApiUrl, setNodeApiUrl] = useState('')
-    const [initialUrl] = useState(window.location.pathname + window.location.search)
 
     const onChange = useCallback(e => setNodeApiUrl(e.target.value.trim()), [])
 
     const onSave = useCallback(() => {
         setNodeApiUrl(url => {
-            pingServer(url, initialUrl)
+            pingServer(url)
             return url
         })
-    }, [initialUrl])
+    }, [])
     //save on "Enter"
     const onKeyDown = useCallback(function (e) {
         if (e.keyCode === 13) {
@@ -38,9 +36,9 @@ export default function ConnectionPage() {
 
     return <SimplePageLayout title="Initial configuration">
         <div>
-            Welcome to Reflector Dashboard! Please provide your node API URL to proceed.
+            Welcome to Reflector administration Dashboard!<br/>Please provide URL of your node admin API to proceed.
         </div>
-        <label className="double-space">Reflector REST API URL
+        <label className="space">Reflector REST API URL
             <input value={nodeApiUrl} onChange={onChange} onKeyDown={onKeyDown}
                    placeholder="URL of your Reflector node, e.g. http://10.17.0.1:3000"/>
         </label>

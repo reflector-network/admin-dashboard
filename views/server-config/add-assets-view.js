@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
 import {AssetLink} from '@stellar-expert/ui-framework'
-import parseExternalUpdateRequest from '../util/external-update-request-parser'
+import updateRequest from '../../state/config-update-request'
 import ActionFormLayout from './action-form-layout'
 import AddAssetEntry from './add-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
@@ -24,7 +24,7 @@ export default observer(function AddAssetsView({settings}) {
     const [uniqueAssets, setUniqueAssets] = useState(removeDuplicateAssets(settings.data.assets))
 
     useEffect(() => {
-        const updateParams = parseExternalUpdateRequest()
+        const updateParams = updateRequest.externalRequest
         if (updateParams?.assets) {
             const updatedAssets = updateParams.assets || []
             setEditableAssets(updatedAssets)
@@ -66,21 +66,21 @@ export default observer(function AddAssetsView({settings}) {
         <h3>Tracked assets</h3>
         <hr className="flare"/>
         <ActionFormLayout settings={settings}>
-            <div className="row">
-                <div className="column column-50">
-                    <b>Supported assets</b>
-                    {uniqueAssets?.map(asset =>
-                        <AssetEntryLayout key={asset.code} asset={asset}/>)}
-                    {!!editableAssets.length && <div className="space"><b>New assets</b></div>}
-                    {editableAssets?.map(asset =>
-                        <AssetEntryLayout key={asset.code} asset={asset} settings={settings}
-                                          editableAssets={editableAssets} setEditableAssets={setEditableAssets}/>)}
-                    <div className="space">
-                        <AddClassicAssetEntry title="Add SAC asset" settings={settings} save={addAsset}/>
-                        &nbsp;or&nbsp;
-                        <AddAssetEntry title="Add generic asset" settings={settings} save={addAsset}/>
-                    </div>
-                </div>
+            <span>Supported assets</span>
+            <br/>
+            <span className="dimmed text-tiny">
+                (List of assets with prices tracked by the quorum nodes)
+            </span>
+            {uniqueAssets?.map(asset =>
+                <AssetEntryLayout key={asset.code} asset={asset}/>)}
+            {!!editableAssets.length && <h4 className="space">New assets</h4>}
+            {editableAssets?.map(asset =>
+                <AssetEntryLayout key={asset.code} asset={asset} settings={settings}
+                                  editableAssets={editableAssets} setEditableAssets={setEditableAssets}/>)}
+            <div className="space">
+                <AddClassicAssetEntry title="Add SAC asset" settings={settings} save={addAsset}/>
+                &nbsp;or&nbsp;
+                <AddAssetEntry title="Add generic asset" settings={settings} save={addAsset}/>
             </div>
         </ActionFormLayout>
     </ActionNodeLayout>
@@ -104,6 +104,6 @@ const AssetEntryLayout = observer(({asset, settings, editableAssets = [], setEdi
             <AssetLink asset={asset.code}/> :
             <b>{asset.code}</b>}
         {editableAssets.findIndex(a => a.code === asset.code) !== -1 &&
-            <a onClick={removeAsset} style={{marginLeft: '0.3em'}}><i className='icon-cancel'/></a>}
+            <a onClick={removeAsset} style={{marginLeft: '0.3em'}}><i className="icon-cancel"/></a>}
     </div>
 })

@@ -46,7 +46,7 @@ export default observer(function AddAssetEntry({title, settings, save}) {
     return <>
         <a onClick={toggleShowForm}>{title}</a>
         {!!isVisible && <div className="micro-space">
-            <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Put code of asset"/>
+            <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset symbol"/>
             <div className="row micro-space">
                 <div className="column column-50">
                     <Button block disabled={!isValid} onClick={onSave}>Save</Button>
