@@ -1,16 +1,21 @@
-import {makeAutoObservable} from 'mobx'
+import {makeAutoObservable, runInAction} from 'mobx'
 import {navigation} from '@stellar-expert/navigation'
 import {checkAlbedoSession} from '../providers/albedo-provider'
-import nodeStatus from './node-status'
+import {getReflectorNodeInfo, getStatistics} from '../api/interface'
+import updateRequest from './config-update-request'
+
+const statsRefreshInterval = 30//30 seconds
 
 class ClientStatus {
     constructor() {
-        this.pubkey = localStorage.getItem('pubkey') || ''
+        this.clientPublicKey = localStorage.getItem('pubkey') || ''
         this.apiOrigin = localStorage.getItem('apiOrigin') || ''
         makeAutoObservable(this)
-        scheduleSessionPolling()
+        setInterval(() => this.pollSession(), 10_000)
+        setInterval(() => this.updateNodeInfo(), statsRefreshInterval * 1000)
+        setInterval(() => this.updateStatistics(), statsRefreshInterval * 1000)
         if (this.apiOrigin) {
-            setTimeout(() => nodeStatus.updateNodeInfo(), 1000)
+            setTimeout(() => this.updateNodeInfo(), 1000)
         }
     }
 
@@ -19,7 +24,7 @@ class ClientStatus {
      * @type {String}
      * @readonly
      */
-    pubkey = ''
+    clientPublicKey = ''
 
     /**
      * Reflector node HTTP API origin URL
@@ -34,20 +39,31 @@ class ClientStatus {
      */
     hasSession = false
 
+    serverPublicKey = ''
+
+    serverVersion = ''
+
+    statistics
+
+    /**
+     * @type {'unknown'|'init'|'ready'}
+     */
+    status = 'unknown'
+
     /**
      * Whether a user-provided pubkey matches server pubkey
      * @return {Boolean}
      */
     get isMatchingKey() {
-        return !nodeStatus.pubkey || this.pubkey === nodeStatus.pubkey
+        return !this.serverPublicKey || this.clientPublicKey === this.serverPublicKey
     }
 
     setNodePubkey(key = '') {
-        this.pubkey = key
+        this.clientPublicKey = key
         setGlobalConfigParam('nodePubkey', key)
         this.pollSession()
-        if (this.hasSession && key && nodeStatus.pubkey && nodeStatus.pubkey !== key) {
-            notify({type: 'warning', message: 'Unauthorized. Please authorize session for public key ' + nodeStatus.pubkey})
+        if (this.hasSession && key && this.serverPublicKey && this.serverPublicKey !== key) {
+            notify({type: 'warning', message: 'Unauthorized. Please authorize session for public key ' + this.serverPublicKey})
         }
     }
 
@@ -62,16 +78,61 @@ class ClientStatus {
     pollSession() {
         this.hasSession = checkAlbedoSession()
     }
+
+    updateStatistics() {
+        if (!checkAlbedoSession())
+            return
+        getStatistics()
+            .then(statistics => {
+                if (statistics.error)
+                    throw new Error(statistics.error)
+                runInAction(() => {
+                    this.statistics = statistics
+                })
+            })
+            .catch((error) => {
+                notify({
+                    type: 'error',
+                    message: 'Failed to retrieve statistics. ' + (error?.message || '')
+                })
+                runInAction(() => {
+                    this.statistics = null
+                })
+            })
+    }
+
+    updateNodeInfo() {
+        if (!this.apiOrigin) {
+            this.status = 'unknown'
+            return
+        }
+        getReflectorNodeInfo()
+            .then(({name, pubkey, status, nodeStatus, version}) => {
+                runInAction(() => {
+                    if (name !== 'reflector') {
+                        this.status = 'unknown'
+                        this.serverPublicKey = ''
+                        this.serverVersion = ''
+                        return
+                    }
+                    this.status = status || nodeStatus
+                    this.serverVersion = version
+                    this.serverPublicKey = pubkey || ''
+                    if (this.status === 'init') {
+                        if (updateRequest.hasUpdate) {
+                            navigation.navigate('/config')
+                        } else {
+                            navigation.navigate('/initialization-progress')
+                        }
+                    }
+                })
+            })
+            .catch(({error}) => notify({type: 'error', message: error?.message || 'Node API is unreachable'}))
+    }
 }
 
 const clientStatus = new ClientStatus()
 
-function scheduleSessionPolling() {
-    setTimeout(function () {
-        clientStatus.pollSession()
-        scheduleSessionPolling()
-    }, 10_000)
-}
 
 /**
  * Update global configuration parameter in localStorage

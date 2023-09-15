@@ -3,7 +3,6 @@ import {observer} from 'mobx-react'
 import {AccountAddress, BlockSelect} from '@stellar-expert/ui-framework'
 import {dropSession} from '../../providers/albedo-provider'
 import clientStatus from '../../state/client-status'
-import nodeStatus from '../../state/node-status'
 
 export default observer(function ConnectionStatusView() {
     if (!clientStatus.apiOrigin)
@@ -22,7 +21,7 @@ const ConnectionStatus = observer(function () {
     }, [clientStatus])
 
     let status
-    switch (nodeStatus.status) {
+    switch (clientStatus.status) {
         case 'unknown':
             status = <><i className="icon-circle color-warning"/> Connecting to </>
             break
@@ -40,14 +39,14 @@ const ConnectionStatus = observer(function () {
 })
 
 const AuthStatus = observer(function AuthStatus() {
-    if (!clientStatus.pubkey)
+    if (!clientStatus.clientPublicKey)
         return <div><i className="icon-circle color-danger"/> Authentication required</div>
     const status = !clientStatus.isMatchingKey ?
         <><i className="icon-warning-circle color-warning"/> Invalid authentication: </> :
         <><i className="icon-ok color-success"/> Authenticated as </>
 
     return <div>
-        {status} <AccountAddress account={clientStatus.pubkey} chars={12} link={false}/>&emsp;|&emsp;
+        {status} <AccountAddress account={clientStatus.clientPublicKey} chars={12} link={false}/>&emsp;|&emsp;
         <a href="#" className="dimmed text-tiny" onClick={dropSession} title="Change authentication">change</a>
     </div>
 })

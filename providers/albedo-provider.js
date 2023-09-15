@@ -6,7 +6,7 @@ import clientStatus from '../state/client-status'
  * @return {boolean}
  */
 export function checkAlbedoSession() {
-    return albedo.isImplicitSessionAllowed('sign_message', clientStatus.pubkey)
+    return albedo.isImplicitSessionAllowed('sign_message', clientStatus.clientPublicKey)
 }
 
 /**
@@ -43,7 +43,7 @@ export async function signData(data) {
         //try to sign the payload
         const {message_signature} = await albedo.signMessage({
             message: JSON.stringify(data),
-            pubkey: clientStatus.pubkey
+            pubkey: clientStatus.clientPublicKey
         })
         return message_signature
     } catch (e) {
@@ -53,9 +53,9 @@ export async function signData(data) {
 }
 
 export function dropSession() {
-    if (clientStatus.pubkey) {
+    if (clientStatus.clientPublicKey) {
         //forget session
-        albedo.forgetImplicitSession(clientStatus.pubkey)
+        albedo.forgetImplicitSession(clientStatus.clientPublicKey)
         //update status
         clientStatus.pollSession()
     }
