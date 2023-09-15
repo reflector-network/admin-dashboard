@@ -18,7 +18,7 @@
     "@stellar-expert/eslint-config-react": "github:stellar-expert/eslint-config-react",
     "@stellar-expert/formatter": "github:stellar-expert/formatter#v2.2.0",
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
-    "@stellar-expert/ui-framework": "github:stellar-expert/ui-framework#v1.6.21",
+    "@stellar-expert/ui-framework": "github:stellar-expert/ui-framework#v1.6.22",
     "@stellar-expert/webpack-template": "github:stellar-expert/webpack-template#v1.3.0",
     "classnames": "^2.3.2",
     "react": "^17.0.2",
