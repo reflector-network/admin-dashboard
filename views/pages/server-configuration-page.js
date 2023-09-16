@@ -5,8 +5,14 @@ import {navigation} from '@stellar-expert/navigation'
 import updateRequest from '../../state/config-update-request'
 import {getConfigRequirements, postApi} from '../../api/interface'
 import invocationFormatter from '../util/invocation-formatter'
+import clientStatus from '../../state/client-status'
 
 export default function ServerConfigurationPage() {
+    if (!clientStatus.apiOrigin) {
+        navigation.navigate('/connect')
+        return null
+    }
+
     const updateData = updateRequest.externalRequest
     const [config, setConfig] = useState({})
     const [isDbConnectionStringRequired, setIsDbConnectionStringRequired] = useState(true)

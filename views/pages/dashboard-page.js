@@ -5,7 +5,7 @@ import Actions from '../components/actions-navigation-view'
 import SettingsSection from '../components/settings-view'
 import NodeStatisticsView from '../components/node-statistics-view'
 
-export default function Dashboard() {
+export default function DashboardPage() {
     const location = useLocation()
     const {section = 'about'} = parseQuery(location.search)
 

@@ -1,8 +1,9 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
 import {getReflectorNodeInfo} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import SimplePageLayout from '../layout/simple-page-layout'
+import {navigation} from '@stellar-expert/navigation'
 
 function pingServer(apiOrigin) {
     const normalizedApiOrigin = apiOrigin.endsWith('/') ? apiOrigin : (apiOrigin + '/')
@@ -12,6 +13,8 @@ function pingServer(apiOrigin) {
             if (res.name !== 'reflector')
                 throw new Error('Unexpected response')
             clientStatus.setApiOrigin(normalizedApiOrigin)
+            debugger
+            navigation.navigate('/')
         })
         .catch(({error}) => notify({type: 'error', message: error?.message || 'Invalid API url'}))
 }
@@ -27,6 +30,14 @@ export default function ConnectionPage() {
             return url
         })
     }, [])
+
+    useEffect(() => {
+        if (clientStatus.apiOrigin) {
+            debugger
+            navigation.navigate('/')
+        }
+    }, [])
+
     //save on "Enter"
     const onKeyDown = useCallback(function (e) {
         if (e.keyCode === 13) {

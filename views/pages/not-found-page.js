@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function NotFound() {
+export default function NotFoundPage() {
     return <div className="row double-space" style={{height: '50vh'}}>
         <div className="column column-33 column-offset-34 column-center text-center">
             <img src="/img/logo.svg" alt="404" width="160"/>
