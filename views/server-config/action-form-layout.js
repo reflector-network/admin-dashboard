@@ -2,6 +2,7 @@ import React, {useCallback} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
 import {DateSelector} from '@stellar-expert/ui-framework'
+import updateRequest from '../../state/config-update-request'
 
 function trimSeconds(date) {
     if (typeof date === 'number') {
@@ -11,7 +12,7 @@ function trimSeconds(date) {
 }
 
 export default observer(function ActionFormLayout({settings, children}) {
-    const {timestamp} = settings
+    const timestamp = settings.timestamp || updateRequest.hasUpdate && updateRequest.externalRequest.timestamp
     const min = trimSeconds(new Date().getTime() + 30 * 60 * 1000)
     const max = trimSeconds(new Date().getTime() + 10 * 24 * 60 * 60 * 1000)
     const updateTimestamp = useCallback(val => {
