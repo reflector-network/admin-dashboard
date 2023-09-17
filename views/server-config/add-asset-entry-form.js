@@ -20,8 +20,7 @@ export default observer(function AddAssetEntry({title, settings, save}) {
 
     const validate = useCallback(val => {
         const pattern = new RegExp("[^a-zA-z]")
-        if (val.length < 3 || pattern.test(val) ||
-            settings.data.assets.findIndex(asset => asset.code === val.toUpperCase()) !== -1) {
+        if (pattern.test(val) || settings.data.assets.findIndex(asset => asset.code === val.toUpperCase()) !== -1) {
             return false
         }
         return true
@@ -31,6 +30,7 @@ export default observer(function AddAssetEntry({title, settings, save}) {
         const val = e.target.value.trim()
         setIsValid(validate(val))
     }, [validate])
+
     const onSave = useCallback(() => {
         const val = currentInput.current.value.trim()
         save(val)

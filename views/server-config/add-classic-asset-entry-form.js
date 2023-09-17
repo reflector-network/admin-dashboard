@@ -31,7 +31,7 @@ export default observer(function AddClassicAssetEntry({title, settings, save}) {
     }, [settings])
 
     const onChangeCode = useCallback(e => {
-        const val = e.target.value.trim()
+        const val = e.target.value.trim().toUpperCase()
         const newAsset = {...asset, code: val}
         setAsset(newAsset)
         setIsValid(validate(newAsset))
