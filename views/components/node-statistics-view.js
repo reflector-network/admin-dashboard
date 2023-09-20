@@ -1,6 +1,7 @@
-import React, {useEffect} from 'react'
+import React, {useCallback, useEffect} from 'react'
+import TimeAgo from 'react-timeago'
 import {observer} from 'mobx-react'
-import {AccountAddress, ElapsedTime, UtcTimestamp, useWindowWidth, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {AccountAddress, UtcTimestamp, useWindowWidth, withErrorBoundary} from '@stellar-expert/ui-framework'
 import clientStatus from '../../state/client-status'
 
 export default withErrorBoundary(function NodeStatisticsView() {
@@ -75,3 +76,21 @@ const AllNodeStats = observer(function AllNodeStats() {
         </div>
     </>
 })
+
+const timeUnits = {
+    second: 's',
+    minute: 'm',
+    hour: 'h',
+    day: 'd',
+    week: 'w',
+    month: 'mo',
+    year: 'y'
+}
+
+function ElapsedTime({ts, className, suffix}) {
+    const formatter = useCallback((v, unit) => `${v}${timeUnits[unit]}`, [])
+
+    return <span className={className}>
+        <TimeAgo date={ts} formatter={formatter}/>{suffix}
+    </span>
+}
