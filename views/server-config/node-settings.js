@@ -17,6 +17,7 @@ export default class NodeSettings {
         this.isValid = false
         this.isLimitUpdates = false
         this.isFinalized = false
+        this.isNormalizedTimestamp = false
 
         makeAutoObservable(this)
     }
@@ -36,7 +37,7 @@ export default class NodeSettings {
     }
 
     prepareData() {
-        this.data.timestamp = (Math.floor(this.data.timestamp / this.timeframe) * this.timeframe) + (this.timeframe / 2)
+        this.normalizeTimestamp()
         const {assets, ...otherSettings} = this.data
         this.updateData = otherSettings
         this.isFinalized = false
@@ -45,6 +46,12 @@ export default class NodeSettings {
             case UPDATE_ASSETS:
                 this.updateData.assets = this.updatedAssets
                 break
+        }
+    }
+
+    normalizeTimestamp() {
+        if (!this.isNormalizedTimestamp) {
+            this.data.timestamp = (Math.floor(this.data.timestamp / this.timeframe) * this.timeframe) + (this.timeframe / 2)
         }
     }
 

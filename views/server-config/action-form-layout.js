@@ -10,7 +10,10 @@ export default observer(function ActionFormLayout({settings, children}) {
 
     useEffect(() => {
         if (updateRequest.hasUpdate && updateRequest.externalRequest.timestamp) {
-            runInAction(() => settings.data.timestamp = updateRequest.externalRequest.timestamp)
+            runInAction(() => {
+                settings.data.timestamp = updateRequest.externalRequest.timestamp
+                settings.isNormalizedTimestamp = true
+            })
             settings.validate()
         }
     }, [settings])
@@ -22,9 +25,14 @@ export default observer(function ActionFormLayout({settings, children}) {
         } catch (err) {
             setIsValid(false)
         }
-        runInAction(() => settings.data.timestamp = val) //timestamp in milliseconds
+        runInAction(() => {
+            settings.data.timestamp = val
+            settings.isNormalizedTimestamp = false
+        })
         settings.validate()
     }, [settings])
+
+    const normalizeTimestamp = useCallback(() => settings.normalizeTimestamp(), [settings])
 
     return <div className="row">
         <div className="column column-66">
@@ -37,7 +45,7 @@ export default observer(function ActionFormLayout({settings, children}) {
                 <span className="dimmed text-tiny">
                     (Set the date for no more than 10 days, in milliseconds)
                 </span>
-                <input className="micro-space" value={timestamp || ''} onChange={updateTimestamp}/>
+                <input className="micro-space" value={timestamp || ''} onChange={updateTimestamp} onBlur={normalizeTimestamp}/>
                 {(!!isValid && !!timestamp) && <div className="dimmed text-tiny">
                     (<UtcTimestamp date={timestamp}/>)
                 </div>}
