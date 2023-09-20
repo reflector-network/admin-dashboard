@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {StrKey} from 'stellar-sdk'
 import {Button, CodeBlock} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import updateRequest from '../../state/config-update-request'
@@ -34,22 +33,11 @@ export default function ServerConfigurationPage() {
     }, [])
 
     const configValidation = useCallback(val => {
-        if (!StrKey.isValidEd25519SecretSeed(val.secret))
-            return
         if (isDbConnectionStringRequired) {
             return !!val.dbConnectionString?.length
         }
         return true
     }, [isDbConnectionStringRequired])
-
-    const updateSecret = useCallback(e => {
-        const val = e.target.value.toUpperCase()
-        setConfig(prev => {
-            const res = {...prev, secret: val}
-            setIsValid(configValidation(res))
-            return res
-        })
-    }, [configValidation])
 
     const updateConnection = useCallback(e => {
         const val = e.target.value
@@ -76,21 +64,16 @@ export default function ServerConfigurationPage() {
         <h3>Initial node configuration</h3>
         <hr className="flare"/>
         <div className="space">
-            <label>Node secret key<br/>
-                <span className="dimmed text-tiny">(Secret key used to identify your node and sign price update transactions on behalf of your node)</span>
-                <input type="text" className="micro-space" placeholder="Secret key starting with 'S', like 'SAK4...2PLT'"
-                       value={config.secret || ''} onChange={updateSecret}/>
-            </label>
-        </div>
-        <div className="space">
             <label>Database connection string<br/>
                 <span className="dimmed text-tiny">(Connection string to the StellarCore database, skip if you run the bundled Docker image)</span>
                 <input type="text" className="micro-space" value={config.dbConnectionString || ''} onChange={updateConnection}
                        placeholder={isDbConnectionStringRequired ? 'E.g. postgresql://user:password@address:port/dbname' : '(Current connection string is managed by Docker image)'}/>
             </label>
         </div>
-        <h3 className="double-space">Quorum configuration file</h3>
-        <CodeBlock className="result" style={{height: '40vh'}} lang="js">{readonlyConfigProperties}</CodeBlock>
+        <div className="double-space">
+            <h3>Quorum configuration file</h3>
+            <CodeBlock className="result" style={{height: '40vh'}} lang="js">{readonlyConfigProperties}</CodeBlock>
+        </div>
         <div className="space row">
             <div className="column column-66 text-center">
                 {!!inProgress && <>
@@ -99,7 +82,7 @@ export default function ServerConfigurationPage() {
                 </>}
             </div>
             <div className="column column-33">
-                <Button block disabled={!isValid || inProgress} onClick={submitUpdates}>Submit</Button>
+                <Button block disabled={isDbConnectionStringRequired && !isValid || inProgress} onClick={submitUpdates}>Submit</Button>
             </div>
         </div>
     </div>

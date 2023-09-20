@@ -1,22 +1,28 @@
-import React, {useCallback} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
-import {DateSelector} from '@stellar-expert/ui-framework'
+import {UtcTimestamp} from '@stellar-expert/ui-framework'
 import updateRequest from '../../state/config-update-request'
 
-function trimSeconds(date) {
-    if (typeof date === 'number') {
-        date = new Date(date)
-    }
-    return date.toISOString().replace(/:\d{2}\.\d*Z/, '')
-}
-
 export default observer(function ActionFormLayout({settings, children}) {
-    const timestamp = settings.timestamp || updateRequest.hasUpdate && updateRequest.externalRequest.timestamp
-    const min = trimSeconds(new Date().getTime() + 30 * 60 * 1000)
-    const max = trimSeconds(new Date().getTime() + 10 * 24 * 60 * 60 * 1000)
-    const updateTimestamp = useCallback(val => {
-        runInAction(() => settings.data.timestamp = val * 1000) //timestamp in milliseconds
+    const timestamp = settings.data.timestamp || updateRequest.hasUpdate && updateRequest.externalRequest.timestamp
+    const [isValid, setIsValid] = useState(true)
+
+    useEffect(() => {
+        if (updateRequest.hasUpdate && updateRequest.externalRequest.timestamp) {
+            runInAction(() => settings.data.timestamp = updateRequest.externalRequest.timestamp)
+            settings.validate()
+        }
+    }, [settings])
+
+    const updateTimestamp = useCallback(e => {
+        const val = parseInt(e.target.value, 10)
+        try {
+            setIsValid(!!new Date(val).getTime())
+        } catch (err) {
+            setIsValid(false)
+        }
+        runInAction(() => settings.data.timestamp = val) //timestamp in milliseconds
         settings.validate()
     }, [settings])
 
@@ -27,8 +33,14 @@ export default observer(function ActionFormLayout({settings, children}) {
         </div>
         <div className="column column-33">
             <div className="space"/>
-            <label>Scheduled quorum update time (UTC)
-                <DateSelector className="micro-space" style={{width: '100%'}} value={timestamp || ''} onChange={updateTimestamp} min={min} max={max}/>
+            <label>Scheduled quorum update time (UTC)<br/>
+                <span className="dimmed text-tiny">
+                    (Set the date for no more than 10 days, in milliseconds)
+                </span>
+                <input className="micro-space" value={timestamp || ''} onChange={updateTimestamp}/>
+                {(!!isValid && !!timestamp) && <div className="dimmed text-tiny">
+                    (<UtcTimestamp date={timestamp}/>)
+                </div>}
             </label>
         </div>
     </div>

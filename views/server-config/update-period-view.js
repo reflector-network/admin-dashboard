@@ -13,7 +13,8 @@ export default observer(function UpdatePeriodView({settings}) {
         } else {
             runInAction(() => settings.data.period = settings.loadedData.period)
         }
-    }, [settings.data, settings.loadedData])
+        settings.validate()
+    }, [settings, settings.data, settings.loadedData])
 
     const updatePeriod = useCallback(e => {
         const val = e.target.value.replace(/[^0-9]/g, '')

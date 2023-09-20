@@ -49,7 +49,7 @@ export default class NodeSettings {
     }
 
     validate() {
-        if (!this.data.timestamp)
+        if (!this.validateTimestamp())
             return this.isValid = false
 
         switch (this.action) {
@@ -65,5 +65,16 @@ export default class NodeSettings {
             default:
                 this.isValid = false
         }
+    }
+
+    validateTimestamp() {
+        let valid = true
+        const min = new Date().getTime() + 30 * 60 * 1000
+        const max = new Date().getTime() + 10 * 24 * 60 * 60 * 1000
+        if (!this.data.timestamp && typeof this.data.timestamp !== 'number')
+            valid = false
+        if (this.data.timestamp < min || this.data.timestamp > max)
+            valid = false
+        return valid
     }
 }

@@ -36,6 +36,7 @@ export default observer(function AddAssetsView({settings}) {
             runInAction(() => settings.data.assets = settings.loadedData.assets || [])
             setEditableAssets([])
         }
+        settings.validate()
     }, [settings, settings.data, settings.loadedData, settings.isFinalized])
 
     useEffect(() => {
