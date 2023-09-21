@@ -8,10 +8,12 @@ export default function ConfigSharingSectionView() {
     useEffect(() => {
         getConfig()
             .then(currentConfig => {
+                if (currentConfig.error)
+                    throw new Error(currentConfig.error)
                 const encodedData = encodeURIComponent(JSON.stringify(currentConfig))
                 setConfigLink(window.location.origin + '/config?update=' + encodedData)
             })
-            .catch(({error}) => notify({type: 'error', message: error?.message || 'Failed to load config'}))
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to load config'}))
     }, [])
 
 

@@ -24,8 +24,12 @@ export default class NodeSettings {
 
     fetchSettings() {
         getCurrentSettings()
-            .then(loadedData => this.finalizeSettings(loadedData))
-            .catch(({error}) => notify({type: 'error', message: error?.message || "Failed to get data"}))
+            .then(loadedData => {
+                if (loadedData.error)
+                    throw new Error(loadedData.error)
+                this.finalizeSettings(loadedData)
+            })
+            .catch(error => notify({type: 'error', message: error?.message || "Failed to get data"}))
     }
 
     finalizeSettings(loadedData) {

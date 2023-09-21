@@ -1,26 +1,12 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useState} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
 import {parseQuery} from '@stellar-expert/navigation'
 import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
-import updateRequest from '../../state/config-update-request'
 import {postApi} from '../../api/interface'
 
 export default observer(function ActionNodeLayout({settings, children}) {
     const [inProgress, setInProgress] = useState(false)
-
-    useEffect(() => {
-        const updateParams = updateRequest.externalRequest
-        if (updateParams?.timestamp) {
-            runInAction(() => settings.data.timestamp = updateParams?.timestamp)
-        } else {
-            runInAction(() => settings.data.timestamp = '')
-        }
-    }, [settings.data, settings.loadedData])
-
-    const submitMessage = useCallback(message_signature => {
-
-    }, [settings])
 
     const submitUpdates = useCallback(() => {
         setInProgress(true)
@@ -28,7 +14,9 @@ export default observer(function ActionNodeLayout({settings, children}) {
             settings.prepareData()
 
         postApi(settings.action, settings.updateData)
-            .then(() => {
+            .then(res => {
+                if (res.error)
+                    throw new Error(res.error)
                 const {nonce, ...data} = settings.updateData
                 runInAction(() => {
                     settings.isFinalized = true
@@ -39,9 +27,9 @@ export default observer(function ActionNodeLayout({settings, children}) {
                 notify({type: 'success', message: 'Update completed'})
                 settings.fetchSettings() //reload updated data
             })
-            .catch(({error}) => notify({type: 'error', message: error?.message || 'Failed to update data'}))
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
-    }, [settings, submitMessage])
+    }, [settings])
 
     return <div className="segment blank">
         <div>

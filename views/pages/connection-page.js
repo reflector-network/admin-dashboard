@@ -1,9 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react'
+import {navigation} from '@stellar-expert/navigation'
 import {Button} from '@stellar-expert/ui-framework'
 import {getReflectorNodeInfo} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import SimplePageLayout from '../layout/simple-page-layout'
-import {navigation} from '@stellar-expert/navigation'
 
 function pingServer(apiOrigin) {
     const normalizedApiOrigin = apiOrigin.endsWith('/') ? apiOrigin : (apiOrigin + '/')

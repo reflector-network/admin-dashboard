@@ -26,7 +26,7 @@ export default function ServerConfigurationPage() {
                     throw new Error(res.error)
                 setIsDbConnectionStringRequired(res.isDbConnectionStringRequired)
             })
-            .catch((error) => {
+            .catch(error => {
                 notify({type: 'error', message: error?.message || 'Node is already configured'})
                 navigation.navigate('/')
             })
@@ -52,11 +52,13 @@ export default function ServerConfigurationPage() {
         setInProgress(true)
         const updateConfigData = {...config, ...updateData}
         postApi('config', updateConfigData)
-            .then(() => {
+            .then(res => {
+                if (res.error)
+                    throw new Error(res.error)
                 notify({type: 'success', message: 'Config updated'})
                 navigation.navigate('/')
             })
-            .catch(({error}) => notify({type: 'error', message: error?.message || 'Failed to update data'}))
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
     }, [updateData, config])
 

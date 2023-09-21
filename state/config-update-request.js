@@ -1,5 +1,5 @@
 import {makeAutoObservable} from 'mobx'
-import {navigation, parseQuery, stringifyQuery} from '@stellar-expert/navigation'
+import {navigation, parseQuery} from '@stellar-expert/navigation'
 
 class ConfigUpdateRequest {
     constructor() {
