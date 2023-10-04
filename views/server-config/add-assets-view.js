@@ -24,7 +24,7 @@ export default observer(function AddAssetsView({settings}) {
     const [uniqueAssets, setUniqueAssets] = useState(removeDuplicateAssets(settings.data.assets))
 
     useEffect(() => {
-        const updateParams = updateRequest.externalRequest
+        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
         if (updateParams?.assets) {
             const updatedAssets = updateParams.assets || []
             setEditableAssets(updatedAssets)
@@ -37,7 +37,7 @@ export default observer(function AddAssetsView({settings}) {
             setEditableAssets([])
         }
         settings.validate()
-    }, [settings, settings.data, settings.loadedData, settings.isFinalized])
+    }, [settings, settings.loadedData, settings.isFinalized, updateRequest.isConfirmed])
 
     useEffect(() => {
         const uniqueAssetsList = removeDuplicateAssets(settings.data.assets)

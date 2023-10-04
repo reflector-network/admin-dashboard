@@ -29,37 +29,37 @@ const AllNodeStats = observer(function AllNodeStats() {
     return <>
         <div>
             <span className="dimmed">Uptime: </span>
-            <span className="d-line-block">
+            <span className="inline-block">
                 <ElapsedTime ts={stat.startTime}/> <span className="dimmed small">(from <UtcTimestamp date={stat.startTime}/>)</span>
             </span>
         </div>
         <div>
             <span className="dimmed">Last round: </span>
-            <span className="d-line-block">
+            <span className="inline-block">
                 <ElapsedTime ts={stat.lastProcessedTimestamp} suffix={<span className="dimmed"> ago</span>}/>
             </span>
         </div>
         <div>
             <span className="dimmed">Submitted transactions: </span>
-            <span className="d-line-block">
+            <span className="inline-block">
                 {stat.submittedTransactions}
             </span>
         </div>
         <div>
             <span className="dimmed">Total processed: </span>
-            <span className="d-line-block">
+            <span className="inline-block">
                 {stat.totalProcessed}
             </span>
         </div>
         <div>
             <span className="dimmed">Oracle initialization: </span>
-            <span className="d-line-block">
+            <span className="inline-block">
                 {stat.oracleData.isInitialized ? 'Initialized' : 'Not initialized'}
             </span>
         </div>
         <div>
             <span className="dimmed">Last oracle round: </span>
-            <span className="d-line-block">
+            <span className="inline-block">
                 <ElapsedTime ts={stat.oracleData.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/>
             </span>
         </div>
@@ -72,7 +72,7 @@ const AllNodeStats = observer(function AllNodeStats() {
                         <AccountAddress account={node} link={false} chars={isSmallScreen ? 'all' : 16}/>
                     </div>)}
                 </div> :
-                <span className="d-line-block"><i className="icon-warning color-warning"/> Peer nodes not connected</span>}
+                <span className="inline-block"><i className="icon-warning color-warning"/> Peer nodes not connected</span>}
         </div>
     </>
 })
@@ -91,6 +91,6 @@ function ElapsedTime({ts, className, suffix}) {
     const formatter = useCallback((v, unit) => `${v}${timeUnits[unit]}`, [])
 
     return <span className={className}>
-        <TimeAgo date={ts} formatter={formatter}/>{suffix}
+        {ts ? <><TimeAgo date={ts} formatter={formatter}/>{suffix}</> : 'No data'}
     </span>
 }

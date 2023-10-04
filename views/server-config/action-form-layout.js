@@ -5,18 +5,17 @@ import {UtcTimestamp} from '@stellar-expert/ui-framework'
 import updateRequest from '../../state/config-update-request'
 
 export default observer(function ActionFormLayout({settings, children}) {
-    const timestamp = settings.data.timestamp || updateRequest.hasUpdate && updateRequest.externalRequest.timestamp
     const [isValid, setIsValid] = useState(true)
 
     useEffect(() => {
-        if (updateRequest.hasUpdate && updateRequest.externalRequest.timestamp) {
+        if (updateRequest.isConfirmed && updateRequest.externalRequest.timestamp) {
             runInAction(() => {
                 settings.data.timestamp = updateRequest.externalRequest.timestamp
                 settings.isNormalizedTimestamp = true
             })
             settings.validate()
         }
-    }, [settings])
+    }, [settings, updateRequest.isConfirmed])
 
     const updateTimestamp = useCallback(e => {
         const val = parseInt(e.target.value, 10)
@@ -45,9 +44,9 @@ export default observer(function ActionFormLayout({settings, children}) {
                 <span className="dimmed text-tiny">
                     (Set the date for no more than 10 days, in milliseconds)
                 </span>
-                <input className="micro-space" value={timestamp || ''} onChange={updateTimestamp} onBlur={normalizeTimestamp}/>
-                {(!!isValid && !!timestamp) && <div className="dimmed text-tiny">
-                    (<UtcTimestamp date={timestamp}/>)
+                <input className="micro-space" value={settings.data.timestamp || ''} onChange={updateTimestamp} onBlur={normalizeTimestamp}/>
+                {(!!isValid && !!settings.data.timestamp) && <div className="dimmed text-tiny">
+                    (<UtcTimestamp date={settings.data.timestamp}/>)
                 </div>}
             </label>
         </div>

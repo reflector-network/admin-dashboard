@@ -7,14 +7,14 @@ import ActionFormLayout from './action-form-layout'
 
 export default observer(function UpdatePeriodView({settings}) {
     useEffect(() => {
-        const updateParams = updateRequest.externalRequest
+        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
         if (updateParams?.period) {
             runInAction(() => settings.data.period = updateParams?.period)
         } else {
             runInAction(() => settings.data.period = settings.loadedData.period)
         }
         settings.validate()
-    }, [settings, settings.data, settings.loadedData])
+    }, [settings, settings.loadedData, updateRequest.isConfirmed])
 
     const updatePeriod = useCallback(e => {
         const val = e.target.value.replace(/[^0-9]/g, '')

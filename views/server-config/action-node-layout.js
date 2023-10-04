@@ -4,6 +4,7 @@ import {runInAction} from 'mobx'
 import {parseQuery} from '@stellar-expert/navigation'
 import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
+import UpdateRequestConfirmationLayout from '../layout/update-request-confirmation-layout'
 
 export default observer(function ActionNodeLayout({settings, children}) {
     const [inProgress, setInProgress] = useState(false)
@@ -31,22 +32,25 @@ export default observer(function ActionNodeLayout({settings, children}) {
             .finally(() => setInProgress(false))
     }, [settings])
 
-    return <div className="segment blank">
-        <div>
-            {children}
-        </div>
-        <div className="space row">
-            <div className="column column-66 text-center">
-                {!!inProgress && <>
-                    <div className="loader inline"/>
-                    <span className="dimmed text-small"> In progress...</span>
-                </>}
+    return <div className="flex-column h-100">
+        <UpdateRequestConfirmationLayout/>
+        <div className="segment blank h-100">
+            <div>
+                {children}
             </div>
-            <div className="column column-33">
-                <Button block disabled={!settings.isValid || inProgress} onClick={submitUpdates}>Submit</Button>
+            <div className="space row">
+                <div className="column column-66 text-center">
+                    {!!inProgress && <>
+                        <div className="loader inline"/>
+                        <span className="dimmed text-small"> In progress...</span>
+                    </>}
+                </div>
+                <div className="column column-33">
+                    <Button block disabled={!settings.isValid || inProgress} onClick={submitUpdates}>Submit</Button>
+                </div>
             </div>
+            {!!settings.isFinalized && <UpdateDataLinkLayout settings={settings}/>}
         </div>
-        {!!settings.isFinalized && <UpdateDataLinkLayout settings={settings}/>}
     </div>
 })
 

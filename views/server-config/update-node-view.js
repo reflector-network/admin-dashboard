@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
 import {AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
-import {shortenString} from '@stellar-expert/formatter'
 import {StrKey} from 'stellar-sdk'
 import updateRequest from '../../state/config-update-request'
 import ActionNodeLayout from './action-node-layout'
@@ -11,7 +10,7 @@ import AddNodeEntry from './add-node-entry-form'
 
 export default observer(function UpdateNodeView({settings}) {
     useEffect(() => {
-        const updateParams = updateRequest.externalRequest
+        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
         if (updateParams?.nodes) {
             runInAction(() => {
                 settings.isLimitUpdates = true
@@ -26,7 +25,7 @@ export default observer(function UpdateNodeView({settings}) {
             })
         }
         settings.validate()
-    }, [settings, settings.data, settings.loadedData])
+    }, [settings, settings.loadedData, updateRequest.isConfirmed])
 
     const validation = useCallback(node => {
         if (!StrKey.isValidEd25519PublicKey(node.pubkey))

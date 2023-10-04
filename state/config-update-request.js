@@ -7,6 +7,8 @@ class ConfigUpdateRequest {
         this.parseFromUrl()
     }
 
+    isConfirmed = false
+
     externalRequest
 
     get hasUpdate() {
@@ -21,12 +23,15 @@ class ConfigUpdateRequest {
             const {update} = parseQuery()
             if (!update)
                 return
-            console.log(update)
             this.externalRequest = JSON.parse(update)
             navigation.updateQuery({update: undefined})
         } catch (err) {
             notify({type: 'error', message: 'Invalid settings modification request'})
         }
+    }
+
+    confirmRequest() {
+        this.isConfirmed = true
     }
 }
 

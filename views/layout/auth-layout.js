@@ -1,10 +1,10 @@
 import React, {useCallback} from 'react'
 import {observer} from 'mobx-react'
 import {Button} from '@stellar-expert/ui-framework'
-import clientStatus from '../../state/client-status'
-import {requestAlbedoSession} from '../../providers/albedo-provider'
-import SimplePageLayout from './simple-page-layout'
 import {navigation} from '@stellar-expert/navigation'
+import {requestAlbedoSession} from '../../providers/albedo-provider'
+import clientStatus from '../../state/client-status'
+import SimplePageLayout from './simple-page-layout'
 
 export default observer(function AuthLayout({children}) {
     const authorize = useCallback(() => {
