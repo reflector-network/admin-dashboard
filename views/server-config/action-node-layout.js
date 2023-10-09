@@ -21,7 +21,7 @@ export default observer(function ActionNodeLayout({settings, children}) {
                 const {nonce, ...data} = settings.updateData
                 runInAction(() => {
                     settings.isFinalized = true
-                    settings.updateDataLink = data
+                    settings.updateSubmitted = data
                     settings.updateData = null
                     settings.isValid = false
                 })
@@ -55,7 +55,7 @@ export default observer(function ActionNodeLayout({settings, children}) {
 })
 
 function UpdateDataLinkLayout({settings}) {
-    const encodedData = encodeURIComponent(JSON.stringify(settings.updateDataLink))
+    const encodedData = encodeURIComponent(JSON.stringify(settings.updateSubmitted))
     const {section} = parseQuery()
     const link = window.location.href.split('?')[0] + '?section=' + section + '&update=' + encodedData
 
@@ -63,6 +63,6 @@ function UpdateDataLinkLayout({settings}) {
         <hr className="flare"/>
         Share this quorum update with other nodes.
         Copy the link and send it to other node operators <CopyToClipboard text={link}/>
-        <textarea readOnly style={{width: '100%', height: '5em'}}>{link}</textarea>
+        <textarea readOnly style={{width: '100%', height: '5em'}} value={link}/>
     </div>
 }

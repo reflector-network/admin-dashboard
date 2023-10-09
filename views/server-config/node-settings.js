@@ -1,4 +1,4 @@
-import {makeAutoObservable, runInAction} from 'mobx'
+import {makeAutoObservable, runInAction, toJS} from 'mobx'
 import {getCurrentSettings} from '../../api/interface'
 
 export const UPDATE_NODES = 'nodes'
@@ -10,6 +10,7 @@ export default class NodeSettings {
         this.data = {}
         this.loadedData = {}
         this.updateData = null
+        this.updateSubmitted = null
         this.updatedAssets = []
         this.updatedNode = null
         this.action = ''
@@ -42,13 +43,20 @@ export default class NodeSettings {
 
     prepareData() {
         this.normalizeTimestamp()
-        const {assets, ...otherSettings} = this.data
-        this.updateData = otherSettings
+        this.updateData = {
+            timestamp: this.data.timestamp,
+            nonce: Date.now()
+        }
         this.isFinalized = false
-        this.updateData.nonce = Date.now()
         switch (this.action) {
+            case UPDATE_NODES:
+                this.updateData.nodes = this.data.nodes
+                break
             case UPDATE_ASSETS:
                 this.updateData.assets = this.updatedAssets
+                break
+            case UPDATE_PERIOD:
+                this.updateData.period = this.data.period
                 break
         }
     }
