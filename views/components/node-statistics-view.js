@@ -1,7 +1,8 @@
-import React, {useCallback, useEffect} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import TimeAgo from 'react-timeago'
 import {observer} from 'mobx-react'
 import {AccountAddress, UtcTimestamp, useWindowWidth, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 
 export default withErrorBoundary(function NodeStatisticsView() {
@@ -18,11 +19,24 @@ const AllNodeStats = observer(function AllNodeStats() {
     const screenWidth = useWindowWidth()
     const isSmallScreen = screenWidth < 600
     const stat = clientStatus.statistics
+    const [isTraceEnabled, setIsTraceEnabled] = useState(stat?.isTraceEnabled)
     useEffect(() => {
         if (!clientStatus.statistics) {
             clientStatus.updateStatistics()
         }
     }, [])
+
+    const toggleTrace = useCallback(() => {
+        postApi('trace', {isTraceEnabled: !isTraceEnabled})
+            .then(res => {
+                if (res.error)
+                    throw new Error(res.error)
+                notify({type: 'success', message: 'Update completed'})
+                setIsTraceEnabled(prev => !prev)
+            })
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing'}))
+    }, [isTraceEnabled])
+
     if (!stat || stat.error)
         return <div className="loader"/>
 
@@ -61,6 +75,15 @@ const AllNodeStats = observer(function AllNodeStats() {
             <span className="dimmed">Last oracle round: </span>
             <span className="inline-block">
                 <ElapsedTime ts={stat.oracleData.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/>
+            </span>
+        </div>
+        <div>
+            <span className="dimmed">Tracing: </span>
+            <span className="inline-block">
+                {isTraceEnabled ? 'Enabled' : 'Disabled'}&emsp;|&emsp;
+                <a href="#" onClick={toggleTrace} title="Enable/Disable tracing">
+                    {!isTraceEnabled ? 'enable' : 'disable'}
+                </a>
             </span>
         </div>
         <div>

@@ -1,18 +1,36 @@
 import React, {useEffect, useState} from 'react'
 import {observer} from 'mobx-react-lite'
+import {runInAction} from 'mobx'
 import {AccountAddress, AssetLink, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {getUpdate} from '../../api/interface'
 
 export default observer(function ConfigChangesView({settings}) {
     const [isDisplayed, setIsDisplayed] = useState(false)
+
+    useEffect(() => {
+        getUpdate()
+            .then(pendingUpdate => {
+                if (pendingUpdate.error)
+                    throw new Error(pendingUpdate.error)
+                runInAction(() => {
+                    settings.updateSubmitted = pendingUpdate
+                })
+            })
+            .catch((error) => {
+                runInAction(() => {
+                    settings.updateSubmitted = null
+                })
+            })
+    }, [settings])
 
     useEffect(() => setIsDisplayed(!!settings.updateSubmitted), [settings.updateSubmitted])
 
     //hide information if update didn't submit at least once
     if (!isDisplayed)
-        return <>!</>
+        return <></>
 
     return <div className="double-space">
-        <h3 className="dimmed">Changes will be applied</h3>
+        <h3 className="dimmed">Changes will be applied:</h3>
         <div className="text-small">&emsp;<UtcTimestamp date={settings.updateSubmitted.timestamp}/></div>
         <AnalysisChangesLayout data={settings.updateSubmitted}/>
     </div>

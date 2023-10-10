@@ -14,7 +14,7 @@ export default observer(function ActionNodeLayout({settings, children}) {
         if (!settings.updateData)
             settings.prepareData()
 
-        postApi(settings.action, settings.updateData)
+        postApi('update', settings.updateData)
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)

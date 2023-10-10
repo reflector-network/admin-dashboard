@@ -5,6 +5,12 @@ export const UPDATE_NODES = 'nodes'
 export const UPDATE_ASSETS = 'assets'
 export const UPDATE_PERIOD = 'period'
 
+const updateType = {
+    [UPDATE_NODES]: 1,
+    [UPDATE_ASSETS]: 2,
+    [UPDATE_PERIOD]: 3
+}
+
 export default class NodeSettings {
     constructor() {
         this.data = {}
@@ -45,7 +51,7 @@ export default class NodeSettings {
         this.normalizeTimestamp()
         this.updateData = {
             timestamp: this.data.timestamp,
-            nonce: Date.now()
+            type: updateType[this.action]
         }
         this.isFinalized = false
         switch (this.action) {

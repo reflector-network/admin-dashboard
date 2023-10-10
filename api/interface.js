@@ -38,6 +38,10 @@ export function getConfig() {
     return getApi('config')
 }
 
+export function getUpdate() {
+    return getApi('update')
+}
+
 export function getConfigRequirements() {
     return getNoAuthApi('config-requirements')
 }
