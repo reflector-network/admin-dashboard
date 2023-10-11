@@ -1,6 +1,7 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect} from 'react'
 import TimeAgo from 'react-timeago'
 import {observer} from 'mobx-react'
+import {runInAction} from 'mobx'
 import {AccountAddress, UtcTimestamp, useWindowWidth, withErrorBoundary} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
@@ -19,7 +20,6 @@ const AllNodeStats = observer(function AllNodeStats() {
     const screenWidth = useWindowWidth()
     const isSmallScreen = screenWidth < 600
     const stat = clientStatus.statistics
-    const [isTraceEnabled, setIsTraceEnabled] = useState(stat?.isTraceEnabled)
     useEffect(() => {
         if (!clientStatus.statistics) {
             clientStatus.updateStatistics()
@@ -27,15 +27,17 @@ const AllNodeStats = observer(function AllNodeStats() {
     }, [])
 
     const toggleTrace = useCallback(() => {
-        postApi('trace', {isTraceEnabled: !isTraceEnabled})
+        postApi('trace', {isTraceEnabled: !stat?.isTraceEnabled})
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
                 notify({type: 'success', message: 'Update completed'})
-                setIsTraceEnabled(prev => !prev)
+                runInAction(() => {
+                    clientStatus.statistics.isTraceEnabled = !stat?.isTraceEnabled
+                })
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing'}))
-    }, [isTraceEnabled])
+    }, [stat])
 
     if (!stat || stat.error)
         return <div className="loader"/>
@@ -80,9 +82,9 @@ const AllNodeStats = observer(function AllNodeStats() {
         <div>
             <span className="dimmed">Tracing: </span>
             <span className="inline-block">
-                {isTraceEnabled ? 'Enabled' : 'Disabled'}&emsp;|&emsp;
+                {stat?.isTraceEnabled ? 'Enabled' : 'Disabled'}&emsp;|&emsp;
                 <a href="#" onClick={toggleTrace} title="Enable/Disable tracing">
-                    {!isTraceEnabled ? 'enable' : 'disable'}
+                    {!stat?.isTraceEnabled ? 'enable' : 'disable'}
                 </a>
             </span>
         </div>
