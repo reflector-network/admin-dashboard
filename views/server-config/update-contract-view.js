@@ -5,35 +5,34 @@ import updateRequest from '../../state/config-update-request'
 import ActionNodeLayout from './action-node-layout'
 import ActionFormLayout from './action-form-layout'
 
-export default observer(function UpdatePeriodView({settings}) {
+export default observer(function UpdateContractView({settings}) {
     useEffect(() => {
         const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
-        if (updateParams?.period) {
-            runInAction(() => settings.data.period = updateParams?.period)
+        if (updateParams?.wasmHash) {
+            runInAction(() => settings.data.wasmHash = updateParams?.wasmHash)
         } else {
-            runInAction(() => settings.data.period = settings.loadedData.period)
+            runInAction(() => settings.data.wasmHash = settings.loadedData.wasmHash)
         }
         settings.validate()
     }, [settings, settings.loadedData, updateRequest.isConfirmed])
 
-    const updatePeriod = useCallback(e => {
-        const val = e.target.value.replace(/[^0-9]/g, '')
-        runInAction(() => settings.data.period = parseInt(val, 10))
+    const updateWasmHash = useCallback(e => {
+        runInAction(() => settings.data.wasmHash = e.target.value)
         settings.validate()
     }, [settings])
 
     return <ActionNodeLayout settings={settings}>
-        <h3>Retention period</h3>
+        <h3>Update contract</h3>
         <hr className="flare"/>
         <ActionFormLayout settings={settings}>
             <div className="row">
-                <div className="column column-50">
-                    <label>Price quotes retention period<br/>
+                <div className="column column-90">
+                    <label>Wasm hash<br/>
                         <span className="dimmed text-tiny">
-                            (How long quoted prices will be available for contract consumers after creation, in milliseconds)
+                            (Hash of the new contract that will update the code on the blockchain, string of 64 characters)
                         </span>
-                        <input type="text" className="micro-space"
-                               value={settings.data.period || ''} onChange={updatePeriod}/>
+                        <textarea className="micro-space" style={{maxWidth: '100%', minHeight: 'calc(4em - 1px)'}}
+                                  value={settings.data.wasmHash || ''} onChange={updateWasmHash}/>
                     </label>
                 </div>
             </div>

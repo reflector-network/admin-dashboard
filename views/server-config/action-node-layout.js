@@ -21,7 +21,7 @@ export default observer(function ActionNodeLayout({settings, children}) {
                 const {nonce, ...data} = settings.updateData
                 runInAction(() => {
                     settings.isFinalized = true
-                    settings.updateSubmitted = data
+                    settings.submittedUpdate = data
                     settings.updateData = null
                     settings.isValid = false
                 })
@@ -55,7 +55,7 @@ export default observer(function ActionNodeLayout({settings, children}) {
 })
 
 function UpdateDataLinkLayout({settings}) {
-    const encodedData = encodeURIComponent(JSON.stringify(settings.updateSubmitted))
+    const encodedData = encodeURIComponent(JSON.stringify(settings.submittedUpdate))
     const {section} = parseQuery()
     const link = window.location.href.split('?')[0] + '?section=' + section + '&update=' + encodedData
 

@@ -4,11 +4,13 @@ import {getCurrentSettings} from '../../api/interface'
 export const UPDATE_NODES = 'nodes'
 export const UPDATE_ASSETS = 'assets'
 export const UPDATE_PERIOD = 'period'
+export const UPDATE_CONTRACT = 'contract'
 
 const updateType = {
     [UPDATE_NODES]: 1,
     [UPDATE_ASSETS]: 2,
-    [UPDATE_PERIOD]: 3
+    [UPDATE_PERIOD]: 3,
+    [UPDATE_CONTRACT]: 4
 }
 
 export default class NodeSettings {
@@ -16,7 +18,7 @@ export default class NodeSettings {
         this.data = {}
         this.loadedData = {}
         this.updateData = null
-        this.updateSubmitted = null
+        this.submittedUpdate = null
         this.updatedAssets = []
         this.updatedNode = null
         this.action = ''
@@ -64,6 +66,9 @@ export default class NodeSettings {
             case UPDATE_PERIOD:
                 this.updateData.period = this.data.period
                 break
+            case UPDATE_CONTRACT:
+                this.updateData.wasmHash = this.data.wasmHash
+                break
         }
     }
 
@@ -86,6 +91,9 @@ export default class NodeSettings {
                 break
             case UPDATE_PERIOD:
                 this.isValid = this.data.period > this.timeframe
+                break
+            case UPDATE_CONTRACT:
+                this.isValid = this.data.wasmHash?.length === 64
                 break
             default:
                 this.isValid = false

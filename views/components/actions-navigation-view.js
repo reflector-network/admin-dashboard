@@ -7,6 +7,7 @@ export const allSections = [
     {name: 'nodes', title: 'Peer nodes'},
     {name: 'assets', title: 'Tracked assets'},
     {name: 'timeframe', title: 'Retention period'},
+    {name: 'contract', title: 'Update contract'},
     {name: 'share-config', title: 'Share config'}
 ]
 

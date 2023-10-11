@@ -1,11 +1,12 @@
 import React, {useEffect} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
-import {UPDATE_ASSETS, UPDATE_NODES, UPDATE_PERIOD} from '../server-config/node-settings'
+import {UPDATE_ASSETS, UPDATE_CONTRACT, UPDATE_NODES, UPDATE_PERIOD} from '../server-config/node-settings'
 import UpdateNodeView from '../server-config/update-node-view'
 import AddAssetsView from '../server-config/add-assets-view'
 import UpdatePeriodView from '../server-config/update-period-view'
 import ConfigSharingSectionView from '../server-config/config-sharing-section-view'
+import UpdateContractView from '../server-config/update-contract-view'
 
 export default observer(function SettingsSectionView({settings, sectionName}) {
     useEffect(() => {
@@ -26,6 +27,9 @@ export default observer(function SettingsSectionView({settings, sectionName}) {
         case 'timeframe':
             settings.action = UPDATE_PERIOD
             return <UpdatePeriodView settings={settings}/>
+        case 'contract':
+            settings.action = UPDATE_CONTRACT
+            return <UpdateContractView settings={settings}/>
         case 'share-config':
             return <ConfigSharingSectionView/>
         default:
