@@ -1,4 +1,4 @@
-import {makeAutoObservable, runInAction, toJS} from 'mobx'
+import {makeAutoObservable, runInAction} from 'mobx'
 import {getCurrentSettings} from '../../api/interface'
 
 export const UPDATE_NODES = 'nodes'

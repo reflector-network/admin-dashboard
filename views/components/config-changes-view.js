@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react'
 import {observer} from 'mobx-react-lite'
 import {runInAction} from 'mobx'
-import {AccountAddress, AssetLink, UtcTimestamp, CopyToClipboard} from '@stellar-expert/ui-framework'
+import {AccountAddress, UtcTimestamp, CopyToClipboard} from '@stellar-expert/ui-framework'
 import {getUpdate} from '../../api/interface'
+import {AssetCodeView} from '../server-config/add-assets-view'
 
 export default observer(function ConfigChangesView({settings}) {
     const [isDisplayed, setIsDisplayed] = useState(false)
@@ -25,7 +26,7 @@ export default observer(function ConfigChangesView({settings}) {
                         settings.submittedUpdate = null
                     })
                 })
-        }, 400)
+        }, 300)
     }, [settings])
 
     useEffect(() => {
@@ -79,10 +80,8 @@ function ChangesRecordLayout({action, data}) {
         case 'assets':
             return <div>
                 <div className="dimmed micro-space">Added assets:</div>
-                {data.assets.map(({type, code}) => <div key={code} className="text-small">
-                    {type === 1 ?
-                        <AssetLink asset={code}/> :
-                        <b>{code}</b>}
+                {data.assets.map(asset => <div key={asset.code} className="text-small">
+                    <AssetCodeView asset={asset}/>
                 </div>)}
             </div>
         case 'nodes':

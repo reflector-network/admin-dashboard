@@ -2,11 +2,13 @@ import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {runInAction} from 'mobx'
 import {AssetLink} from '@stellar-expert/ui-framework'
+import {shortenString} from '@stellar-expert/formatter'
 import updateRequest from '../../state/config-update-request'
 import ActionFormLayout from './action-form-layout'
 import AddAssetEntry from './add-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
 import ActionNodeLayout from './action-node-layout'
+import AddSorobanTokenEntry from './add-soroban-token-entry-form'
 
 const removeDuplicateAssets = (assets = []) => {
     const comparedAssets = []
@@ -51,7 +53,12 @@ export default observer(function AddAssetsView({settings}) {
 
     const addAsset = useCallback(val => {
         const [code, pubkey] = val.split(':')
-        const asset = pubkey ? {type: 1, code: code + ':' + pubkey} : {type: 2, code: code.toUpperCase()}
+        const asset = pubkey ?
+            {type: 1, code: code + ':' + pubkey} :
+            {
+                type: code.length === 56 ? 1 : 2,
+                code: code.toUpperCase()
+            }
         if (settings.data.assets.findIndex(a => a.code === asset.code) !== -1)
             return false
         const assets = [...editableAssets, asset]
@@ -81,6 +88,8 @@ export default observer(function AddAssetsView({settings}) {
             <div className="space">
                 <AddClassicAssetEntry title="Add SAC asset" settings={settings} save={addAsset}/>
                 &nbsp;or&nbsp;
+                <AddSorobanTokenEntry title="Add soroban token" settings={settings} save={addAsset}/>
+                &nbsp;or&nbsp;
                 <AddAssetEntry title="Add generic asset" settings={settings} save={addAsset}/>
             </div>
         </ActionFormLayout>
@@ -101,10 +110,21 @@ const AssetEntryLayout = observer(({asset, settings, editableAssets = [], setEdi
     }, [settings, asset, editableAssets, setEditableAssets])
 
     return <div key={asset.code} className="micro-space">
-        {(parseInt(asset.type, 10) === 1) ?
-            <AssetLink asset={asset.code}/> :
-            <b>{asset.code}</b>}
+        <AssetCodeView asset={asset}/>
         {editableAssets.findIndex(a => a.code === asset.code) !== -1 &&
             <a onClick={removeAsset} style={{marginLeft: '0.3em'}}><i className="icon-cancel"/></a>}
     </div>
 })
+
+export function AssetCodeView({asset}) {
+    if (!asset)
+        return <></>
+    const type = parseInt(asset.type, 10)
+    if (type === 1 && asset.code.length === 56) {
+        return <b title={asset.code}>{shortenString(asset.code, 8)}</b>
+    }
+    if (type === 1) {
+        return <AssetLink asset={asset.code}/>
+    }
+    return <b>{asset.code}</b>
+}
