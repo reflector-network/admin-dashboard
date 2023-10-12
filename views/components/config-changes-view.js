@@ -49,7 +49,7 @@ export default observer(function ConfigChangesView({settings}) {
     return <div className="double-space">
         <a href={link} target="_blank" rel="noreferrer">Update link</a> <CopyToClipboard text={link}/>
         <div className="dimmed micro-space">Changes will be applied:</div>
-        <div className="text-small"><UtcTimestamp date={settings.submittedUpdate?.timestamp}/></div>
+        <div className="text-small"><UtcTimestamp date={settings.submittedUpdate?.timestamp || 0}/></div>
         <ChangesRecordLayout data={settings.submittedUpdate} action={action}/>
     </div>
 })
