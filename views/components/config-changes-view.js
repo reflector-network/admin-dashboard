@@ -11,34 +11,45 @@ export default observer(function ConfigChangesView({settings}) {
     const link = window.location.href.split('?')[0] + '?section=' + action + '&update=' + encodedData
 
     useEffect(() => {
-        getUpdate()
-            .then(pendingUpdate => {
-                if (pendingUpdate.error)
-                    throw new Error(pendingUpdate.error)
-                runInAction(() => {
-                    settings.submittedUpdate = pendingUpdate
+        setTimeout(() => {
+            getUpdate()
+                .then(pendingUpdate => {
+                    if (pendingUpdate.error)
+                        throw new Error(pendingUpdate.error)
+                    runInAction(() => {
+                        settings.submittedUpdate = pendingUpdate
+                    })
                 })
-            })
-            .catch((error) => {
-                runInAction(() => {
-                    settings.submittedUpdate = null
+                .catch((error) => {
+                    runInAction(() => {
+                        settings.submittedUpdate = null
+                    })
                 })
-            })
+        }, 400)
     }, [settings])
 
     useEffect(() => {
+        if (!settings.submittedUpdate)
+            return
+
+        const now = new Date().getTime()
         setAction(actionDetector(settings.submittedUpdate))
-        setIsDisplayed(!!settings.submittedUpdate)
-    }, [settings.submittedUpdate])
+        setIsDisplayed(true)
+        //hide information when update will be completed
+        setTimeout(() => {
+            setIsDisplayed(false)
+            runInAction(() => settings.submittedUpdate = null)
+        }, settings.submittedUpdate.timestamp - now)
+    }, [settings, settings.submittedUpdate])
 
     //hide information if update didn't submit at least once
-    if (!isDisplayed)
+    if (!isDisplayed || !settings.submittedUpdate)
         return <></>
 
     return <div className="double-space">
         <a href={link} target="_blank" rel="noreferrer">Update link</a> <CopyToClipboard text={link}/>
         <div className="dimmed micro-space">Changes will be applied:</div>
-        <div className="text-small"><UtcTimestamp date={settings.submittedUpdate.timestamp}/></div>
+        <div className="text-small"><UtcTimestamp date={settings.submittedUpdate?.timestamp}/></div>
         <ChangesRecordLayout data={settings.submittedUpdate} action={action}/>
     </div>
 })
