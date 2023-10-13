@@ -18,7 +18,8 @@ export default observer(function ConnectionStatusView() {
 const ConnectionStatus = observer(function () {
     const disconnect = useCallback(() => {
         clientStatus.setApiOrigin('')
-    }, [clientStatus])
+        dropSession()
+    }, [])
 
     let status
     switch (clientStatus.status) {

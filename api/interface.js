@@ -14,7 +14,7 @@ async function getApi(endpoint, data) {
 }
 
 async function getNoAuthApi(endpoint, apiOrigin) {
-    return fetchApi('', {apiOrigin})
+    return await fetchApi('', {apiOrigin})
 }
 
 export async function postApi(action, data) {
