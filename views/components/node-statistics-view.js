@@ -22,7 +22,7 @@ const AllNodeStats = observer(function AllNodeStats() {
     const stat = clientStatus.statistics
     useEffect(() => {
         if (!clientStatus.statistics) {
-            clientStatus.updateStatistics()
+            setTimeout(() => clientStatus.updateStatistics(), 500)
         }
     }, [])
 

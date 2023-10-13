@@ -11,8 +11,7 @@ export default observer(function ActionNodeLayout({settings, children}) {
 
     const submitUpdates = useCallback(() => {
         setInProgress(true)
-        if (!settings.updateData)
-            settings.prepareData()
+        settings.prepareData()
 
         postApi('update', settings.updateData)
             .then(res => {
