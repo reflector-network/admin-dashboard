@@ -5,7 +5,7 @@ import {AssetLink} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import updateRequest from '../../state/config-update-request'
 import ActionFormLayout from './action-form-layout'
-import AddAssetEntry from './add-asset-entry-form'
+import AddGenericAssetEntry from './add-generic-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
 import ActionNodeLayout from './action-node-layout'
 import AddSorobanTokenEntry from './add-soroban-token-entry-form'
@@ -90,7 +90,7 @@ export default observer(function AddAssetsView({settings}) {
                 &nbsp;or&nbsp;
                 <AddSorobanTokenEntry title="Add soroban token" settings={settings} save={addAsset}/>
                 &nbsp;or&nbsp;
-                <AddAssetEntry title="Add generic asset" settings={settings} save={addAsset}/>
+                <AddGenericAssetEntry title="Add generic asset" settings={settings} save={addAsset}/>
             </div>
         </ActionFormLayout>
     </ActionNodeLayout>

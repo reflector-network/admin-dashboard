@@ -4,6 +4,7 @@ import {runInAction} from 'mobx'
 import {parseQuery} from '@stellar-expert/navigation'
 import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
+import updateRequest from '../../state/config-update-request'
 import UpdateRequestConfirmationLayout from '../layout/update-request-confirmation-layout'
 
 export default observer(function ActionNodeLayout({settings, children}) {
@@ -23,6 +24,8 @@ export default observer(function ActionNodeLayout({settings, children}) {
                     settings.submittedUpdate = data
                     settings.updateData = null
                     settings.isValid = false
+
+                    updateRequest.externalRequest = null
                 })
                 notify({type: 'success', message: 'Update completed'})
                 settings.fetchSettings() //reload updated data
