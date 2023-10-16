@@ -70,13 +70,13 @@ const AllNodeStats = observer(function AllNodeStats() {
         <div>
             <span className="dimmed">Oracle initialization: </span>
             <span className="inline-block">
-                {stat.oracleData.isInitialized ? 'Initialized' : 'Not initialized'}
+                {stat.oracleData?.isInitialized ? 'Initialized' : 'Not initialized'}
             </span>
         </div>
         <div>
             <span className="dimmed">Last oracle round: </span>
             <span className="inline-block">
-                <ElapsedTime ts={stat.oracleData.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/>
+                <ElapsedTime ts={stat.oracleData?.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/>
             </span>
         </div>
         <div>

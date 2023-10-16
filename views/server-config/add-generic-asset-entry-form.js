@@ -24,7 +24,7 @@ export default observer(function AddGenericAssetEntry({title, settings, save}) {
     //save on "Enter"
     const onKeyDown = useCallback(e => setIsEntered(e.keyCode === 13 && isValid), [isValid])
 
-    return <AddAssetEntryLayout title={title} currentInput={currentInput} asset={asset}
+    return <AddAssetEntryLayout title={title} ref={currentInput} asset={asset}
                                 isEntered={isEntered} isValid={isValid} save={save}>
         <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset symbol"/>
     </AddAssetEntryLayout>

@@ -1,18 +1,19 @@
 import React, {forwardRef, useCallback, useEffect, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
 
-export default forwardRef(function AddAssetEntryLayout({title, currentInput, asset, isValid, isEntered, save, children}) {
+export default forwardRef(function AddAssetEntryLayout(props, ref) {
+    const {title, asset, isValid, isEntered, save, children} = props
     const [isVisible, setIsVisible] = useState(false)
 
     const toggleShowForm = useCallback(() => {
         setIsVisible(prev => !prev)
         setTimeout(() => {
-            const input = currentInput.current
+            const input = ref?.current
             if (input) {
                 input.focus()
             }
         }, 200)
-    }, [currentInput])
+    }, [ref])
 
     const onSave = useCallback(() => {
         save(asset)

@@ -56,6 +56,7 @@ export default function ServerConfigurationPage() {
                 if (res.error)
                     throw new Error(res.error)
                 notify({type: 'success', message: 'Config updated'})
+                updateRequest.externalRequest = null
                 navigation.navigate('/')
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
