@@ -58,13 +58,13 @@ const AllNodeStats = observer(function AllNodeStats() {
         <div>
             <span className="dimmed">Submitted transactions: </span>
             <span className="inline-block">
-                {stat.submittedTransactions}
+                {stat.submittedTransactions || 'No data'}
             </span>
         </div>
         <div>
             <span className="dimmed">Total processed: </span>
             <span className="inline-block">
-                {stat.totalProcessed}
+                {stat.totalProcessed || 'No data'}
             </span>
         </div>
         <div>
@@ -90,7 +90,7 @@ const AllNodeStats = observer(function AllNodeStats() {
         </div>
         <div>
             <span className="dimmed">Connected nodes: </span>
-            {!!stat.connectedNodes.length ?
+            {stat?.connectedNodes.length ?
                 <div className="text-small block-indent">
                     {stat.connectedNodes.map(node => <div key={node} className="nano-space">
                         <i className="icon-hexagon-dice color-success"/>
