@@ -10,7 +10,7 @@ export default observer(function AddGenericAssetEntry({title, settings, save}) {
 
     const validate = useCallback(val => {
         const pattern = new RegExp("[^a-zA-z]")
-        if (pattern.test(val) || settings.data.assets.findIndex(asset => asset.code === val.toUpperCase()) !== -1) {
+        if (pattern.test(val) || settings.data.assets.findIndex(asset => asset.code === val) !== -1) {
             return false
         }
         return true

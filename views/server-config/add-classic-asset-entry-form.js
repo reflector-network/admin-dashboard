@@ -15,13 +15,13 @@ export default observer(function AddClassicAssetEntry({title, settings, save}) {
             settings.data.assets.findIndex(asset => asset.code === `${newAsset.code}:${newAsset.issuer}`) !== -1) {
             return false
         }
-        if (!StrKey.isValidEd25519PublicKey(newAsset.issuer))
+        if ((newAsset.code.toUpperCase() !== 'XLM') && !StrKey.isValidEd25519PublicKey(newAsset.issuer))
             return false
         return true
     }, [settings])
 
     const onChangeCode = useCallback(e => {
-        const val = e.target.value.trim().toUpperCase()
+        const val = e.target.value.trim()
         const newAsset = {...asset, code: val}
         setAsset(newAsset)
         setIsValid(validate(newAsset))
@@ -36,7 +36,7 @@ export default observer(function AddClassicAssetEntry({title, settings, save}) {
     //save on "Enter"
     const onKeyDown = useCallback(e => setIsEntered(e.keyCode === 13 && isValid), [isValid])
 
-    return <AddAssetEntryLayout title={title} currentInput={currentInput} asset={`${asset.code}:${asset.issuer}`}
+    return <AddAssetEntryLayout title={title} currentInput={currentInput} asset={`${asset.code}:${asset.issuer || ''}`}
                                 isEntered={isEntered} isValid={isValid} save={save}>
         <input ref={currentInput} value={asset.code || ''} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset code"/>
         <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="Issuer address"/>

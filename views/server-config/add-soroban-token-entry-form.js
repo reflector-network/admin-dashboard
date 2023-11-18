@@ -11,7 +11,7 @@ export default observer(function AddSorobanTokenEntry({title, settings, save}) {
     const validate = useCallback(val => {
         if (val.length !== 56 || !val.startsWith('C'))
             return false
-        if (settings.data.assets.findIndex(asset => asset.code === val.toUpperCase()) !== -1) {
+        if (settings.data.assets.findIndex(asset => asset.code === val) !== -1) {
             return false
         }
         return true
