@@ -25,13 +25,13 @@ export default observer(function AddClassicAssetEntry({title, settings, save}) {
             settings.data.assets.findIndex(asset => asset.code === `${newAsset.code}:${newAsset.issuer}`) !== -1) {
             return false
         }
-        if (!StrKey.isValidEd25519PublicKey(newAsset.issuer))
+        if (newAsset.code !== 'XLM' && !StrKey.isValidEd25519PublicKey(newAsset.issuer))
             return false
         return true
     }, [settings])
 
     const onChangeCode = useCallback(e => {
-        const val = e.target.value.trim().toUpperCase()
+        const val = e.target.value.trim()
         const newAsset = {...asset, code: val}
         setAsset(newAsset)
         setIsValid(validate(newAsset))
@@ -45,7 +45,8 @@ export default observer(function AddClassicAssetEntry({title, settings, save}) {
     }, [asset, validate])
 
     const onSave = useCallback(() => {
-        save(`${asset.code}:${asset.issuer}`)
+        const assetFormat = asset.issuer ? `${asset.code}:${asset.issuer}` : asset.code
+        save(assetFormat)
         toggleShowForm()
     }, [asset, save, toggleShowForm])
     //save on "Enter"

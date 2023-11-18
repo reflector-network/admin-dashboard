@@ -51,7 +51,13 @@ export default observer(function AddAssetsView({settings}) {
 
     const addAsset = useCallback(val => {
         const [code, pubkey] = val.split(':')
-        const asset = pubkey ? {type: 1, code: code + ':' + pubkey} : {type: 2, code: code.toUpperCase()}
+        const asset = pubkey ? {
+            type: 1,
+            code: code + ':' + pubkey
+        } : {
+            type: code === 'XLM' ? 1 : 2,
+            code
+        }
         if (settings.data.assets.findIndex(a => a.code === asset.code) !== -1)
             return false
         const assets = [...editableAssets, asset]
