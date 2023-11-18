@@ -56,7 +56,7 @@ export default observer(function AddAssetsView({settings}) {
         const asset = pubkey ?
             {type: 1, code: code + ':' + pubkey} :
             {
-                type: (code.length === 56 || code.toUpperCase() === 'XLM') ? 1 : 2,
+                type: (code.length === 56 || code === 'XLM') ? 1 : 2,
                 code
             }
         if (settings.data.assets.findIndex(a => a.code === asset.code) !== -1)

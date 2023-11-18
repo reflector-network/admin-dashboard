@@ -15,7 +15,7 @@ export default observer(function AddClassicAssetEntry({title, settings, save}) {
             settings.data.assets.findIndex(asset => asset.code === `${newAsset.code}:${newAsset.issuer}`) !== -1) {
             return false
         }
-        if ((newAsset.code.toUpperCase() !== 'XLM') && !StrKey.isValidEd25519PublicKey(newAsset.issuer))
+        if ((newAsset.code !== 'XLM') && !StrKey.isValidEd25519PublicKey(newAsset.issuer))
             return false
         return true
     }, [settings])
