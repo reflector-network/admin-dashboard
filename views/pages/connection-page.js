@@ -13,7 +13,6 @@ function pingServer(apiOrigin) {
             if (res.name !== 'reflector')
                 throw new Error('Unexpected response')
             clientStatus.setApiOrigin(normalizedApiOrigin)
-            debugger
             navigation.navigate('/')
         })
         .catch(({error}) => notify({type: 'error', message: error?.message || 'Invalid API url'}))
@@ -33,7 +32,6 @@ export default function ConnectionPage() {
 
     useEffect(() => {
         if (clientStatus.apiOrigin) {
-            debugger
             navigation.navigate('/')
         }
     }, [])

@@ -9,7 +9,7 @@ export default observer(function ConfigChangesView({settings}) {
 
     //hide information if update didn't submit at least once
     if (!isDisplayed)
-        return <>!</>
+        return <></>
 
     return <div className="double-space">
         <h3 className="dimmed">Changes will be applied</h3>
