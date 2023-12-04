@@ -21,7 +21,7 @@ export async function postApi(action, data) {
     return await fetchApi(action, {
         method: 'POST',
         authorizationHeader,
-        body: JSON.stringify(payload)
+        body: JSON.stringify(data)
     })
 }
 
