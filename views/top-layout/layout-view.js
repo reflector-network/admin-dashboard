@@ -1,6 +1,6 @@
 import React from 'react'
 import {ErrorBoundary} from '@stellar-expert/ui-framework'
-import ConnectionStatusView from '../status/connection-status-view'
+import AuthStatusView from '../status/auth-status-view'
 
 export default function Layout({children}) {
     return <div className="page-wrapper">
@@ -21,7 +21,7 @@ export default function Layout({children}) {
             <div className="dimmed container">
                 <div className="row">
                     <div className="column column-50 mobile-center">
-                        <ConnectionStatusView/>
+                        <AuthStatusView/>
                     </div>
                     <div className="column column-50 text-right mobile-center">
                         <div>

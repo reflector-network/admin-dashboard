@@ -1,9 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
 import {AssetLink} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
-import updateRequest from '../../state/config-update-request'
 import ActionFormLayout from './action-form-layout'
 import AddGenericAssetEntry from './add-generic-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
@@ -21,25 +18,9 @@ const removeDuplicateAssets = (assets = []) => {
     })
 }
 
-export default observer(function AddAssetsView({settings}) {
+export default function AddAssetsView({settings}) {
     const [editableAssets, setEditableAssets] = useState([])
     const [uniqueAssets, setUniqueAssets] = useState(removeDuplicateAssets(settings.data.assets))
-
-    useEffect(() => {
-        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
-        if (updateParams?.assets) {
-            const updatedAssets = updateParams.assets || []
-            setEditableAssets(updatedAssets)
-            runInAction(() => {
-                settings.data.assets = settings.loadedData.assets || []
-                settings.updatedAssets = updatedAssets
-            })
-        } else {
-            runInAction(() => settings.data.assets = settings.loadedData.assets || [])
-            setEditableAssets([])
-        }
-        settings.validate()
-    }, [settings, settings.loadedData, settings.isFinalized, updateRequest.isConfirmed])
 
     useEffect(() => {
         const uniqueAssetsList = removeDuplicateAssets(settings.data.assets)
@@ -63,14 +44,10 @@ export default observer(function AddAssetsView({settings}) {
             return false
         const assets = [...editableAssets, asset]
         setEditableAssets(assets)
-        runInAction(() => {
-            settings.data.assets = [...settings.data.assets, asset]
-            settings.updatedAssets = [...assets]
-        })
         settings.validate()
     }, [settings, editableAssets])
 
-    return <ActionNodeLayout settings={settings}>
+    return <ActionNodeLayout settings={settings} isValid>
         <h3>Tracked assets</h3>
         <hr className="flare"/>
         <ActionFormLayout settings={settings}>
@@ -94,17 +71,13 @@ export default observer(function AddAssetsView({settings}) {
             </div>
         </ActionFormLayout>
     </ActionNodeLayout>
-})
+}
 
-const AssetEntryLayout = observer(({asset, settings, editableAssets = [], setEditableAssets}) => {
+function AssetEntryLayout({asset, settings, editableAssets = [], setEditableAssets}) {
     const removeAsset = useCallback(() => {
         const confirmation = `Do you really want to remove this asset?`
         if (confirm(confirmation)) {
             setEditableAssets(editableAssets.filter(a => a.code !== asset.code))
-            runInAction(() => {
-                settings.data.assets = settings.data.assets.filter(a => a.code !== asset.code)
-                settings.updatedAssets = settings.updatedAssets.filter(a => a.code !== asset.code)
-            })
             settings.validate()
         }
     }, [settings, asset, editableAssets, setEditableAssets])
@@ -114,7 +87,7 @@ const AssetEntryLayout = observer(({asset, settings, editableAssets = [], setEdi
         {editableAssets.findIndex(a => a.code === asset.code) !== -1 &&
             <a onClick={removeAsset} style={{marginLeft: '0.3em'}}><i className="icon-cancel"/></a>}
     </div>
-})
+}
 
 export function AssetCodeView({asset}) {
     if (!asset)

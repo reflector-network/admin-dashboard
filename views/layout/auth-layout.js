@@ -1,7 +1,6 @@
 import React, {useCallback} from 'react'
 import {observer} from 'mobx-react'
 import {Button} from '@stellar-expert/ui-framework'
-import {navigation} from '@stellar-expert/navigation'
 import {requestAlbedoSession} from '../../providers/albedo-provider'
 import clientStatus from '../../state/client-status'
 import SimplePageLayout from './simple-page-layout'
@@ -11,10 +10,7 @@ export default observer(function AuthLayout({children}) {
         requestAlbedoSession()
             .then(authorized => authorized && clientStatus.pollSession())
     }, [])
-    if (!clientStatus.apiOrigin) {
-        navigation.navigate('/connect')
-        return null
-    }
+
     if (!clientStatus.hasSession || !clientStatus.isMatchingKey) //show auth request
         return <SimplePageLayout title="Authorization">
             <div className="text-center">

@@ -1,22 +1,16 @@
 import {makeAutoObservable, runInAction} from 'mobx'
-import {navigation} from '@stellar-expert/navigation'
-import {checkAlbedoSession} from '../providers/albedo-provider'
-import {getReflectorNodeInfo, getStatistics} from '../api/interface'
-import updateRequest from './config-update-request'
+import {checkAlbedoSession, signData} from '../providers/albedo-provider'
+import {getStatistics} from '../api/interface'
+import objectKeySorter from '../views/util/object-key-sorter'
 
 const statsRefreshInterval = 30//30 seconds
 
 class ClientStatus {
     constructor() {
         this.clientPublicKey = localStorage.getItem('pubkey') || ''
-        this.apiOrigin = localStorage.getItem('apiOrigin') || ''
         makeAutoObservable(this)
         setInterval(() => this.pollSession(), 10_000)
-        setInterval(() => this.updateNodeInfo(), statsRefreshInterval * 1000)
         setInterval(() => this.updateStatistics(), statsRefreshInterval * 1000)
-        if (this.apiOrigin) {
-            setTimeout(() => this.updateNodeInfo(), 1000)
-        }
     }
 
     /**
@@ -25,12 +19,6 @@ class ClientStatus {
      * @readonly
      */
     clientPublicKey = ''
-
-    /**
-     * Reflector node HTTP API origin URL
-     * @type {String}
-     */
-    apiOrigin = ''
 
     /**
      * Whether Albedo session has been initialized
@@ -46,11 +34,6 @@ class ClientStatus {
     statistics
 
     /**
-     * @type {'unknown'|'init'|'ready'}
-     */
-    status = 'unknown'
-
-    /**
      * Whether a user-provided pubkey matches server pubkey
      * @return {Boolean}
      */
@@ -64,14 +47,6 @@ class ClientStatus {
         this.pollSession()
         if (this.hasSession && key && this.serverPublicKey && this.serverPublicKey !== key) {
             notify({type: 'warning', message: 'Unauthorized. Please authorize session for public key ' + this.serverPublicKey})
-        }
-    }
-
-    setApiOrigin(origin = '') {
-        this.apiOrigin = origin
-        setGlobalConfigParam('apiOrigin', origin)
-        if (!origin) {
-            navigation.navigate('/connect')
         }
     }
 
@@ -101,33 +76,19 @@ class ClientStatus {
             })
     }
 
-    updateNodeInfo() {
-        if (!this.apiOrigin) {
-            this.status = 'unknown'
-            return
+    async createSignature(data, rejected) {
+        const nonce = new Date().getTime()
+        const payload = {...data, nonce}
+        if (rejected)
+            payload.rejected = true
+        console.log(objectKeySorter(payload))
+        const signature = await signData(objectKeySorter(payload))
+        return {
+            signature,
+            pubkey: this.clientPublicKey,
+            nonce,
+            rejected
         }
-        getReflectorNodeInfo()
-            .then(({name, pubkey, status, nodeStatus, version}) => {
-                runInAction(() => {
-                    if (name !== 'reflector') {
-                        this.status = 'unknown'
-                        this.serverPublicKey = ''
-                        this.serverVersion = ''
-                        return
-                    }
-                    this.status = status || nodeStatus
-                    this.serverVersion = version
-                    this.serverPublicKey = pubkey || ''
-                    if (this.status === 'init') {
-                        if (updateRequest.hasUpdate) {
-                            navigation.navigate('/config')
-                        } else {
-                            navigation.navigate('/initialization-progress')
-                        }
-                    }
-                })
-            })
-            .catch(({error}) => notify({type: 'error', message: error?.message || 'Node API is unreachable'}))
     }
 }
 

@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react'
 import {observer} from 'mobx-react-lite'
 import {runInAction} from 'mobx'
 import {AccountAddress, UtcTimestamp, CopyToClipboard} from '@stellar-expert/ui-framework'
-import {getUpdate} from '../../api/interface'
 import {AssetCodeView} from '../server-config/add-assets-view'
 
 export default observer(function ConfigChangesView({settings}) {
@@ -10,24 +9,6 @@ export default observer(function ConfigChangesView({settings}) {
     const [action, setAction] = useState()
     const encodedData = settings.submittedUpdate ? encodeURIComponent(JSON.stringify(settings.submittedUpdate)) : ''
     const link = window.location.href.split('?')[0] + '?section=' + action + '&update=' + encodedData
-
-    useEffect(() => {
-        setTimeout(() => {
-            getUpdate()
-                .then(pendingUpdate => {
-                    if (pendingUpdate.error)
-                        throw new Error(pendingUpdate.error)
-                    runInAction(() => {
-                        settings.submittedUpdate = pendingUpdate
-                    })
-                })
-                .catch((error) => {
-                    runInAction(() => {
-                        settings.submittedUpdate = null
-                    })
-                })
-        }, 300)
-    }, [settings])
 
     useEffect(() => {
         if (!settings.submittedUpdate)

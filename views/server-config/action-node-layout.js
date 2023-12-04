@@ -1,70 +1,45 @@
 import React, {useCallback, useState} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
-import {parseQuery} from '@stellar-expert/navigation'
-import {Button, CopyToClipboard} from '@stellar-expert/ui-framework'
+import {Button} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
-import updateRequest from '../../state/config-update-request'
-import UpdateRequestConfirmationLayout from '../layout/update-request-confirmation-layout'
+import clientStatus from '../../state/client-status'
 
-export default observer(function ActionNodeLayout({settings, children}) {
+export default function ActionNodeLayout({settings, isValid, children}) {
     const [inProgress, setInProgress] = useState(false)
+    console.log('settings',isValid, settings)
 
-    const submitUpdates = useCallback(() => {
+    const submitUpdates = useCallback(async () => {
         setInProgress(true)
-        settings.prepareData()
+        settings.config.contracts = Object.values(settings.config.contracts)
+        const signature = await clientStatus.createSignature(settings.config)
 
-        postApi('update', settings.updateData)
+        postApi('config', {
+            ...settings,
+            signatures: [signature]
+        })
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                const {nonce, ...data} = settings.updateData
-                runInAction(() => {
-                    settings.isFinalized = true
-                    settings.submittedUpdate = data
-                    settings.updateData = null
-                    settings.isValid = false
-
-                    updateRequest.externalRequest = null
-                })
-                notify({type: 'success', message: 'Update completed'})
-                settings.fetchSettings() //reload updated data
+                
+                notify({type: 'success', message: 'Update submited'})
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
     }, [settings])
 
-    return <div className="flex-column h-100">
-        <UpdateRequestConfirmationLayout/>
-        <div className="segment blank h-100">
-            <div>
-                {children}
-            </div>
-            <div className="space row">
-                <div className="column column-66 text-center">
-                    {!!inProgress && <>
-                        <div className="loader inline"/>
-                        <span className="dimmed text-small"> In progress...</span>
-                    </>}
-                </div>
-                <div className="column column-33">
-                    <Button block disabled={!settings.isValid || inProgress} onClick={submitUpdates}>Submit</Button>
-                </div>
-            </div>
-            {!!settings.isFinalized && <UpdateDataLinkLayout settings={settings}/>}
+    return <div className="segment blank h-100">
+        <div>
+            {children}
         </div>
-    </div>
-})
-
-function UpdateDataLinkLayout({settings}) {
-    const encodedData = encodeURIComponent(JSON.stringify(settings.submittedUpdate))
-    const {section} = parseQuery()
-    const link = window.location.href.split('?')[0] + '?section=' + section + '&update=' + encodedData
-
-    return <div className="space">
-        <hr className="flare"/>
-        Share this quorum update with other nodes.
-        Copy the link and send it to other node operators <CopyToClipboard text={link}/>
-        <textarea readOnly style={{width: '100%', height: '5em'}} value={link}/>
+        <div className="space row">
+            <div className="column column-66 text-center">
+                {!!inProgress && <>
+                    <div className="loader inline"/>
+                    <span className="dimmed text-small"> In progress...</span>
+                </>}
+            </div>
+            <div className="column column-33">
+                <Button block disabled={!isValid || inProgress} onClick={submitUpdates}>Submit</Button>
+            </div>
+        </div>
     </div>
 }

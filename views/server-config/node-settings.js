@@ -1,5 +1,4 @@
 import {makeAutoObservable, runInAction} from 'mobx'
-import {getCurrentSettings} from '../../api/interface'
 
 export const UPDATE_NODES = 'nodes'
 export const UPDATE_ASSETS = 'assets'
@@ -32,13 +31,6 @@ export default class NodeSettings {
     }
 
     fetchSettings() {
-        getCurrentSettings()
-            .then(loadedData => {
-                if (loadedData.error)
-                    throw new Error(loadedData.error)
-                this.finalizeSettings(loadedData)
-            })
-            .catch(error => notify({type: 'error', message: error?.message || "Failed to get data"}))
     }
 
     finalizeSettings(loadedData) {
@@ -69,12 +61,6 @@ export default class NodeSettings {
             case UPDATE_CONTRACT:
                 this.updateData.wasmHash = this.data.wasmHash
                 break
-        }
-    }
-
-    normalizeTimestamp() {
-        if (!this.isNormalizedTimestamp) {
-            this.data.timestamp = (Math.floor(this.data.timestamp / this.timeframe) * this.timeframe) + (this.timeframe / 2)
         }
     }
 

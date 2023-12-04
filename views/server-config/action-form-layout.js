@@ -1,37 +1,74 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
 import {UtcTimestamp} from '@stellar-expert/ui-framework'
-import updateRequest from '../../state/config-update-request'
 
-export default observer(function ActionFormLayout({settings, children}) {
-    const [isValid, setIsValid] = useState(true)
+export function updateTimeValidation(settings) {
+    const timestamp = settings.timestamp
+    const minDate = settings.config.minDate
+    const min = new Date().getTime() + 30 * 60 * 1000
+    const max = new Date().getTime() + 10 * 24 * 60 * 60 * 1000
+    if (!timestamp && !minDate)
+        return
+    //check only minDate, if set minDate timestamp will be with same value
+    if (minDate < min || minDate > max)
+        return
+    return true
+}
 
-    useEffect(() => {
-        if (updateRequest.isConfirmed && updateRequest.externalRequest.timestamp) {
-            runInAction(() => {
-                settings.data.timestamp = updateRequest.externalRequest.timestamp
-                settings.isNormalizedTimestamp = true
-            })
-            settings.validate()
+export default function ActionFormLayout({timeframe, updateSettings, validation, children}) {
+    const [timestamp, setTimestamp] = useState('')
+    const [minDate, setMinDate] = useState('')
+    const [isValidTime, setIsValidTime] = useState(true)
+
+    const validateTime = useCallback(time => {
+        try {
+            setIsValidTime(!!new Date(time).getTime())
+        } catch (err) {
+            setIsValidTime(false)
         }
-    }, [settings, updateRequest.isConfirmed])
+    }, [])
+
+    const changeUpdateTime = useCallback(({timestamp = 0, minDate = 0}) => {
+        setTimestamp(timestamp)
+        setMinDate(minDate)
+        updateSettings(prev => {
+            const newSettings = {...prev, timestamp}
+            newSettings.config.minDate = minDate
+            validation(newSettings)
+            return newSettings
+        })
+    }, [updateSettings, validation])
+
+    useEffect(() => changeUpdateTime({}),[changeUpdateTime])
 
     const updateTimestamp = useCallback(e => {
         const val = parseInt(e.target.value, 10)
-        try {
-            setIsValid(!!new Date(val).getTime())
-        } catch (err) {
-            setIsValid(false)
-        }
-        runInAction(() => {
-            settings.data.timestamp = val
-            settings.isNormalizedTimestamp = false
-        })
-        settings.validate()
-    }, [settings])
+        changeUpdateTime({timestamp: val, minDate: val})
+        validateTime(val)
+    }, [changeUpdateTime, validateTime])
 
-    const normalizeTimestamp = useCallback(() => settings.normalizeTimestamp(), [settings])
+    const updateMinDate = useCallback(e => {
+        const val = parseInt(e.target.value, 10)
+        changeUpdateTime({minDate: val})
+        validateTime(val)
+    }, [changeUpdateTime, validateTime])
+
+    const timeFormater = useCallback(time => {
+        if (!timeframe)
+            return time
+        return (Math.floor(time / timeframe) * timeframe) + (timeframe / 2)
+    }, [timeframe])
+
+    const normalizeTimestamp = useCallback(e => {
+        const val = parseInt(e.target.value, 10)
+        const time = val ? timeFormater(val) : val
+        changeUpdateTime({timestamp: time, minDate: time})
+    }, [changeUpdateTime, timeFormater])
+
+    const normalizeMinDate = useCallback(e => {
+        const val = parseInt(e.target.value, 10)
+        const minDate = val ? timeFormater(val) : val
+        changeUpdateTime({minDate})
+    }, [changeUpdateTime, timeFormater])
 
     return <div className="row">
         <div className="column column-66">
@@ -44,11 +81,21 @@ export default observer(function ActionFormLayout({settings, children}) {
                 <span className="dimmed text-tiny">
                     (Set the date for no more than 10 days, in milliseconds)
                 </span>
-                <input className="micro-space" value={settings.data.timestamp || ''} onChange={updateTimestamp} onBlur={normalizeTimestamp}/>
-                {(!!isValid && !!settings.data.timestamp) && <div className="dimmed text-tiny">
-                    (<UtcTimestamp date={settings.data.timestamp}/>)
+                <input className="micro-space" value={timestamp || ''} onChange={updateTimestamp} onBlur={normalizeTimestamp}/>
+                {(!!isValidTime && !!timestamp) && <div className="dimmed text-tiny">
+                    (<UtcTimestamp date={timestamp}/>)
+                </div>}
+            </label>
+            <div className="space"/>
+            <label>Min date of quorum update time (UTC)<br/>
+                <span className="dimmed text-tiny">
+                    (Set the date for no more than 10 days, in milliseconds)
+                </span>
+                <input className="micro-space" value={minDate || ''} onChange={updateMinDate} onBlur={normalizeMinDate}/>
+                {(!!isValidTime && !!minDate) && <div className="dimmed text-tiny">
+                    (<UtcTimestamp date={minDate}/>)
                 </div>}
             </label>
         </div>
     </div>
-})
+}

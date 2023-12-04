@@ -1,37 +1,24 @@
-import React, {useEffect} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
-import {UPDATE_ASSETS, UPDATE_CONTRACT, UPDATE_NODES, UPDATE_PERIOD} from '../server-config/node-settings'
+import React from 'react'
+import {useLocation} from 'react-router'
+import {parseQuery} from '@stellar-expert/navigation'
 import UpdateNodeView from '../server-config/update-node-view'
 import AddAssetsView from '../server-config/add-assets-view'
 import UpdatePeriodView from '../server-config/update-period-view'
-import ConfigSharingSectionView from '../server-config/config-sharing-section-view'
 import UpdateContractView from '../server-config/update-contract-view'
 
-export default observer(function SettingsSectionView({settings, sectionName}) {
-    useEffect(() => {
-        runInAction(() => {
-            settings.isFinalized = false
-            settings.updateData = null
-        })
-        setTimeout(() => settings.fetchSettings(), 400)
-    }, [settings, sectionName])
+export default function SettingsSectionView({settings}) {
+    const location = useLocation()
+    const {section = 'about', contract} = parseQuery(location.search)
 
-    switch (sectionName) {
+    switch (section) {
         case 'nodes':
-            settings.action = UPDATE_NODES
             return <UpdateNodeView settings={settings}/>
         case 'assets':
-            settings.action = UPDATE_ASSETS
-            return <AddAssetsView settings={settings}/>
-        case 'timeframe':
-            settings.action = UPDATE_PERIOD
-            return <UpdatePeriodView settings={settings}/>
+            return <AddAssetsView settings={settings} contractId={contract}/>
+        case 'period':
+            return <UpdatePeriodView settings={settings} contractId={contract}/>
         case 'contract':
-            settings.action = UPDATE_CONTRACT
             return <UpdateContractView settings={settings}/>
-        case 'share-config':
-            return <ConfigSharingSectionView/>
         default:
             return <div className="segment blank">
                 <div>
@@ -47,4 +34,4 @@ export default observer(function SettingsSectionView({settings, sectionName}) {
                 </div>
             </div>
     }
-})
+}
