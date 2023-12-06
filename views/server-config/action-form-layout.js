@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useState} from 'react'
 import {UtcTimestamp} from '@stellar-expert/ui-framework'
 
 export function updateTimeValidation(settings) {
@@ -37,8 +37,6 @@ export default function ActionFormLayout({timeframe, updateSettings, validation,
             return newSettings
         })
     }, [updateSettings, validation])
-
-    useEffect(() => changeUpdateTime({}),[changeUpdateTime])
 
     const updateTimestamp = useCallback(e => {
         const val = parseInt(e.target.value, 10)

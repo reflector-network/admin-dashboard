@@ -1,15 +1,22 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
+import {StrKey} from 'stellar-sdk'
 
-export default function AddNodeEntry({title, validation, editNode, isEditFormOpen, save}) {
+function validateNode(node) {
+    if (!StrKey.isValidEd25519PublicKey(node.pubkey))
+        return
+    if (!node.url?.length)
+        return
+    return true
+}
+
+export default function AddNodeEntry({title, editNode, isEditFormOpen, save}) {
     const [isVisible, setIsVisible] = useState(isEditFormOpen)
     const [isValid, setIsValid] = useState(false)
     const [node, setNode] = useState(editNode || {})
     const currentInput = useRef(null)
 
-    useEffect(() => {
-        setIsVisible(isEditFormOpen)
-    }, [isEditFormOpen])
+    useEffect(() => setIsVisible(isEditFormOpen), [isEditFormOpen])
 
     const toggleShowForm = useCallback(() => {
         setIsVisible(!isVisible)
@@ -22,23 +29,21 @@ export default function AddNodeEntry({title, validation, editNode, isEditFormOpe
         }, 200)
     }, [isVisible, editNode])
 
-    const validate = useCallback(newNode => {
-        setIsValid(validation(newNode))
-    }, [validation])
-
     const onChangePubkey = useCallback(e => {
-        const val = e.target.value.trim()
-        const newNode = {...node, pubkey: val}
-        setNode(newNode)
-        validate(newNode)
-    }, [node, validate])
+        setNode(prev => {
+            const newNode = {...prev, pubkey: e.target.value.trim()}
+            setIsValid(validateNode(newNode))
+            return newNode
+        })
+    }, [])
 
     const onChangeUrl = useCallback(e => {
-        const val = e.target.value.trim()
-        const newNode = {...node, url: val}
-        setNode(newNode)
-        validate(newNode)
-    }, [node, validate])
+        setNode(prev => {
+            const newNode = {...prev, url: e.target.value.trim()}
+            setIsValid(validateNode(newNode))
+            return newNode
+        })
+    }, [])
 
     const onSave = useCallback(() => {
         save(node)
@@ -47,9 +52,9 @@ export default function AddNodeEntry({title, validation, editNode, isEditFormOpe
     //save on "Enter"
     const onKeyDown = useCallback(function (e) {
         if (e.keyCode === 13 && isValid) {
-            onSave()
+            onSave(node)
         }
-    }, [isValid, onSave])
+    }, [isValid, node, onSave])
 
     return <span>
         {!!title && <a onClick={toggleShowForm}>{title}</a>}

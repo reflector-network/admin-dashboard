@@ -1,30 +1,33 @@
-import React, {useCallback, useEffect} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
-import updateRequest from '../../state/config-update-request'
+import React, {useCallback, useState} from 'react'
+import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
 import ActionNodeLayout from './action-node-layout'
-import ActionFormLayout from './action-form-layout'
 
-export default observer(function UpdateContractView({settings}) {
-    useEffect(() => {
-        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
-        if (updateParams?.wasmHash) {
-            runInAction(() => settings.data.wasmHash = updateParams?.wasmHash)
-        } else {
-            runInAction(() => settings.data.wasmHash = settings.loadedData.wasmHash)
-        }
-        settings.validate()
-    }, [settings, settings.loadedData, updateRequest.isConfirmed])
+export default function UpdateContractView({settings}) {
+    const [isValid, setIsValid] = useState(false)
+    const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
+
+    const validation = useCallback(newSettings => {
+        if (changedSettings.config.wasmHash.length !== 64)
+            return setIsValid(false)
+        if (!updateTimeValidation(newSettings))
+            return setIsValid(false)
+        setIsValid(true)
+    }, [changedSettings])
 
     const updateWasmHash = useCallback(e => {
-        runInAction(() => settings.data.wasmHash = e.target.value)
-        settings.validate()
-    }, [settings])
+        const val = e.target.value
+        setChangedSettings(prev => {
+            const newSettings = {...prev}
+            newSettings.config.wasmHash = val
+            validation(newSettings)
+            return newSettings
+        })
+    }, [validation])
 
-    return <ActionNodeLayout settings={settings}>
+    return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
         <h3>Update contract</h3>
         <hr className="flare"/>
-        <ActionFormLayout settings={settings}>
+        <ActionFormLayout updateSettings={setChangedSettings} validation={validation}>
             <div className="row">
                 <div className="column column-90">
                     <label>Wasm hash<br/>
@@ -32,10 +35,10 @@ export default observer(function UpdateContractView({settings}) {
                             (Hash of the new contract that will update the code on the blockchain, string of 64 characters)
                         </span>
                         <textarea className="micro-space" style={{maxWidth: '100%', minHeight: 'calc(4em - 1px)'}}
-                                  value={settings.data.wasmHash || ''} onChange={updateWasmHash}/>
+                                  value={changedSettings.config.wasmHash || ''} onChange={updateWasmHash}/>
                     </label>
                 </div>
             </div>
         </ActionFormLayout>
     </ActionNodeLayout>
-})
+}

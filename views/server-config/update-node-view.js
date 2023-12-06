@@ -1,94 +1,66 @@
-import React, {useCallback, useEffect, useState} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
+import React, {useCallback, useState} from 'react'
 import {AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
-import {StrKey} from 'stellar-sdk'
-import updateRequest from '../../state/config-update-request'
+import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
 import ActionNodeLayout from './action-node-layout'
-import ActionFormLayout from './action-form-layout'
 import AddNodeEntry from './add-node-entry-form'
 
-export default observer(function UpdateNodeView({settings}) {
-    useEffect(() => {
-        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
-        if (updateParams?.nodes) {
-            runInAction(() => {
-                settings.isLimitUpdates = true
-                settings.data.nodes = updateParams?.nodes || []
-            })
-        } else {
-            runInAction(() => {
-                if (settings.isFinalized) {
-                    settings.isLimitUpdates = false
-                }
-                settings.data.nodes = settings.loadedData.nodes || []
-            })
-        }
-        settings.validate()
-    }, [settings, settings.loadedData, updateRequest.isConfirmed])
+export default function UpdateNodeView({settings}) {
+    const [isValid, setIsValid] = useState(false)
+    const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
+    const [isLimitUpdates, setIsLimitUpdates] = useState(false)
 
-    const validation = useCallback(node => {
-        if (!StrKey.isValidEd25519PublicKey(node.pubkey))
-            return
-        if (!node.url?.length)
-            return
-        return true
+    const validation = useCallback(newSettings => {
+        if (!updateTimeValidation(newSettings))
+            return setIsValid(false)
+        setIsValid(true)
     }, [])
 
-    const addNode = useCallback(node => {
-        const index = settings.data.nodes.findIndex(n => n.pubkey === node.pubkey)
-        if (index !== -1) {
-            runInAction(() => {
-                settings.data.nodes[index] = node
-                settings.isLimitUpdates = true
-            })
-        } else {
-            runInAction(() => {
-                settings.data.nodes.push(node)
-                settings.isLimitUpdates = true
-            })
-        }
-        settings.validate()
-    }, [settings])
+    const saveNode = useCallback((node) => {
+        const index = changedSettings.config.nodes.findIndex(n => n.pubkey === node.pubkey)
+        setChangedSettings(prev => {
+            const newSettings = {...prev}
+            if (index !== -1) {
+                newSettings.config.nodes[index] = node
+            } else {
+                newSettings.config.nodes.push(node)
+            }
+            validation(newSettings)
+            return newSettings
+        })
+        setIsLimitUpdates(true)
+    }, [changedSettings, validation])
 
-    return <ActionNodeLayout settings={settings}>
+    return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
         <h3>Peer nodes</h3>
         <hr className="flare"/>
-        <ActionFormLayout settings={settings}>
+        <ActionFormLayout updateSettings={setChangedSettings} validation={validation}>
             <h3>Quorum nodes</h3>
-            {settings.data.nodes?.map(node => {
-                if (node.remove)
-                    return false
-                return <NodeEntryLayout key={node.pubkey} settings={settings} node={node} validation={validation} save={addNode}/>
-            })}
+            {changedSettings.config.nodes?.map(node => !node.remove &&
+                <NodeEntryLayout key={node.pubkey} node={node} save={saveNode} isLimitUpdates={isLimitUpdates}/>)}
             <div className="space"/>
-            {!settings.isLimitUpdates && <AddNodeEntry title={<><i className="icon-plus"/>Add new node</>}
-                                                       validation={validation} save={addNode}/>}
+            {!isLimitUpdates && <AddNodeEntry title={<><i className="icon-plus"/>Add new node</>} save={saveNode}/>}
         </ActionFormLayout>
     </ActionNodeLayout>
-})
+}
 
-const NodeEntryLayout = observer(({settings, node, validation, save}) => {
+function NodeEntryLayout({node, save, isLimitUpdates}) {
     const [isEditFormOpen, setIsEditFormOpen] = useState(false)
 
-    const toggleShowForm = useCallback(() => setIsEditFormOpen(!isEditFormOpen), [isEditFormOpen])
+    const toggleShowForm = useCallback(() => setIsEditFormOpen(isOpen => !isOpen), [])
 
     const removeNode = useCallback(() => {
         const confirmation = `Do you really want to remove this node?`
         if (confirm(confirmation)) {
-            const index = settings.data.nodes.findIndex(n => n.pubkey === node.pubkey)
-            runInAction(() => {
-                settings.data.nodes[index].remove = true
-                delete settings.data.nodes[index].url
-                settings.isLimitUpdates = true
+            save({
+                pubkey: node.pubkey,
+                remove: true
             })
-            settings.validate()
         }
-    }, [settings, node])
+    }, [node, save])
 
-    const onSave = useCallback(e => {
+    const onSave = useCallback(node => {
         setIsEditFormOpen(false)
-        save(e)
+        save(node)
     }, [save])
 
     return <>
@@ -99,10 +71,10 @@ const NodeEntryLayout = observer(({settings, node, validation, save}) => {
             </div>
             <div style={{marginRight: 'auto'}}>
                 <CopyToClipboard text={node.pubkey} title="Copy public key to clipboard"/>
-                {!settings.isLimitUpdates && <a href="#" className="icon-cog" onClick={toggleShowForm}/>}
-                {!settings.isLimitUpdates && <a href="#" className="icon-cancel" onClick={removeNode}/>}
+                {!isLimitUpdates && <a href="#" className="icon-cog" onClick={toggleShowForm}/>}
+                {!isLimitUpdates && <a href="#" className="icon-cancel" onClick={removeNode}/>}
             </div>
         </div>
-        {!settings.isLimitUpdates && <AddNodeEntry validation={validation} editNode={node} isEditFormOpen={isEditFormOpen} save={onSave}/>}
+        {!isLimitUpdates && <AddNodeEntry editNode={node} isEditFormOpen={isEditFormOpen} save={onSave}/>}
     </>
-})
+}

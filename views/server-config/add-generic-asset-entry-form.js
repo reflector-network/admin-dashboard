@@ -2,7 +2,7 @@ import React, {useCallback, useRef, useState} from 'react'
 import {observer} from 'mobx-react'
 import AddAssetEntryLayout from './add-asset-entry-layout'
 
-export default observer(function AddGenericAssetEntry({title, settings, save}) {
+export default observer(function AddGenericAssetEntry({contract, save}) {
     const [asset, setAsset] = useState('')
     const [isValid, setIsValid] = useState(false)
     const [isEntered, setIsEntered] = useState(false)
@@ -10,11 +10,11 @@ export default observer(function AddGenericAssetEntry({title, settings, save}) {
 
     const validate = useCallback(val => {
         const pattern = new RegExp("[^a-zA-z]")
-        if (pattern.test(val) || settings.data.assets.findIndex(asset => asset.code === val) !== -1) {
+        if (pattern.test(val) || contract.assets.findIndex(asset => asset.code === val) !== -1) {
             return false
         }
         return true
-    }, [settings])
+    }, [contract])
 
     const onChangeCode = useCallback(e => {
         const val = e.target.value.trim()
@@ -24,7 +24,7 @@ export default observer(function AddGenericAssetEntry({title, settings, save}) {
     //save on "Enter"
     const onKeyDown = useCallback(e => setIsEntered(e.keyCode === 13 && isValid), [isValid])
 
-    return <AddAssetEntryLayout title={title} ref={currentInput} asset={asset}
+    return <AddAssetEntryLayout title="Add generic asset" ref={currentInput} asset={asset}
                                 isEntered={isEntered} isValid={isValid} save={save}>
         <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset symbol"/>
     </AddAssetEntryLayout>

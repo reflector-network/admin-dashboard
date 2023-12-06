@@ -15,7 +15,6 @@ async function getNoAuthApi(endpoint) {
 export async function postApi(action, data) {
     const nonce = generateNonce()
     const payload = objectKeySorter({...data, nonce})
-    console.log(payload)
     const signature = await signData(payload)
     const authorizationHeader = `${clientStatus.clientPublicKey}.${signature}.${nonce}`
     return await fetchApi(action, {

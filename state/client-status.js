@@ -81,7 +81,6 @@ class ClientStatus {
         const payload = {...data, nonce}
         if (rejected)
             payload.rejected = true
-        console.log(objectKeySorter(payload))
         const signature = await signData(objectKeySorter(payload))
         return {
             signature,

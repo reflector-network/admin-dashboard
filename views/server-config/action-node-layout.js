@@ -4,27 +4,27 @@ import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 
 export default function ActionNodeLayout({settings, isValid, children}) {
+    const newSettings = structuredClone(settings)
     const [inProgress, setInProgress] = useState(false)
-    console.log('settings',isValid, settings)
+    // console.log('settings',isValid, newSettings)
 
     const submitUpdates = useCallback(async () => {
         setInProgress(true)
-        settings.config.contracts = Object.values(settings.config.contracts)
-        const signature = await clientStatus.createSignature(settings.config)
+        newSettings.config.contracts = Object.values(newSettings.config.contracts)
+        const signature = await clientStatus.createSignature(newSettings.config)
 
         postApi('config', {
-            ...settings,
+            ...newSettings,
             signatures: [signature]
         })
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                
                 notify({type: 'success', message: 'Update submited'})
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
-    }, [settings])
+    }, [newSettings])
 
     return <div className="segment blank h-100">
         <div>

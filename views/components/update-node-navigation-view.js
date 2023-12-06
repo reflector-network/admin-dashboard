@@ -11,7 +11,7 @@ export const allSections = [
     {name: 'period', title: 'Retention period', hasChild: true}
 ]
 
-export default function UpdateNodeNavigationView({config}) {
+export default function UpdateNodeNavigationView({contracts}) {
     const location = useLocation()
     const {section: activeSection = allSections[0].name, contract: currentContract} = parseQuery(location.search)
 
@@ -22,7 +22,7 @@ export default function UpdateNodeNavigationView({config}) {
                 {section.hasChild ? <>
                     <span>{title}</span>
                     <ul style={{margin: '0 0.6em'}}>
-                        {Object.keys(config.contracts || []).map(contract => <li key={contract} style={{padding: '0.15em 0'}}>
+                        {Object.keys(contracts || []).map(contract => <li key={contract} style={{padding: '0.15em 0'}}>
                             {(contract === currentContract && section.name === activeSection) ?
                                 <span><i className="icon-angle-double-right"/>{shortenString(contract)}</span> :
                                 <a href={`/?section=${section.name}&contract=${contract}`}>{shortenString(contract)}</a>

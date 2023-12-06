@@ -5,7 +5,7 @@ import ActionNodeLayout from './action-node-layout'
 
 export default function UpdatePeriodView({settings, contractId}) {
     const [isValid, setIsValid] = useState(false)
-    const [changedSettings, setChangedSettings] = useState(settings)
+    const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
     const contract = changedSettings.config.contracts[contractId]
 
     //Redirect to main page if contractId from URL params is invalid
@@ -14,9 +14,8 @@ export default function UpdatePeriodView({settings, contractId}) {
     }
 
     useEffect(() => {
-        setChangedSettings(settings)
-        setIsValid(false)
-    }, [settings])
+        setChangedSettings(structuredClone(settings))
+    }, [settings, contractId])
 
     const validation = useCallback(newSettings => {
         if (contract.period <= contract.timeframe)
@@ -39,7 +38,7 @@ export default function UpdatePeriodView({settings, contractId}) {
     return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
         <h3>Retention period</h3>
         <hr className="flare"/>
-        <ActionFormLayout contract={contract} updateSettings={setChangedSettings} validation={validation}>
+        <ActionFormLayout timeframe={contract.timeframe} updateSettings={setChangedSettings} validation={validation}>
             <div className="row">
                 <div className="column column-50">
                     <label>Price quotes retention period<br/>

@@ -4,19 +4,16 @@ import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 
 export default function UpdateRequestVotingView({pendingSettings}) {
-    console.log(pendingSettings)
     const ownSign = pendingSettings?.signatures.filter(sign => sign.pubkey === clientStatus.clientPublicKey).length
     const [isSigned, setIsSigned] = useState(!!ownSign)
 
     const vote = useCallback(async (vote) => {
         const signature = await clientStatus.createSignature(pendingSettings.config, !vote)
 
-        const data = {
+        postApi('config', {
             ...pendingSettings,
             signatures: [signature]
-        }
-        console.log('data', data)
-        postApi('config', data)
+        })
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
