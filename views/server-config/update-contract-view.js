@@ -24,7 +24,7 @@ export default function UpdateContractView({settings}) {
         })
     }, [validation])
 
-    return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
+    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Update contract</h3>
         <hr className="flare"/>
         <ActionFormLayout updateSettings={setChangedSettings} validation={validation}>

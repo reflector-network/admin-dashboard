@@ -2,11 +2,16 @@ import React, {useCallback, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
+import configChangesDetector from '../util/config-changes-detecor'
 
-export default function ActionNodeLayout({settings, isValid, children}) {
+export default function ActionNodeLayout({settings, currentConfig, isValid, children}) {
     const newSettings = structuredClone(settings)
+    const compaseConfigutarion = {
+        currentConfig,
+        pendingConfig: newSettings
+    }
+    const isReady = isValid && !!configChangesDetector(compaseConfigutarion).length
     const [inProgress, setInProgress] = useState(false)
-    // console.log('settings',isValid, newSettings)
 
     const submitUpdates = useCallback(async () => {
         setInProgress(true)
@@ -38,7 +43,7 @@ export default function ActionNodeLayout({settings, isValid, children}) {
                 </>}
             </div>
             <div className="column column-33">
-                <Button block disabled={!isValid || inProgress} onClick={submitUpdates}>Submit</Button>
+                <Button block disabled={!isReady || inProgress} onClick={submitUpdates}>Submit</Button>
             </div>
         </div>
     </div>

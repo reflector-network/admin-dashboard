@@ -8,6 +8,7 @@ export default function UpdateRequestVotingView({pendingSettings}) {
     const [isSigned, setIsSigned] = useState(!!ownSign)
 
     const vote = useCallback(async (vote) => {
+        pendingSettings.config.contracts = Object.values(pendingSettings.config.contracts)
         const signature = await clientStatus.createSignature(pendingSettings.config, !vote)
 
         postApi('config', {

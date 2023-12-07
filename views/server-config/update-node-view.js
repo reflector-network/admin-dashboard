@@ -24,13 +24,14 @@ export default function UpdateNodeView({settings}) {
             } else {
                 newSettings.config.nodes.push(node)
             }
+            newSettings.config.nodes = newSettings.config.nodes.filter(n => !n.remove)
             validation(newSettings)
             return newSettings
         })
         setIsLimitUpdates(true)
     }, [changedSettings, validation])
 
-    return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
+    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Peer nodes</h3>
         <hr className="flare"/>
         <ActionFormLayout updateSettings={setChangedSettings} validation={validation}>
@@ -52,7 +53,7 @@ function NodeEntryLayout({node, save, isLimitUpdates}) {
         const confirmation = `Do you really want to remove this node?`
         if (confirm(confirmation)) {
             save({
-                pubkey: node.pubkey,
+                ...node,
                 remove: true
             })
         }

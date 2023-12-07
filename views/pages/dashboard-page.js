@@ -10,7 +10,7 @@ function configFormatter(config) {
     if (!config)
         return
     const contracts = {}
-    config.contracts?.forEach(contract => contracts[contract.admin] = contract)
+    config.contracts?.forEach(contract => contracts[contract.oracleId] = contract)
     return {...config, contracts}
 }
 
@@ -23,8 +23,14 @@ export default function DashboardPage() {
                 if (res.error)
                     throw new Error(res.error)
                 //TODO:change server configuration with correct format
-                const formattedConfig = configFormatter(res.currentConfig.config)
-                setConfiguration({...res, currentConfig: {...res.currentConfig, config: formattedConfig}})
+                const formattedConfiguration = res
+                if (formattedConfiguration?.currentConfig?.config) {
+                    formattedConfiguration.currentConfig.config = configFormatter(res.currentConfig.config)
+                }
+                if (formattedConfiguration?.pendingConfig?.config) {
+                    formattedConfiguration.pendingConfig.config = configFormatter(res.pendingConfig.config)
+                }
+                setConfiguration(formattedConfiguration)
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
     }, [])
@@ -37,7 +43,7 @@ export default function DashboardPage() {
             <div className="column column-25">
                 <div className="segment" style={{minHeight: '50vh'}}>
                     <UpdateNodeNavigationView contracts={configuration.currentConfig.config.contracts}/>
-                    {/* <ConfigChangesView settings={settings}/> */}
+                    <ConfigChangesView configuration={configuration}/>
                 </div>
                 <div className="space mobile-only"/>
             </div>

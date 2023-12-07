@@ -57,7 +57,7 @@ export default function AddAssetsView({settings, contractId}) {
         updateAssets([...editableAssets, asset])
     }, [contract, editableAssets, updateAssets])
 
-    return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
+    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Tracked assets</h3>
         <hr className="flare"/>
         <ActionFormLayout timeframe={contract?.timeframe} updateSettings={setChangedSettings} validation={validation}>
