@@ -6,11 +6,12 @@ import configChangesDetector from '../util/config-changes-detecor'
 
 export default function ActionNodeLayout({settings, currentConfig, isValid, children}) {
     const newSettings = structuredClone(settings)
-    const compaseConfigutarion = {
+    const compareConfigutarion = {
         currentConfig,
         pendingConfig: newSettings
     }
-    const isReady = isValid && !!configChangesDetector(compaseConfigutarion).length
+    //ready to submitting if there are valid changes
+    const isReady = isValid && !!configChangesDetector(compareConfigutarion).length
     const [inProgress, setInProgress] = useState(false)
 
     const submitUpdates = useCallback(async () => {

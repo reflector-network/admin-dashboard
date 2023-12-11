@@ -4,12 +4,9 @@ import objectKeySorter from './../views/util/object-key-sorter'
 
 const tunnelServer = 'https://tunnel.reflector.world/'
 
-async function getApi(endpoint) {
-    return await fetchApi(endpoint, {})
-}
-
-async function getNoAuthApi(endpoint) {
-    return await fetchApi('')
+async function getApi(endpoint, data) {
+    const payload = (data) ? '?' + new URLSearchParams(data).toString() : ''
+    return await fetchApi(endpoint + payload, {})
 }
 
 export async function postApi(action, data) {
@@ -28,12 +25,12 @@ export function getCurrentConfig() {
     return getApi('config')
 }
 
-export function getStatistics() {
-    return getApi('statistics')
+export function getConfigHistory(params) {
+    return getApi('config/history', params)
 }
 
-export function getConfigRequirements() {
-    return getNoAuthApi('config-requirements')
+export function getStatistics() {
+    return getApi('statistics')
 }
 
 async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null, body = undefined}) {

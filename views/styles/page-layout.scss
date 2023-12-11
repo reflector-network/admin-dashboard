@@ -1,5 +1,3 @@
-$top-menu-line-height: 2.2em;
-
 body {
   display: flex;
   flex-direction: column;
@@ -26,6 +24,11 @@ body {
 
 .segment {
   padding: 2rem 4rem;
+}
+
+.row-selector {
+  position: absolute;
+  left: 0;
 }
 
 .footer {

@@ -15,23 +15,24 @@ export default function AddAssetsView({settings, contractId}) {
     const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
     const contract = changedSettings.config.contracts[contractId]
 
-    //Redirect to main page if contractId from URL params is invalid
+    //redirect to main page if contractId from URL params is invalid
     if (!contract) {
         navigation.navigate('/')
     }
 
+    //reset form if contract has been changed
     useEffect(() => {
         setEditableAssets([])
         setChangedSettings(structuredClone(settings))
     }, [settings, contractId])
 
     const validation = useCallback(newSettings => {
-        if (!editableAssets.length)
+        if (newSettings.length === supportedAssets.length)
             return setIsValid(false)
         if (!updateTimeValidation(newSettings))
             return setIsValid(false)
         setIsValid(true)
-    }, [editableAssets])
+    }, [supportedAssets])
 
     const updateAssets = useCallback(assetList => {
         setEditableAssets(assetList)

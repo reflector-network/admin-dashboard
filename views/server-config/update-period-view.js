@@ -8,7 +8,7 @@ export default function UpdatePeriodView({settings, contractId}) {
     const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
     const contract = changedSettings.config.contracts[contractId]
 
-    //Redirect to main page if contractId from URL params is invalid
+    //redirect to main page if contractId from URL params is invalid
     if (!contract) {
         navigation.navigate('/')
     }
@@ -35,7 +35,7 @@ export default function UpdatePeriodView({settings, contractId}) {
         })
     }, [contractId, validation])
 
-    return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
+    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Retention period</h3>
         <hr className="flare"/>
         <ActionFormLayout timeframe={contract.timeframe} updateSettings={setChangedSettings} validation={validation}>

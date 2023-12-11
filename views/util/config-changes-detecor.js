@@ -3,6 +3,10 @@ export default function configChangesDetector(configuration) {
     const currentConfig = configuration.currentConfig?.config
     const changedData = []
 
+    //returns an empty array if nothing is compared
+    if (!pendingConfig || !currentConfig)
+        return changedData
+
     if (pendingConfig.wasmHash !== currentConfig.wasmHash) {
         changedData.push({
             type: 'wasmHash',

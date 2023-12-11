@@ -5,6 +5,7 @@ import UpdateNodeView from '../server-config/update-node-view'
 import AddAssetsView from '../server-config/add-assets-view'
 import UpdatePeriodView from '../server-config/update-period-view'
 import UpdateContractView from '../server-config/update-contract-view'
+import ConfigurationHistoryView from '../server-config/configuration-history-view'
 
 export default function SettingsSectionView({settings}) {
     const location = useLocation()
@@ -19,6 +20,8 @@ export default function SettingsSectionView({settings}) {
             return <UpdatePeriodView settings={settings} contractId={contract}/>
         case 'contract':
             return <UpdateContractView settings={settings}/>
+        case 'history':
+            return <ConfigurationHistoryView/>
         default:
             return <div className="segment blank">
                 <div>

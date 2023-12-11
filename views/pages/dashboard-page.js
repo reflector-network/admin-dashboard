@@ -32,7 +32,7 @@ export default function DashboardPage() {
                 }
                 setConfiguration(formattedConfiguration)
             })
-            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration'}))
     }, [])
 
     if (!configuration)

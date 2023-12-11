@@ -8,7 +8,8 @@ export const allSections = [
     {name: 'nodes', title: 'Peer nodes'},
     {name: 'contract', title: 'Update contract'},
     {name: 'assets', title: 'Tracked assets', hasChild: true},
-    {name: 'period', title: 'Retention period', hasChild: true}
+    {name: 'period', title: 'Retention period', hasChild: true},
+    {name: 'history', title: 'History'}
 ]
 
 export default function UpdateNodeNavigationView({contracts}) {
