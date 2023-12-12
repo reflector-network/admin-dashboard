@@ -36,7 +36,7 @@ export default observer(function AddClassicAssetEntry({contract, save}) {
     //save on "Enter"
     const onKeyDown = useCallback(e => setIsEntered(e.keyCode === 13 && isValid), [isValid])
 
-    return <AddAssetEntryLayout title="Add SAC asset" currentInput={currentInput} asset={`${asset.code}:${asset.issuer || ''}`}
+    return <AddAssetEntryLayout title="Add SAC asset" ref={currentInput} asset={`${asset.code}:${asset.issuer || ''}`}
                                 isEntered={isEntered} isValid={isValid} save={save}>
         <input ref={currentInput} value={asset.code || ''} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset code"/>
         <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="Issuer address"/>

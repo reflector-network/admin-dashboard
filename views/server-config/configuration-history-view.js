@@ -1,13 +1,18 @@
 import React, {useCallback, useState} from 'react'
-import {AccountAddress, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {AccountAddress, Button, CodeBlock, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {getConfigHistory} from '../../api/interface'
 import TabularDataView from '../components/tabular-data-view'
 import ConfigFiltersView from '../components/config-filter-view'
+import DialogView from '../components/dialog-view'
+import invocationFormatter from './../util/invocation-formatter';
 
 export default function ConfigurationHistoryView() {
     const [history, setHistory] = useState()
     const [filters, setFilters] = useState({})
     const [isLoading, setIsLoading] = useState(false)
+    const [config, setConfig] = useState()
+    const [isOpen, setIsOpen] = useState(false)
+    const readonlyConfigProperties = invocationFormatter(config || {}, 1)
 
     const updateConfigHistory = useCallback((page, numberRows) => {
         const params = {
@@ -30,15 +35,26 @@ export default function ConfigurationHistoryView() {
             .finally(() => setIsLoading(false))
     }, [filters])
 
+    const toggleShowConfig = useCallback(() => setIsOpen(prev => !prev), [])
+
+    const showConfig = useCallback(e => {
+        const id = e.target.dataset.id
+        if (!id)
+            return
+        setConfig(history.filter(config => config.id === id)[0])
+        toggleShowConfig()
+    }, [history, toggleShowConfig])
+
     return <div className="segment blank h-100">
         <div>
-            <h3>Configuration histor</h3>
+            <h3>Configuration history</h3>
             <hr className="flare"/>
             <TabularDataView dataList={history} updateList={updateConfigHistory} isLoading={isLoading}>
                 <ConfigFiltersView filters={filters} updateFilters={setFilters}/>
                 {history?.length ? <table className="table space">
                     <thead>
                         <tr>
+                            <th/>
                             <th>Description</th>
                             <th>Initiator</th>
                             <th>Signatures</th>
@@ -52,6 +68,7 @@ export default function ConfigurationHistoryView() {
                                 <AccountAddress account={signature.pubkey} chars={12}/>
                             </div>)
                             return <tr key={config.id}>
+                                <td><a className='icon-open-new-window' data-id={config.id} onClick={showConfig}/></td>
                                 <td data-header="Description: ">{config.description}</td>
                                 <td data-header="Initiator: ">
                                     <AccountAddress account={config.initiator} chars={12}/>
@@ -68,5 +85,19 @@ export default function ConfigurationHistoryView() {
                 <div className="text-center space dimmed">Could not find any configurations with this option</div>}
             </TabularDataView>
         </div>
+        <DialogView dialogOpen={isOpen}>
+            {!!config && <div>
+                <h3>Quorum configuration file</h3>
+                <hr className="flare"/>
+                <div className="space">
+                    <CodeBlock className="result" style={{height: '50vh'}} lang="js">{readonlyConfigProperties}</CodeBlock>
+                </div>
+            </div>}
+            <div className="row space">
+                <div className="column column-25 column-offset-75">
+                    <Button block onClick={toggleShowConfig}>Close</Button>
+                </div>
+            </div>
+        </DialogView>
     </div>
 }

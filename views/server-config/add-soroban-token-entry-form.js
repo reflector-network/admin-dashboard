@@ -25,7 +25,7 @@ export default observer(function AddSorobanTokenEntry({contract, save}) {
     //save on "Enter"
     const onKeyDown = useCallback(e => setIsEntered(e.keyCode === 13 && isValid), [isValid])
 
-    return <AddAssetEntryLayout title="Add soroban token" currentInput={currentInput} asset={asset}
+    return <AddAssetEntryLayout title="Add soroban token" ref={currentInput} asset={asset}
                                 isEntered={isEntered} isValid={isValid} save={save}>
         <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset symbol"/>
     </AddAssetEntryLayout>

@@ -17,7 +17,7 @@ export default function FilterValueView({filterName, updateValue}) {
         if (input) {
             setTimeout(() => input.focus(), 200)
         }
-    }, [])
+    }, [filterName])
 
     const changeValue = useCallback(e => setValue(e.target.value), [])
 
@@ -29,7 +29,11 @@ export default function FilterValueView({filterName, updateValue}) {
         updateValue({[filterName]: val})
     }, [filterName, updateValue])
     //apply on "Enter"
-    const onKeyDown = useCallback(e => applyValue(e.keyCode === 13), [applyValue])
+    const onKeyDown = useCallback(e => {
+        if (e.keyCode === 13) {
+            applyValue()
+        }
+    }, [applyValue])
 
     if (filterName === 'status')
         return <div>
@@ -40,7 +44,7 @@ export default function FilterValueView({filterName, updateValue}) {
         <div className="column column-75">
             <div className="row">
                 <div className="column column-75">
-                    <input ref={filterValue} value={value || ''} onChange={changeValue} onKeyDown={onKeyDown} placeholder="Value"/>
+                    <input ref={filterValue} value={value || ''} onChange={changeValue} onKeyDown={onKeyDown} placeholder="Pubkey"/>
                 </div>
                 <div className="column column-25">
                     <Button block onClick={applyValue}>Apply</Button>

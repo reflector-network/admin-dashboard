@@ -1,4 +1,4 @@
-import React, {useCallback, useRef, useState} from 'react'
+import React, {useCallback, useState} from 'react'
 import {Dropdown} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import FilterValueView from './filter-value-view'
@@ -10,18 +10,17 @@ const filterList = [
 
 export default function ConfigFiltersView({filters, updateFilters}){
     const [isVisible, setIsVisible] = useState(false)
-    const filterName = useRef()
+    const [filterName, setFilterName] = useState('')
 
     const addFilter = useCallback(type => {
         setIsVisible(true)
-        filterName.current = type
+        setFilterName(type)
     }, [])
 
     const addFilterValue = useCallback(val => {
-        const name = filterName.current
-        updateFilters(prev => ({...prev, [name]: val[name]}))
+        updateFilters(prev => ({...prev, [filterName]: val[filterName]}))
         setIsVisible(false)
-    }, [updateFilters])
+    }, [filterName, updateFilters])
 
     const resetFilters = useCallback(() => updateFilters({}), [updateFilters])
 
@@ -35,7 +34,7 @@ export default function ConfigFiltersView({filters, updateFilters}){
         </>}
         <Dropdown className="micro-space" title="Add filter" options={filterList} onChange={addFilter}/>
         <div className="micro-space">
-            {!!isVisible && <FilterValueView filterName={filterName.current} updateValue={addFilterValue}/>}
+            {!!isVisible && <FilterValueView filterName={filterName} updateValue={addFilterValue}/>}
         </div>
     </div>
 }
