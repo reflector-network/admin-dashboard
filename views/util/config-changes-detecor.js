@@ -14,34 +14,36 @@ export default function configChangesDetector(configuration) {
         })
     }
 
-    //compare contracts, period and assets
-    Object.values(pendingConfig.contracts).forEach(contract => {
-        const compareContract = currentConfig.contracts[contract.oracleId]
-        if (!compareContract) {
-            changedData.push({
-                type: 'contract',
-                changes: contract
-            })
-        }
+    //compare contracts (added, changed, removed)
+    const changedContracts = compareContracts(pendingConfig, currentConfig, changedData)
+    const addedContracts = Object.keys(pendingConfig.contracts).filter(contractId => !currentConfig.contracts[contractId])
+    const removedContracts = Object.keys(currentConfig.contracts).filter(contractId => !pendingConfig.contracts[contractId])
 
-        if (contract.period !== compareContract.period) {
-            changedData.push({
-                type: 'period',
-                contract: contract.oracleId,
-                changes: contract.period
-            })
-        }
+    Object.keys(changedContracts).forEach(contract => {
+        changedData.push({
+            type: 'contract',
+            action: 'Changed',
+            contract,
+            changes: changedContracts[contract]
+        })
+    })
 
-        if (contract.assets.length !== compareContract.assets.length) {
-            const newAssets = contract.assets.filter(asset =>
-                compareContract.assets.findIndex(a => a.code === asset.code) === -1)
-            changedData.push({
-                type: 'assets',
-                contract: contract.oracleId,
-                changes: newAssets
-            })
-        }
+    addedContracts.forEach(contract => {
+        changedData.push({
+            type: 'contract',
+            action: 'Added',
+            contract,
+            changes: pendingConfig.contracts[contract] || {}
+        })
+    })
 
+    removedContracts.forEach(contract => {
+        changedData.push({
+            type: 'contract',
+            action: 'Removed',
+            contract,
+            changes: currentConfig.contracts[contract] || {}
+        })
     })
 
     //compare nodes (added, changed, removed)
@@ -76,4 +78,33 @@ export default function configChangesDetector(configuration) {
     }
 
     return changedData
+}
+
+function compareContracts(pendingConfig, currentConfig) {
+    const changedContracts = {}
+    Object.values(pendingConfig.contracts).forEach(contract => {
+        const compareContract = currentConfig.contracts[contract.oracleId]
+        const changedProperties = []
+
+        if (compareContract && contract.period !== compareContract.period) {
+            changedProperties.push({
+                type: 'period',
+                changes: contract.period
+            })
+        }
+
+        if (compareContract && contract.assets.length !== compareContract.assets.length) {
+            const newAssets = contract.assets.filter(asset =>
+                compareContract.assets.findIndex(a => a.code === asset.code) === -1)
+            changedProperties.push({
+                type: 'assets',
+                changes: newAssets
+            })
+        }
+
+        if (changedProperties.length) {
+            changedContracts[contract.oracleId] = changedProperties
+        }
+    })
+    return changedContracts
 }

@@ -17,9 +17,11 @@ export default function TabularDataView({dataList, updateList, rows = 10, isLoad
 
     const changeRows = useCallback(rows => setNumberRows(rows), [])
 
+    if (!dataList)
+        return <div className="loader"/>
 
     return <div>
-        {dataList ?
+        {dataList.length ?
             <div className="space">
                 {children}
                 <div className="text-center space relative">

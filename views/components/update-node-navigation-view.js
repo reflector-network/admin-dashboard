@@ -1,15 +1,20 @@
 import React from 'react'
 import {useLocation} from 'react-router'
 import {parseQuery} from '@stellar-expert/navigation'
-import {shortenString} from '@stellar-expert/formatter'
+import { AccountAddress } from '@stellar-expert/ui-framework'
 
-export const allSections = [
+const allSections = [
     {name: 'about', title: 'About'},
     {name: 'nodes', title: 'Peer nodes'},
     {name: 'contract', title: 'Update contract'},
-    {name: 'assets', title: 'Tracked assets', hasChild: true},
-    {name: 'period', title: 'Retention period', hasChild: true},
+    {name: 'contracts', hasChild: true},
+    {name: 'upgrade', title: 'Quorum upgrade'},
     {name: 'history', title: 'History'}
+]
+
+const contractSections = [
+    {name: 'assets', title: 'Tracked assets'},
+    {name: 'period', title: 'Retention period'}
 ]
 
 export default function UpdateNodeNavigationView({contracts}) {
@@ -17,24 +22,21 @@ export default function UpdateNodeNavigationView({contracts}) {
     const {section: activeSection = allSections[0].name, contract: currentContract} = parseQuery(location.search)
 
     return <ul style={{margin: 0}}>
-        {allSections.map(section => {
-            const title = section.title || allSections[0].title
-            return <li key={section.name} style={{padding: '0.3em 0'}}>
-                {section.hasChild ? <>
-                    <span>{title}</span>
-                    <ul style={{margin: '0 0.6em'}}>
-                        {Object.keys(contracts || []).map(contract => <li key={contract} style={{padding: '0.15em 0'}}>
-                            {(contract === currentContract && section.name === activeSection) ?
-                                <span><i className="icon-angle-double-right"/>{shortenString(contract)}</span> :
-                                <a href={`/?section=${section.name}&contract=${contract}`}>{shortenString(contract)}</a>
-                            }
-                        </li>)}
-                    </ul>
-                </> :
-                (section.name === activeSection ?
-                    <span><i className="icon-angle-double-right"/>{title}</span> :
-                    <a href={'/?section=' + section.name}>{title}</a>)}
-            </li>
-        })}
+        {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
+            {section.hasChild ? Object.keys(contracts || []).map(contract => <>
+                <AccountAddress account={contract} char={8} link={false}/>
+                <ul key={contract} style={{margin: '0.3em 1em'}}>
+                    {contractSections.map(subSection => <li key={subSection.name} style={{padding: '0.3em 0'}}>
+                        {(subSection.name === activeSection && currentContract === contract) ?
+                            <span><i className="icon-angle-double-right"/>{subSection.title}</span> :
+                            <a href={'/?section=' + subSection.name + '&contract=' + contract}>
+                                {subSection.title}</a>}
+                    </li>)}
+                </ul>
+            </>) :
+            (section.name === activeSection ?
+                <span><i className="icon-angle-double-right"/>{section.title}</span> :
+                <a href={'/?section=' + section.name}>{section.title}</a>)}
+        </li>)}
     </ul>
 }

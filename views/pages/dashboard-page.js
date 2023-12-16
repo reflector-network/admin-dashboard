@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react'
+import {setStellarNetwork} from '@stellar-expert/ui-framework'
 import {getCurrentConfig} from '../../api/interface'
 import SettingsSection from '../components/settings-view'
 import NodeStatisticsView from '../components/node-statistics-view'
 import UpdateNodeNavigationView from '../components/update-node-navigation-view'
-import ConfigChangesView from '../components/config-changes-view'
 import UpdateRequestVotingView from '../components/update-request-voting-view'
 
 function configFormatter(config) {
@@ -18,6 +18,9 @@ export default function DashboardPage() {
     const [configuration, setConfiguration] = useState()
 
     useEffect(() => {
+        //set global public network
+        setStellarNetwork('public')
+
         getCurrentConfig()
             .then(res => {
                 if (res.error)
@@ -43,14 +46,13 @@ export default function DashboardPage() {
             <div className="column column-25">
                 <div className="segment" style={{minHeight: '50vh'}}>
                     <UpdateNodeNavigationView contracts={configuration.currentConfig.config.contracts}/>
-                    <ConfigChangesView configuration={configuration}/>
                 </div>
                 <div className="space mobile-only"/>
             </div>
             <div className="column column-75">
                 <div className="flex-column h-100">
                     {!!configuration && <UpdateRequestVotingView pendingSettings={configuration.pendingConfig}/>}
-                    <SettingsSection settings={configuration.currentConfig}/>
+                    <SettingsSection configuration={configuration}/>
                 </div>
             </div>
         </div>
