@@ -107,7 +107,6 @@ export default function ServerConfigurationPage() {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                console.log(res.currentConfig.config)
                 setConfigProperties(invocationFormatter(res.currentConfig.config || {}, 1))
                 setConfiguration(res.currentConfig.config)
             })
@@ -129,14 +128,9 @@ export default function ServerConfigurationPage() {
 
     const submitUpdates = useCallback(async () => {
         setInProgress(true)
-        console.log('ti sign', configuration.config)
         const signature = await clientStatus.createSignature(configuration.config)
 
         const {id, initiator, status, ...otherProperties} = configuration
-        console.log('data',{
-            ...otherProperties,
-            signatures: [signature]
-        })
         postApi('config', {
             ...otherProperties,
             signatures: [signature]

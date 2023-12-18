@@ -6,21 +6,18 @@ import configChangesDetector from '../util/config-changes-detecor'
 
 export default function ActionNodeLayout({settings, currentConfig, isValid, children}) {
     const newSettings = structuredClone(settings)
-    const compareConfigutarion = {
-        currentConfig,
-        pendingConfig: newSettings
-    }
+    console.log(configChangesDetector(newSettings.config, currentConfig.config))
     //ready to submitting if there are valid changes
-    const isReady = isValid && !!configChangesDetector(compareConfigutarion).length
+    const isReady = isValid && !!configChangesDetector(newSettings.config, currentConfig.config).length
     const [inProgress, setInProgress] = useState(false)
 
     const submitUpdates = useCallback(async () => {
         setInProgress(true)
-        newSettings.config.contracts = Object.values(newSettings.config.contracts)
         const signature = await clientStatus.createSignature(newSettings.config)
 
+        const {id, initiator, status, ...otherProperties} = newSettings
         postApi('config', {
-            ...newSettings,
+            ...otherProperties,
             signatures: [signature]
         })
             .then(res => {

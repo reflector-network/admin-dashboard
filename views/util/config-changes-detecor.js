@@ -1,12 +1,13 @@
-export default function configChangesDetector(configuration) {
-    const pendingConfig = configuration.pendingConfig?.config
-    const currentConfig = configuration.currentConfig?.config
+export default function configChangesDetector(pendingConfig, currentConfig) {
     const changedData = []
 
+    console.log(currentConfig)
+    console.log(pendingConfig)
     //returns an empty array if nothing is compared
     if (!pendingConfig || !currentConfig)
         return changedData
 
+    console.log(pendingConfig.wasmHash)
     if (pendingConfig.wasmHash !== currentConfig.wasmHash) {
         changedData.push({
             type: 'wasmHash',
@@ -47,8 +48,7 @@ export default function configChangesDetector(configuration) {
     })
 
     //compare nodes (added, changed, removed)
-    const newNodes = pendingConfig.nodes.filter(node =>
-        currentConfig.nodes.findIndex(n => n.pubkey === node.pubkey) === -1)
+    const newNodes = Object.values(pendingConfig.nodes).filter(node => !currentConfig.nodes[node.pubkey])
     if (newNodes.length) {
         changedData.push({
             type: 'nodes',
@@ -57,8 +57,8 @@ export default function configChangesDetector(configuration) {
         })
     }
 
-    const changedNodes = pendingConfig.nodes.filter(node =>
-        currentConfig.nodes.findIndex(n => n.url === node.url) === -1 &&
+    const changedNodes = Object.values(pendingConfig.nodes).filter(node =>
+        Object.values(currentConfig.nodes).findIndex(n => n.url === node.url) === -1 &&
         newNodes.findIndex(n => n.pubkey === node.pubkey) === -1)
     if (changedNodes.length) {
         changedData.push({
@@ -68,7 +68,7 @@ export default function configChangesDetector(configuration) {
         })
     }
 
-    const removedNodes = pendingConfig.nodes.filter(node => node.remove)
+    const removedNodes = Object.values(pendingConfig.nodes).filter(node => node.remove)
     if (removedNodes.length) {
         changedData.push({
             type: 'nodes',
