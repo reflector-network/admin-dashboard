@@ -7,6 +7,8 @@ function validateNode(node) {
         return
     if (!node.url?.length)
         return
+    if (!node.domain?.length)
+        return
     return true
 }
 
@@ -48,6 +50,14 @@ export default function AddNodeEntry({title, editNode, isEditFormOpen, save}) {
         })
     }, [])
 
+    const onChangeDomain = useCallback(e => {
+        setNode(prev => {
+            const newNode = {...prev, domain: e.target.value.trim()}
+            setIsValid(validateNode(newNode))
+            return newNode
+        })
+    }, [])
+
     const onSave = useCallback(() => {
         save(node)
         toggleShowForm()
@@ -66,6 +76,8 @@ export default function AddNodeEntry({title, editNode, isEditFormOpen, save}) {
                                  onChange={onChangePubkey} onKeyDown={onKeyDown}/>}
             <input ref={urlInput} value={node.url || ''} onChange={onChangeUrl} onKeyDown={onKeyDown}
                    placeholder="Node websocket URL, like ws://127.0.0.1:9000"/>
+            <input value={node.domain || ''} onChange={onChangeDomain} onKeyDown={onKeyDown}
+                   placeholder="Domain"/>
             <div className="row micro-space">
                 <div className="column column-50">
                     <Button block disabled={!isValid} onClick={onSave}>Save</Button>
