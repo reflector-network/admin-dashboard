@@ -13,7 +13,7 @@ ${space(level - 1)}]`
         for (const key of Object.keys(value)) {
             const nestedValue = invocationFormatter(value[key], level + 1)
             if (nestedValue) {
-                args.push(space(level) + `${key}: ${nestedValue}`)
+                args.push(space(level) + `"${key}": ${nestedValue}`)
             }
         }
         return !args.length ? '' : `{
