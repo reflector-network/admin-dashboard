@@ -16,27 +16,25 @@ export default function UpdateNodeView({settings}) {
     }, [])
 
     const saveNode = useCallback((node) => {
-        const index = changedSettings.config.nodes.findIndex(n => n.pubkey === node.pubkey)
         setChangedSettings(prev => {
             const newSettings = {...prev}
-            if (index !== -1) {
-                newSettings.config.nodes[index] = node
+            if (node.remove) {
+                delete newSettings.config.nodes[node.pubkey]
             } else {
-                newSettings.config.nodes.push(node)
+                newSettings.config.nodes[node.pubkey] = node
             }
-            newSettings.config.nodes = newSettings.config.nodes.filter(n => !n.remove)
             validation(newSettings)
             return newSettings
         })
         setIsLimitUpdates(true)
-    }, [changedSettings, validation])
+    }, [validation])
 
     return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Peer nodes</h3>
         <hr className="flare"/>
         <ActionFormLayout updateSettings={setChangedSettings} validation={validation}>
             <h3>Quorum nodes</h3>
-            {changedSettings.config.nodes?.map(node => !node.remove &&
+            {Object.values(changedSettings.config.nodes || {}).map(node => !node.remove &&
                 <NodeEntryLayout key={node.pubkey} node={node} save={saveNode} isLimitUpdates={isLimitUpdates}/>)}
             <div className="space"/>
             {!isLimitUpdates && <AddNodeEntry title={<><i className="icon-plus"/>Add new node</>} save={saveNode}/>}

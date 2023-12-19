@@ -6,7 +6,6 @@ import configChangesDetector from '../util/config-changes-detecor'
 
 export default function ActionNodeLayout({settings, currentConfig, isValid, children}) {
     const newSettings = structuredClone(settings)
-    console.log(configChangesDetector(newSettings.config, currentConfig.config))
     //ready to submitting if there are valid changes
     const isReady = isValid && !!configChangesDetector(newSettings.config, currentConfig.config).length
     const [inProgress, setInProgress] = useState(false)
