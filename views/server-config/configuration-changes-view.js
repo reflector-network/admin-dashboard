@@ -82,7 +82,8 @@ function ChangesRecordLayout({data}) {
                         <i className="icon-hexagon-dice color-success"/>
                         <AccountAddress account={node.pubkey} chars={16} link={false}/>
                     </div>
-                    <div className="dimmed text-small">&emsp;&emsp;{node.url}</div>
+                    {!!node.url && <div className="dimmed text-small">&emsp;&emsp;{node.url}</div>}
+                    {!!node.domain && <div className="dimmed text-small">&emsp;&emsp;{node.domain}</div>}
                 </div>)}
             </div>
         case 'wasmHash':

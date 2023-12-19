@@ -63,15 +63,16 @@ function NodeEntryLayout({node, save, isLimitUpdates}) {
     }, [save])
 
     return <>
-        <div className="dual-layout space">
-            <div className="v-center-block">
-                <span><i className="icon-hexagon-dice color-success"/><AccountAddress account={node.pubkey} chars={16} link={false}/></span>
-                <span className="dimmed text-small">&emsp;&emsp;{node.url}</span>
-            </div>
-            <div style={{marginRight: 'auto'}}>
+        <div className="space">
+            <span><i className="icon-hexagon-dice color-success"/><AccountAddress account={node.pubkey} chars={16} link={false}/></span>
+            <span>
                 <CopyToClipboard text={node.pubkey} title="Copy public key to clipboard"/>
                 {!isLimitUpdates && <a href="#" className="icon-cog" onClick={toggleShowForm}/>}
                 {!isLimitUpdates && <a href="#" className="icon-cancel" onClick={removeNode}/>}
+            </span>
+            <div>
+                <span className="dimmed text-small">&emsp;&emsp;{node.url}</span>
+                <span className="dimmed text-small">&emsp;&emsp;{node.domain}</span>
             </div>
         </div>
         {!isLimitUpdates && <AddNodeEntry editNode={node} isEditFormOpen={isEditFormOpen} save={onSave}/>}

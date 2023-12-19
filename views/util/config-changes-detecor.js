@@ -1,13 +1,10 @@
 export default function configChangesDetector(pendingConfig, currentConfig) {
     const changedData = []
 
-    console.log(currentConfig)
-    console.log(pendingConfig)
     //returns an empty array if nothing is compared
     if (!pendingConfig || !currentConfig)
         return changedData
 
-    console.log(pendingConfig.wasmHash)
     if (pendingConfig.wasmHash !== currentConfig.wasmHash) {
         changedData.push({
             type: 'wasmHash',
@@ -57,14 +54,25 @@ export default function configChangesDetector(pendingConfig, currentConfig) {
         })
     }
 
-    const changedNodes = Object.values(pendingConfig.nodes).filter(node =>
+    const changedUrlNodes = Object.values(pendingConfig.nodes).filter(node =>
         Object.values(currentConfig.nodes).findIndex(n => n.url === node.url) === -1 &&
         newNodes.findIndex(n => n.pubkey === node.pubkey) === -1)
-    if (changedNodes.length) {
+    if (changedUrlNodes.length) {
         changedData.push({
             type: 'nodes',
             action: 'Changed',
-            changes: changedNodes
+            changes: changedUrlNodes.map(node => ({pubkey: node.pubkey, url: node.url}))
+        })
+    }
+
+    const changedDomainNodes = Object.values(pendingConfig.nodes).filter(node =>
+        Object.values(currentConfig.nodes).findIndex(n => n.domain === node.domain) === -1 &&
+        newNodes.findIndex(n => n.pubkey === node.pubkey) === -1)
+    if (changedDomainNodes.length) {
+        changedData.push({
+            type: 'nodes',
+            action: 'Changed',
+            changes: changedUrlNodes.map(node => ({pubkey: node.pubkey, domain: node.domain}))
         })
     }
 
