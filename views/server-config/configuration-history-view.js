@@ -54,30 +54,38 @@ export default function ConfigurationHistoryView() {
                 {history?.length ? <table className="table space">
                     <thead>
                         <tr>
-                            <th/>
                             <th>Description</th>
                             <th>Initiator</th>
                             <th>Signatures</th>
                             <th>Status</th>
                             <th>Expiration date</th>
+                            <th/>
                         </tr>
                     </thead>
                     <tbody className="condensed">
                         {history.map(config => {
+                            const nodeDomains = Object.values(config.config.nodes).reduce((prev, curr) => {
+                                prev[curr.pubkey] = curr.domain
+                                return prev
+                            }, {})
                             const signatures = config.signatures.map(signature => <div key={signature.pubkey}>
-                                <AccountAddress account={signature.pubkey} chars={12}/>
+                                {nodeDomains[signature.pubkey] ?
+                                    <span title={signature.pubkey}>{nodeDomains[signature.pubkey]}</span> :
+                                    <AccountAddress account={signature.pubkey} chars={12}/>}
                             </div>)
                             return <tr key={config.id}>
-                                <td><a className='icon-open-new-window' data-id={config.id} onClick={showConfig}/></td>
-                                <td data-header="Description: ">{config.description}</td>
+                                <td data-header="Description: ">{config.description || 'no desc'}</td>
                                 <td data-header="Initiator: ">
-                                    <AccountAddress account={config.initiator} chars={12}/>
+                                    {nodeDomains[config.initiator] ?
+                                        <span title={config.initiator}>{nodeDomains[config.initiator]}</span> :
+                                        <AccountAddress account={config.initiator} chars={12}/>}
                                 </td>
                                 <td data-header="Signatures: ">{signatures}</td>
                                 <td data-header="Status: ">{config.status}</td>
                                 <td data-header="Expiration date: ">
                                     <UtcTimestamp date={config.expirationDate} dateOnly/>
                                 </td>
+                                <td><a className="icon-open-new-window" data-id={config.id} onClick={showConfig}/></td>
                             </tr>
                         })}
                     </tbody>

@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {UtcTimestamp} from '@stellar-expert/ui-framework'
 
 export function updateTimeValidation(settings) {
@@ -14,10 +14,16 @@ export function updateTimeValidation(settings) {
     return true
 }
 
-export default function ActionFormLayout({timeframe, updateSettings, validation, children}) {
+export default function ActionFormLayout({contract, updateSettings, validation, children}) {
     const [timestamp, setTimestamp] = useState('')
     const [minDate, setMinDate] = useState('')
     const [isValidTime, setIsValidTime] = useState(true)
+    const timeframe = contract?.timeframe
+
+    useEffect(() => {
+        setTimestamp('')
+        setMinDate('')
+    }, [contract])
 
     const validateTime = useCallback(time => {
         try {

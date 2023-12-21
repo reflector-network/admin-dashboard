@@ -61,7 +61,7 @@ export default function AddAssetsView({settings, contractId}) {
     return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Tracked assets</h3>
         <hr className="flare"/>
-        <ActionFormLayout timeframe={contract?.timeframe} updateSettings={setChangedSettings} validation={validation}>
+        <ActionFormLayout contract={contract} updateSettings={setChangedSettings} validation={validation}>
             <span>Supported assets</span>
             <br/>
             <span className="dimmed text-tiny">

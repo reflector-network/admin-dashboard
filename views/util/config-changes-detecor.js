@@ -57,26 +57,34 @@ export default function configChangesDetector(pendingConfig, currentConfig) {
     const changedUrlNodes = Object.values(pendingConfig.nodes).filter(node =>
         Object.values(currentConfig.nodes).findIndex(n => n.url === node.url) === -1 &&
         newNodes.findIndex(n => n.pubkey === node.pubkey) === -1)
-    if (changedUrlNodes.length) {
-        changedData.push({
-            type: 'nodes',
-            action: 'Changed',
-            changes: changedUrlNodes.map(node => ({pubkey: node.pubkey, url: node.url}))
-        })
-    }
-
     const changedDomainNodes = Object.values(pendingConfig.nodes).filter(node =>
         Object.values(currentConfig.nodes).findIndex(n => n.domain === node.domain) === -1 &&
         newNodes.findIndex(n => n.pubkey === node.pubkey) === -1)
-    if (changedDomainNodes.length) {
+    const changedNodes = {}
+    //combine changes in one node
+    const changedSameNodes = changedDomainNodes.filter(node => changedUrlNodes.findIndex(n => n.pubkey === node.pubkey) !== -1)
+
+    changedUrlNodes.forEach(({pubkey, url}) => {
+        changedNodes[pubkey] = {pubkey, url}
+    })
+
+    changedDomainNodes.forEach(({pubkey, domain}) => {
+        changedNodes[pubkey] = {pubkey, domain}
+    })
+
+    changedSameNodes.forEach(node => {
+        changedNodes[node.pubkey] = node
+    })
+
+    if (Object.keys(changedNodes).length) {
         changedData.push({
             type: 'nodes',
             action: 'Changed',
-            changes: changedUrlNodes.map(node => ({pubkey: node.pubkey, domain: node.domain}))
+            changes: Object.values(changedNodes || {})
         })
     }
 
-    const removedNodes = Object.values(pendingConfig.nodes).filter(node => node.remove)
+    const removedNodes = Object.values(currentConfig.nodes).filter(node => !pendingConfig.nodes[node.pubkey])
     if (removedNodes.length) {
         changedData.push({
             type: 'nodes',

@@ -23,7 +23,7 @@ ${space(level - 1)}}`
     if (typeof value === 'string') {
         if (!value)
             return value
-        return `'${value.trim().replace('\'', '\\\'')}'`
+        return `"${value.trim().replace("\"", "\\\"")}"`
     }
     return value
 }

@@ -10,6 +10,7 @@ import ConfigurationHistoryView from '../server-config/configuration-history-vie
 
 export default function SettingsSectionView({configuration}) {
     const settings = configuration.currentConfig.config
+    delete settings.config.minDate
     const location = useLocation()
     const {section = 'about', contract} = parseQuery(location.search)
 

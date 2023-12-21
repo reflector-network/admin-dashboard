@@ -30,7 +30,7 @@ export default function ConfigFiltersView({filters, updateFilters}){
             {Object.keys(filters).map(param => param && <span key={param}>
                 <code>{param === 'initiator' ? shortenString(filters[param]) : filters[param]}</code>&nbsp;&nbsp;
             </span>)}
-            <a onClick={resetFilters} title='Reset'><span className="icon icon-delete-circle"/></a>&emsp;
+            <a onClick={resetFilters} title="Reset"><span className="icon icon-delete-circle"/></a>&emsp;
         </>}
         <Dropdown className="micro-space" title="Add filter" options={filterList} onChange={addFilter}/>
         <div className="micro-space">

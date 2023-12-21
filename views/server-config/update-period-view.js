@@ -38,7 +38,7 @@ export default function UpdatePeriodView({settings, contractId}) {
     return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Retention period</h3>
         <hr className="flare"/>
-        <ActionFormLayout timeframe={contract.timeframe} updateSettings={setChangedSettings} validation={validation}>
+        <ActionFormLayout contract={contract} updateSettings={setChangedSettings} validation={validation}>
             <div className="row">
                 <div className="column column-50">
                     <label>Price quotes retention period<br/>
