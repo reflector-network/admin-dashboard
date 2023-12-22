@@ -109,12 +109,22 @@ function compareContracts(pendingConfig, currentConfig) {
             })
         }
 
-        if (compareContract && contract.assets.length !== compareContract.assets.length) {
-            const newAssets = contract.assets.filter(asset =>
-                compareContract.assets.findIndex(a => a.code === asset.code) === -1)
+        const addedAssets = contract?.assets.filter(asset =>
+            compareContract.assets.findIndex(a => a.code === asset.code) === -1) || []
+        if (addedAssets.length) {
             changedProperties.push({
                 type: 'assets',
-                changes: newAssets
+                action: 'Added',
+                changes: addedAssets
+            })
+        }
+        const removedAssets = compareContract?.assets.filter(asset =>
+            contract.assets.findIndex(a => a.code === asset.code) === -1) || []
+        if (addedAssets.length) {
+            changedProperties.push({
+                type: 'assets',
+                action: 'Romoved',
+                changes: removedAssets
             })
         }
 

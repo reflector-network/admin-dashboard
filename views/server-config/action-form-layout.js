@@ -6,6 +6,8 @@ export function updateTimeValidation(settings) {
     const minDate = settings.config.minDate
     const min = new Date().getTime() + 30 * 60 * 1000
     const max = new Date().getTime() + 10 * 24 * 60 * 60 * 1000
+    if (timestamp === 0 && minDate === 0)
+        return true
     if (!timestamp && !minDate)
         return
     //check only minDate, if set minDate timestamp will be with same value
@@ -45,13 +47,13 @@ export default function ActionFormLayout({contract, updateSettings, validation, 
     }, [updateSettings, validation])
 
     const updateTimestamp = useCallback(e => {
-        const val = parseInt(e.target.value, 10)
+        const val = parseInt(e.target.value, 10) || 0
         changeUpdateTime({timestamp: val, minDate: val})
         validateTime(val)
     }, [changeUpdateTime, validateTime])
 
     const updateMinDate = useCallback(e => {
-        const val = parseInt(e.target.value, 10)
+        const val = parseInt(e.target.value, 10) || 0
         changeUpdateTime({minDate: val})
         validateTime(val)
     }, [changeUpdateTime, validateTime])
@@ -63,13 +65,13 @@ export default function ActionFormLayout({contract, updateSettings, validation, 
     }, [timeframe])
 
     const normalizeTimestamp = useCallback(e => {
-        const val = parseInt(e.target.value, 10)
+        const val = parseInt(e.target.value, 10) || 0
         const time = val ? timeFormater(val) : val
         changeUpdateTime({timestamp: time, minDate: time})
     }, [changeUpdateTime, timeFormater])
 
     const normalizeMinDate = useCallback(e => {
-        const val = parseInt(e.target.value, 10)
+        const val = parseInt(e.target.value, 10) || 0
         const minDate = val ? timeFormater(val) : val
         changeUpdateTime({minDate})
     }, [changeUpdateTime, timeFormater])
@@ -85,7 +87,7 @@ export default function ActionFormLayout({contract, updateSettings, validation, 
                 <span className="dimmed text-tiny">
                     (Set the date for no more than 10 days, in milliseconds)
                 </span>
-                <input className="micro-space" value={timestamp || ''} onChange={updateTimestamp} onBlur={normalizeTimestamp}/>
+                <input className="micro-space" value={timestamp} onChange={updateTimestamp} onBlur={normalizeTimestamp}/>
                 {(!!isValidTime && !!timestamp) && <div className="dimmed text-tiny">
                     (<UtcTimestamp date={timestamp}/>)
                 </div>}
@@ -95,7 +97,7 @@ export default function ActionFormLayout({contract, updateSettings, validation, 
                 <span className="dimmed text-tiny">
                     (Set the date for no more than 10 days, in milliseconds)
                 </span>
-                <input className="micro-space" value={minDate || ''} onChange={updateMinDate} onBlur={normalizeMinDate}/>
+                <input className="micro-space" value={minDate} onChange={updateMinDate} onBlur={normalizeMinDate}/>
                 {(!!isValidTime && !!minDate) && <div className="dimmed text-tiny">
                     (<UtcTimestamp date={minDate}/>)
                 </div>}

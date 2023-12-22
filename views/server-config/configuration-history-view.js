@@ -4,7 +4,7 @@ import {getConfigHistory} from '../../api/interface'
 import TabularDataView from '../components/tabular-data-view'
 import ConfigFiltersView from '../components/config-filter-view'
 import DialogView from '../components/dialog-view'
-import invocationFormatter from './../util/invocation-formatter';
+import invocationFormatter from './../util/invocation-formatter'
 
 export default function ConfigurationHistoryView() {
     const [history, setHistory] = useState()
@@ -71,14 +71,14 @@ export default function ConfigurationHistoryView() {
                             const signatures = config.signatures.map(signature => <div key={signature.pubkey}>
                                 {nodeDomains[signature.pubkey] ?
                                     <span title={signature.pubkey}>{nodeDomains[signature.pubkey]}</span> :
-                                    <AccountAddress account={signature.pubkey} chars={12}/>}
+                                    <AccountAddress account={signature.pubkey} char={16}/>}
                             </div>)
                             return <tr key={config.id}>
                                 <td data-header="Description: ">{config.description || 'no desc'}</td>
                                 <td data-header="Initiator: ">
                                     {nodeDomains[config.initiator] ?
                                         <span title={config.initiator}>{nodeDomains[config.initiator]}</span> :
-                                        <AccountAddress account={config.initiator} chars={12}/>}
+                                        <AccountAddress account={config.initiator} char={16}/>}
                                 </td>
                                 <td data-header="Signatures: ">{signatures}</td>
                                 <td data-header="Status: ">{config.status}</td>

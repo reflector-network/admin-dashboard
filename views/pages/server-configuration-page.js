@@ -15,7 +15,7 @@ export default function ServerConfigurationPage() {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                setConfigProperties(invocationFormatter(res.currentConfig.config || {}, 1))
+                setConfigProperties(invocationFormatter(res.currentConfig.config.config || {}, 1))
                 setConfiguration(res.currentConfig.config)
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration'}))
@@ -26,7 +26,7 @@ export default function ServerConfigurationPage() {
         setConfigProperties(val)
         try {
             const pureConfig = JSON.parse(val.replaceAll("'",'"'))
-            setConfiguration(pureConfig)
+            setConfiguration(prev => ({...prev, config: pureConfig}))
             setIsValid(true)
         } catch (e) {
             console.error(e)
@@ -34,12 +34,29 @@ export default function ServerConfigurationPage() {
         }
     }, [])
 
+    const changeTimestamp = useCallback(e => {
+        const timestamp = parseInt(e.target.value, 10) || 0
+        setConfiguration(prev => ({...prev, timestamp}))
+        setIsValid(timestamp === 0)
+    }, [])
+
+    const changeExpirationDate = useCallback(e => {
+        const expirationDate = parseInt(e.target.value, 10)
+        setConfiguration(prev => ({...prev, expirationDate}))
+        setIsValid(expirationDate)
+    }, [])
+
+    const changeDescription = useCallback(e => {
+        setConfiguration(prev => ({...prev, description: e.target.value}))
+    }, [])
+
     const submitUpdates = useCallback(async () => {
         setInProgress(true)
         const signature = await clientStatus.createSignature(configuration.config)
 
+        const {id, initiator, status, ...otherProperties} = configuration
         postApi('config', {
-            ...configuration,
+            ...otherProperties,
             signatures: [signature]
         })
             .then(res => {
@@ -54,9 +71,25 @@ export default function ServerConfigurationPage() {
     return <div className="segment blank">
         <h3>Quorum configuration file</h3>
         <hr className="flare"/>
+        <div className="row">
+            <div className="column column-50">
+                <div className="space"/>
+                <label>Timestamp</label>
+                <input value={configuration.timestamp || 0} onChange={changeTimestamp}/>
+            </div>
+            <div className="column column-50">
+                <div className="space"/>
+                <label>Expiration date</label>
+                <input value={configuration.expirationDate || 0} onChange={changeExpirationDate}/>
+            </div>
+        </div>
         <div className="space">
-            <textarea className="result" style={{height: '75vh'}}
-                      value={configProperties} onChange={changeConfig}/>
+            <label>Description</label>
+            <textarea value={configuration.description || ''} onChange={changeDescription}/>
+        </div>
+        <div className="space">
+            <label>Config</label>
+            <textarea style={{height: '75vh'}} value={configProperties} onChange={changeConfig}/>
         </div>
         <div className="space row">
             <div className="column column-75 text-center">

@@ -10,8 +10,9 @@ export default function UpdateRequestVotingView({pendingSettings}) {
     const vote = useCallback(async (vote) => {
         const signature = await clientStatus.createSignature(pendingSettings.config, !vote)
 
+        const {id, initiator, status, ...otherSettings} = pendingSettings
         postApi('config', {
-            ...pendingSettings,
+            ...otherSettings,
             signatures: [signature]
         })
             .then(res => {

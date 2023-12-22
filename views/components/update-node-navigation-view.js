@@ -1,7 +1,7 @@
 import React from 'react'
 import {useLocation} from 'react-router'
 import {parseQuery} from '@stellar-expert/navigation'
-import {AccountAddress} from '@stellar-expert/ui-framework'
+import {shortenString} from '@stellar-expert/formatter'
 
 const allSections = [
     {name: 'about', title: 'About'},
@@ -24,7 +24,7 @@ export default function UpdateNodeNavigationView({contracts}) {
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
             {section.hasChild ? Object.keys(contracts || []).map(contract => <>
-                <AccountAddress account={contract} char={8} link={false}/>
+                <span title={contract}>{shortenString(contract)}</span>
                 <ul key={contract} style={{margin: '0.3em 1em'}}>
                     {contractSections.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
                         {(subSection.name === activeSection && currentContract === contract) ?

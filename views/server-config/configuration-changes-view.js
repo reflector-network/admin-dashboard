@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {AccountAddress, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {shortenString} from '@stellar-expert/formatter'
 import configChangesDetector from '../util/config-changes-detecor'
 import {AssetCodeView} from './add-assets-view'
 
@@ -46,7 +47,7 @@ function ChangesRecordLayout({data}) {
         case 'contract':
             return <div className="space">
                 <span className="dimmed micro-space">{data.action} contract&nbsp;
-                    <AccountAddress account={data.contract}/>:&emsp;</span>
+                    <span title={data.contract}>{shortenString(data.contract)}</span>:&emsp;</span>
                 <div style={{padding: '0.3em 1em'}}>
                     {data.action === 'Changed' ?
                         data.changes.map(property => {
@@ -69,7 +70,7 @@ function ChangesRecordLayout({data}) {
             </div>
         case 'assets':
             return <div className="space">
-                <div className="dimmed micro-space">Added assets:</div>
+                <div className="dimmed micro-space">{data.action} assets:</div>
                 {data.changes.map(asset => <div key={asset.code} className="text-small">
                     <AssetCodeView asset={asset}/>
                 </div>)}
@@ -80,7 +81,7 @@ function ChangesRecordLayout({data}) {
                 {data.changes.map(node => <div key={node.pubkey}>
                     <div className="text-small word-break">
                         <i className="icon-hexagon-dice color-success"/>
-                        <AccountAddress account={node.pubkey} chars={16} link={false}/>
+                        <AccountAddress account={node.pubkey} char={16}/>
                     </div>
                     {!!node.url && <div className="dimmed text-small">&emsp;&emsp;{node.url}</div>}
                     {!!node.domain && <div className="dimmed text-small">&emsp;&emsp;{node.domain}</div>}
@@ -113,8 +114,13 @@ function ContractRecordlayout({property, contract}) {
                     <AssetCodeView asset={contract[property]}/>
                 </span>
             </div>
-        case 'admin':
+            
         case 'oracleId':
+            return <div>
+                <span className="dimmed micro-space">{property}: </span>
+                <span title={contract[property]}>{shortenString(contract[property])}</span>
+            </div>
+        case 'admin':
             return <div>
                 <span className="dimmed micro-space">{property}: </span>
                 <AccountAddress account={contract[property]}/>
