@@ -4,16 +4,34 @@ import objectKeySorter from './../views/util/object-key-sorter'
 
 const tunnelServer = 'https://tunnel.reflector.world/'
 
-async function getApi(endpoint, data) {
-    const payload = (data) ? '?' + new URLSearchParams(data).toString() : ''
-    return await fetchApi(endpoint + payload, {})
+/**
+ *
+ * @param {any} payload - payload to sign with nonce
+ * @param {number} nonce - nonce to include in header
+ * @returns {Promise<string>}
+ */
+async function tryGetAuthHeader(payload, nonce) {
+    const signature = await signData(payload)
+    return `${clientStatus.clientPublicKey}.${signature}.${nonce}`
+}
+
+async function getApi(endpoint, data = {}, anonymous = false) {
+    const getRelativeUrl = (params) => endpoint + (params.size > 0 ? '?' + params.toString() : '')
+    const relativeUrl = getRelativeUrl(new URLSearchParams(data))
+    let authorizationHeader = null
+    if (!anonymous) {
+        const nonce = generateNonce()
+        const payloadData = getRelativeUrl(new URLSearchParams(objectKeySorter({...data, nonce})))
+        authorizationHeader = clientStatus.hasSession ? await tryGetAuthHeader(payloadData, nonce) : null
+    }
+    return await fetchApi(relativeUrl, {authorizationHeader})
 }
 
 export async function postApi(action, data) {
     const nonce = generateNonce()
     const payload = objectKeySorter({...data, nonce})
-    const signature = await signData(payload)
-    const authorizationHeader = `${clientStatus.clientPublicKey}.${signature}.${nonce}`
+
+    const authorizationHeader = clientStatus.hasSession ? await tryGetAuthHeader(payload, nonce) : null
     return await fetchApi(action, {
         method: 'POST',
         authorizationHeader,
@@ -23,6 +41,10 @@ export async function postApi(action, data) {
 
 export function getCurrentConfig() {
     return getApi('config')
+}
+
+export function getNodePublicKeys() {
+    return getApi('nodes')
 }
 
 export function getConfigHistory(params) {

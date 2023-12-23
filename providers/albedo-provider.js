@@ -11,18 +11,17 @@ export function checkAlbedoSession() {
 
 /**
  * Check whether a user provided Albedo session permissions
- * @return {Promise<Boolean>}
+ * @return {Promise<string>}
  */
 export async function requestAlbedoSession() {
     try {
         const {pubkey} = await albedo.implicitFlow({
             intents: 'sign_message'
         })
-        clientStatus.setNodePubkey(pubkey)
-        return true
+        return pubkey
     } catch (e) {
         notify({type: 'error', message: e.error?.message || 'Failed to obtain session permission'})
-        return false
+        return null
     }
 }
 
@@ -56,7 +55,5 @@ export function dropSession() {
     if (clientStatus.clientPublicKey) {
         //forget session
         albedo.forgetImplicitSession(clientStatus.clientPublicKey)
-        //update status
-        clientStatus.pollSession()
     }
 }
