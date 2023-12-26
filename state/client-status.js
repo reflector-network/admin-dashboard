@@ -9,7 +9,6 @@ class ClientStatus {
     constructor() {
         this.clientPublicKey = localStorage.getItem('pubkey') || ''
         makeAutoObservable(this)
-        setInterval(() => this.pollSession(), 10_000)
         setInterval(() => this.updateStatistics(), statsRefreshInterval * 1000)
     }
 
@@ -25,7 +24,9 @@ class ClientStatus {
      * @type {Boolean}
      * @readonly
      */
-    hasSession = false
+    get hasSession() {
+        return checkAlbedoSession()
+    }
 
     serverPublicKey = ''
 
@@ -43,18 +44,15 @@ class ClientStatus {
 
     setNodePubkey(key = '') {
         this.clientPublicKey = key
+        setGlobalConfigParam('nodePubkey', key)
         this.pollSession()
         if (this.hasSession && key && this.serverPublicKey && this.serverPublicKey !== key) {
             notify({type: 'warning', message: 'Unauthorized. Please authorize session for public key ' + this.serverPublicKey})
         }
     }
 
-    pollSession() {
-        this.hasSession = checkAlbedoSession()
-    }
-
     updateStatistics() {
-        if (!checkAlbedoSession())
+        if (!this.hasSession)
             return
         getStatistics()
             .then(statistics => {
