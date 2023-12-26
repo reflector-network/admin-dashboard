@@ -2,7 +2,7 @@ import React, {useCallback, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
-import configChangesDetector from '../util/config-changes-detecor'
+import configChangesDetector from '../util/config-changes-detector'
 
 export default function ActionNodeLayout({settings, currentConfig, isValid, children}) {
     const newSettings = structuredClone(settings)
@@ -22,7 +22,7 @@ export default function ActionNodeLayout({settings, currentConfig, isValid, chil
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                notify({type: 'success', message: 'Update submited'})
+                notify({type: 'success', message: 'Update submitted'})
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))

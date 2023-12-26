@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {AccountAddress, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
-import configChangesDetector from '../util/config-changes-detecor'
+import configChangesDetector from '../util/config-changes-detector'
 import {AssetCodeView} from './add-assets-view'
 
 export default function ConfigurationChangesView({configuration}) {

@@ -123,7 +123,7 @@ function compareContracts(pendingConfig, currentConfig) {
         if (addedAssets.length) {
             changedProperties.push({
                 type: 'assets',
-                action: 'Romoved',
+                action: 'Removed',
                 changes: removedAssets
             })
         }

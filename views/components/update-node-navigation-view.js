@@ -6,7 +6,7 @@ import {shortenString} from '@stellar-expert/formatter'
 const allSections = [
     {name: 'about', title: 'About'},
     {name: 'nodes', title: 'Peer nodes'},
-    {name: 'contract', title: 'Update contract'},
+    // {name: 'contract', title: 'Update contract'},
     {name: 'contracts', hasChild: true},
     {name: 'upgrade', title: 'Quorum upgrade'},
     {name: 'history', title: 'History'}

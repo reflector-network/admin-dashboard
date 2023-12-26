@@ -62,7 +62,7 @@ export default function ServerConfigurationPage() {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                notify({type: 'success', message: 'Update submited'})
+                notify({type: 'success', message: 'Update submitted'})
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))

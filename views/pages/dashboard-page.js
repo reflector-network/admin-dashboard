@@ -44,7 +44,7 @@ export default function DashboardPage() {
             </div>
         </div>
         <div className="space">
-            {/* <NodeStatisticsView/> */}
+            <NodeStatisticsView/>
         </div>
     </div>
 }
