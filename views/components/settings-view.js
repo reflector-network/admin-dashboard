@@ -9,7 +9,7 @@ import ConfigurationChangesView from '../server-config/configuration-changes-vie
 import ConfigurationHistoryView from '../server-config/configuration-history-view'
 
 export default function SettingsSectionView({configuration}) {
-    const settings = configuration.currentConfig.config
+    const settings = structuredClone(configuration.currentConfig.config)
     delete settings.config.minDate
     const location = useLocation()
     const {section = 'about', contract} = parseQuery(location.search)

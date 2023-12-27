@@ -44,8 +44,6 @@ class ClientStatus {
 
     setNodePubkey(key = '') {
         this.clientPublicKey = key
-        setGlobalConfigParam('nodePubkey', key)
-        this.pollSession()
         if (this.hasSession && key && this.serverPublicKey && this.serverPublicKey !== key) {
             notify({type: 'warning', message: 'Unauthorized. Please authorize session for public key ' + this.serverPublicKey})
         }

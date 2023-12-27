@@ -1,5 +1,4 @@
 import React from 'react'
-import './dialog-container.scss'
 
 export default function DialogView({dialogOpen, children}) {
     if (!dialogOpen) return null

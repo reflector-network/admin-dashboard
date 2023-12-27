@@ -9,7 +9,7 @@ export default function ConfigurationChangesView({configuration}) {
 
     useEffect(() => {
         if (!configuration?.pendingConfig)
-            return
+            return setChangedData([])
 
         const pendingConfig = configuration.pendingConfig.config.config
         const currentConfig = configuration.currentConfig.config.config

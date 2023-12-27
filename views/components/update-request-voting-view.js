@@ -1,16 +1,17 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback} from 'react'
+import {navigation} from '@stellar-expert/navigation'
 import {Button} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 
-export default function UpdateRequestVotingView({pendingSettings}) {
-    const ownSign = pendingSettings?.signatures.filter(sign => sign.pubkey === clientStatus.clientPublicKey).length
-    const [isSigned, setIsSigned] = useState(!!ownSign)
+export default function UpdateRequestVotingView({configuration}) {
+    const votingSettings = configuration.pendingConfig?.config || configuration.currentConfig?.config
+    const ownSign = votingSettings?.signatures.filter(sign => sign.pubkey === clientStatus.clientPublicKey).length
 
     const vote = useCallback(async (vote) => {
-        const signature = await clientStatus.createSignature(pendingSettings.config, !vote)
+        const signature = await clientStatus.createSignature(votingSettings.config, !vote)
 
-        const {id, initiator, status, ...otherSettings} = pendingSettings
+        const {id, initiator, status, ...otherSettings} = votingSettings
         postApi('config', {
             ...otherSettings,
             signatures: [signature]
@@ -18,18 +19,19 @@ export default function UpdateRequestVotingView({pendingSettings}) {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                setIsSigned(true)
+                //reload configuration after update
+                navigation.updateQuery({reload: 1})
                 notify({type: 'success', message: 'Your vote has been accepted'})
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to vote'}))
-    }, [pendingSettings])
+    }, [votingSettings])
 
     const confirm = useCallback(() => vote(true), [vote])
 
     const reject = useCallback(() => vote(false), [vote])
 
     //hide confirmation if the update request doesn't exist or is signed
-    if (!pendingSettings || (pendingSettings && isSigned))
+    if (!votingSettings || (votingSettings && !!ownSign))
         return <></>
 
     return <>

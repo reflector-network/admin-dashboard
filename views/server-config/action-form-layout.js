@@ -58,7 +58,7 @@ export default function ActionFormLayout({contract, updateSettings, validation, 
         validateTime(val)
     }, [changeUpdateTime, validateTime])
 
-    const timeFormater = useCallback(time => {
+    const timeFormatter = useCallback(time => {
         if (!timeframe)
             return time
         return (Math.floor(time / timeframe) * timeframe) + (timeframe / 2)
@@ -66,15 +66,15 @@ export default function ActionFormLayout({contract, updateSettings, validation, 
 
     const normalizeTimestamp = useCallback(e => {
         const val = parseInt(e.target.value, 10) || 0
-        const time = val ? timeFormater(val) : val
+        const time = val ? timeFormatter(val) : val
         changeUpdateTime({timestamp: time, minDate: time})
-    }, [changeUpdateTime, timeFormater])
+    }, [changeUpdateTime, timeFormatter])
 
     const normalizeMinDate = useCallback(e => {
         const val = parseInt(e.target.value, 10) || 0
-        const minDate = val ? timeFormater(val) : val
+        const minDate = val ? timeFormatter(val) : val
         changeUpdateTime({minDate})
-    }, [changeUpdateTime, timeFormater])
+    }, [changeUpdateTime, timeFormatter])
 
     return <div className="row">
         <div className="column column-66">

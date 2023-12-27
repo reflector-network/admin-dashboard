@@ -13,16 +13,20 @@ export default observer(function AuthLayout({children}) {
         requestAlbedoSession()
             .then(pubkey => {
                 if (!pubkey)
-                    return setAuthorized(false)
+                    throw new Error('Public key is invalid.')
                 authPubkey = pubkey
                 return getNodePublicKeys()
             })
             .then(res => {
                 if (!(res && res.indexOf(authPubkey) >= 0))
-                    return setAuthorized(false)
+                    throw new Error('Please, check the key you using to login.')
                 clientStatus.setNodePubkey(authPubkey)
-                //for some reason, immidiatly after session created, sign data is not working
+                //for some reason, immediately after session created, sign data is not working
                 setTimeout(() => setAuthorized(true), 1000)
+            })
+            .catch(error => {
+                setAuthorized(false)
+                notify({type: 'error', message: 'Authorization failed. ' + error?.message || ''})
             })
     }, [])
 
@@ -33,7 +37,6 @@ export default observer(function AuthLayout({children}) {
                 <div className="space">
                     <Button onClick={authorize} style={{width: '50%'}}>Authorize</Button>
                 </div>
-                {(authorized === false) && <p className="text-center">Authorization failed. Please, check the key you using to login.</p>}
             </div>
         </SimplePageLayout>}
         {authorized ? children : null}

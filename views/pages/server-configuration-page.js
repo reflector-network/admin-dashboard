@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
+import {navigation} from '@stellar-expert/navigation'
 import {Button} from '@stellar-expert/ui-framework'
 import {getCurrentConfig, postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
@@ -62,6 +63,8 @@ export default function ServerConfigurationPage() {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
+                //reload configuration after update
+                navigation.updateQuery({reload: 1})
                 notify({type: 'success', message: 'Update submitted'})
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))

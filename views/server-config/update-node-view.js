@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
 import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
 import ActionNodeLayout from './action-node-layout'
@@ -8,6 +8,10 @@ export default function UpdateNodeView({settings}) {
     const [isValid, setIsValid] = useState(false)
     const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
     const [isLimitUpdates, setIsLimitUpdates] = useState(false)
+
+    useEffect(() => {
+        setChangedSettings(structuredClone(settings))
+    }, [settings])
 
     const validation = useCallback(newSettings => {
         if (!updateTimeValidation(newSettings))
