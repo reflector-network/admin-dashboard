@@ -5,6 +5,12 @@ import {getCurrentConfig, postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 
+function validation(configuration) {
+    if (isNaN(parseInt(configuration.timestamp, 10)) || !configuration.expirationDate || !configuration.config)
+        return
+    return true
+}
+
 export default function ServerConfigurationPage() {
     const [configuration, setConfiguration] = useState({})
     const [configProperties, setConfigProperties] = useState('')
@@ -16,8 +22,11 @@ export default function ServerConfigurationPage() {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                setConfigProperties(invocationFormatter(res.currentConfig.config.config || {}, 1))
-                setConfiguration(res.currentConfig.config)
+                setConfigProperties(invocationFormatter(res.currentConfig?.config.config || {}, 1))
+                setConfiguration(res.currentConfig?.config || {
+                    timestamp: 0,
+                    expirationDate: 0
+                })
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration'}))
     }, [])
@@ -27,24 +36,34 @@ export default function ServerConfigurationPage() {
         setConfigProperties(val)
         try {
             const pureConfig = JSON.parse(val.replaceAll("'",'"'))
-            setConfiguration(prev => ({...prev, config: pureConfig}))
-            setIsValid(true)
+            setConfiguration(prev => {
+                const configuration = {...prev, config: pureConfig}
+                setIsValid(validation(configuration))
+                return configuration
+            })
         } catch (e) {
             console.error(e)
+            setConfiguration(prev => ({...prev, config: null}))
             setIsValid(false)
         }
     }, [])
 
     const changeTimestamp = useCallback(e => {
         const timestamp = parseInt(e.target.value, 10) || 0
-        setConfiguration(prev => ({...prev, timestamp}))
-        setIsValid(timestamp === 0)
+        setConfiguration(prev => {
+            const configuration = {...prev, timestamp}
+            setIsValid(validation(configuration))
+            return configuration
+        })
     }, [])
 
     const changeExpirationDate = useCallback(e => {
-        const expirationDate = parseInt(e.target.value, 10)
-        setConfiguration(prev => ({...prev, expirationDate}))
-        setIsValid(expirationDate)
+        const expirationDate = parseInt(e.target.value, 10) || 0
+        setConfiguration(prev => {
+            const configuration = {...prev, expirationDate}
+            setIsValid(validation(configuration))
+            return configuration
+        })
     }, [])
 
     const changeDescription = useCallback(e => {
@@ -78,21 +97,23 @@ export default function ServerConfigurationPage() {
             <div className="column column-50">
                 <div className="space"/>
                 <label>Timestamp</label>
-                <input value={configuration.timestamp || 0} onChange={changeTimestamp}/>
+                <input value={configuration.timestamp} onChange={changeTimestamp}/>
             </div>
             <div className="column column-50">
                 <div className="space"/>
                 <label>Expiration date</label>
-                <input value={configuration.expirationDate || 0} onChange={changeExpirationDate}/>
+                <input value={configuration.expirationDate} onChange={changeExpirationDate}/>
             </div>
         </div>
         <div className="space">
             <label>Description</label>
-            <textarea value={configuration.description || ''} onChange={changeDescription}/>
+            <textarea value={configuration.description || ''} onChange={changeDescription}
+                      placeholder="Information about configuration changes"/>
         </div>
         <div className="space">
             <label>Config</label>
-            <textarea style={{height: '75vh'}} value={configProperties} onChange={changeConfig}/>
+            <textarea style={{height: '75vh'}} value={configProperties} onChange={changeConfig}
+                      placeholder="Set up configuration"/>
         </div>
         <div className="space row">
             <div className="column column-75 text-center">

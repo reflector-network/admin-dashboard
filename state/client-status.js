@@ -1,15 +1,10 @@
-import {makeAutoObservable, runInAction} from 'mobx'
+import {makeAutoObservable} from 'mobx'
 import {checkAlbedoSession, signData} from '../providers/albedo-provider'
-import {getStatistics} from '../api/interface'
 import objectKeySorter from '../views/util/object-key-sorter'
-
-const statsRefreshInterval = 30//30 seconds
 
 class ClientStatus {
     constructor() {
-        this.clientPublicKey = localStorage.getItem('pubkey') || ''
         makeAutoObservable(this)
-        setInterval(() => this.updateStatistics(), statsRefreshInterval * 1000)
     }
 
     /**
@@ -47,28 +42,6 @@ class ClientStatus {
         if (this.hasSession && key && this.serverPublicKey && this.serverPublicKey !== key) {
             notify({type: 'warning', message: 'Unauthorized. Please authorize session for public key ' + this.serverPublicKey})
         }
-    }
-
-    updateStatistics() {
-        if (!this.hasSession)
-            return
-        getStatistics()
-            .then(statistics => {
-                if (statistics.error)
-                    throw new Error(statistics.error)
-                runInAction(() => {
-                    this.statistics = statistics?.at(-1)
-                })
-            })
-            .catch((error) => {
-                notify({
-                    type: 'error',
-                    message: 'Failed to retrieve statistics. ' + (error?.message || '')
-                })
-                runInAction(() => {
-                    this.statistics = null
-                })
-            })
     }
 
     async createSignature(data, rejected) {
