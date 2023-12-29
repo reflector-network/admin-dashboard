@@ -36,7 +36,7 @@ export default function UpdateNodeView({settings}) {
     return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Peer nodes</h3>
         <hr className="flare"/>
-        <ActionFormLayout updateSettings={setChangedSettings} validation={validation}>
+        <ActionFormLayout settings={changedSettings} updateSettings={setChangedSettings} validation={validation}>
             <h3>Quorum nodes</h3>
             {Object.values(changedSettings.config.nodes || {}).map(node => !node.remove &&
                 <NodeEntryLayout key={node.pubkey} node={node} save={saveNode} isLimitUpdates={isLimitUpdates}/>)}

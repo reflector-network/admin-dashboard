@@ -9,10 +9,18 @@ import ConfigurationChangesView from '../server-config/configuration-changes-vie
 import ConfigurationHistoryView from '../server-config/configuration-history-view'
 
 export default function SettingsSectionView({configuration}) {
-    const settings = structuredClone(configuration.currentConfig.config)
-    delete settings.config.minDate
     const location = useLocation()
     const {section = 'about', contract} = parseQuery(location.search)
+
+    if (!configuration.currentConfig)
+        return <AboutSectionView/>
+
+    const settings = {
+        description: '',
+        expirationDate: '',
+        timestamp: '',
+        config: {...configuration.currentConfig.config.config, minDate: ''}
+    }
 
     switch (section) {
         case 'nodes':
@@ -28,18 +36,22 @@ export default function SettingsSectionView({configuration}) {
         case 'history':
             return <ConfigurationHistoryView/>
         default:
-            return <div className="segment blank">
-                <div>
-                    <h3>About</h3>
-                    <hr className="flare"/>
-                    <div className="space">
-                        Welcome to the Reflector node dashboard.
-                        <p>
-                            Here you can manage your node, vote for adding peers to the quorum set, add assets to the oracle and change
-                            basic settings.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            return <AboutSectionView/>
     }
+}
+
+function AboutSectionView() {
+    return <div className="segment blank">
+        <div>
+            <h3>About</h3>
+            <hr className="flare"/>
+            <div className="space">
+                Welcome to the Reflector node dashboard.
+                <p>
+                    Here you can manage your node, vote for adding peers to the quorum set, add assets to the oracle and change
+                    basic settings.
+                </p>
+            </div>
+        </div>
+    </div>
 }

@@ -5,7 +5,6 @@ import {AccountAddress, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
 
 export default function NodeStatisticsRecordView({stat, node}) {
-    console.log(stat)
     const [isTraceEnabled, setIsTraceEnabled] = useState(stat.isTraceEnabled)
 
     const updateTrace = useCallback(() => {

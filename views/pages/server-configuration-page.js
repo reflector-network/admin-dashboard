@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {navigation} from '@stellar-expert/navigation'
 import {Button} from '@stellar-expert/ui-framework'
 import {getCurrentConfig, postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
@@ -22,10 +21,13 @@ export default function ServerConfigurationPage() {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                setConfigProperties(invocationFormatter(res.currentConfig?.config.config || {}, 1))
-                setConfiguration(res.currentConfig?.config || {
+                const config = res.currentConfig?.config.config
+                setConfigProperties(invocationFormatter(config || {}, 1))
+                setConfiguration({
                     timestamp: 0,
-                    expirationDate: 0
+                    expirationDate: 0,
+                    description: '',
+                    config
                 })
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration'}))
@@ -74,16 +76,13 @@ export default function ServerConfigurationPage() {
         setInProgress(true)
         const signature = await clientStatus.createSignature(configuration.config)
 
-        const {id, initiator, status, ...otherProperties} = configuration
         postApi('config', {
-            ...otherProperties,
+            ...configuration,
             signatures: [signature]
         })
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                //reload configuration after update
-                navigation.updateQuery({reload: 1})
                 notify({type: 'success', message: 'Update submitted'})
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
@@ -108,7 +107,7 @@ export default function ServerConfigurationPage() {
         <div className="space">
             <label>Description</label>
             <textarea value={configuration.description || ''} onChange={changeDescription}
-                      placeholder="Information about configuration changes"/>
+                      placeholder="Information about configuration update"/>
         </div>
         <div className="space">
             <label>Config</label>

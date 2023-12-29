@@ -110,7 +110,7 @@ function compareContracts(pendingConfig, currentConfig) {
         }
 
         const addedAssets = contract?.assets.filter(asset =>
-            compareContract.assets.findIndex(a => a.code === asset.code) === -1) || []
+            compareContract?.assets.findIndex(a => a.code === asset.code) === -1) || []
         if (addedAssets.length) {
             changedProperties.push({
                 type: 'assets',

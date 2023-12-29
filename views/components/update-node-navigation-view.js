@@ -17,9 +17,15 @@ const contractSections = [
     {name: 'period', title: 'Retention period'}
 ]
 
-export default function UpdateNodeNavigationView({contracts}) {
+export default function UpdateNodeNavigationView({configuration}) {
     const location = useLocation()
     const {section: activeSection = allSections[0].name, contract: currentContract} = parseQuery(location.search)
+    const contracts = configuration.currentConfig?.config.config.contracts || {}
+
+    if (!configuration.currentConfig)
+        return <span style={{padding: '0.3em 0'}}>
+            <i className="icon-angle-double-right"/>{allSections[0].title}
+        </span>
 
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>

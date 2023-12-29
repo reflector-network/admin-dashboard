@@ -21,11 +21,11 @@ export default function DashboardPage() {
                     if (res.error)
                         throw new Error(res.error)
                     //redirect to server configuration file if currentConfig doesn't exist
-                    if (!res.currentConfig)
+                    if (!res.currentConfig && !res.pendingConfig)
                         return navigation.navigate('/config')
                     setConfiguration(res)
                     //set global network
-                    setStellarNetwork(res.currentConfig.config.config.network)
+                    setStellarNetwork(res.currentConfig?.config.config.network)
                 })
                 .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration'}))
     }, [loaded])
@@ -37,7 +37,7 @@ export default function DashboardPage() {
         <div className="row relative" style={{zIndex: '1'}}>
             <div className="column column-25">
                 <div className="segment" style={{minHeight: '50vh'}}>
-                    <UpdateNodeNavigationView contracts={configuration.currentConfig.config.config.contracts}/>
+                    <UpdateNodeNavigationView configuration={configuration}/>
                 </div>
                 <div className="space mobile-only"/>
             </div>

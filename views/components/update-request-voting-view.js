@@ -1,12 +1,16 @@
-import React, {useCallback} from 'react'
+import React, {useCallback, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
-import {Button} from '@stellar-expert/ui-framework'
+import {Button, CodeBlock, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
+import invocationFormatter from '../util/invocation-formatter'
+import DialogView from './dialog-view'
 
 export default function UpdateRequestVotingView({configuration}) {
     const votingSettings = configuration.pendingConfig?.config || configuration.currentConfig?.config
     const ownSign = votingSettings?.signatures.filter(sign => sign.pubkey === clientStatus.clientPublicKey).length
+    const [isOpen, setIsOpen] = useState(false)
+    const readonlyConfigProperties = invocationFormatter(votingSettings.config || {}, 1)
 
     const vote = useCallback(async (vote) => {
         const signature = await clientStatus.createSignature(votingSettings.config, !vote)
@@ -30,6 +34,13 @@ export default function UpdateRequestVotingView({configuration}) {
 
     const reject = useCallback(() => vote(false), [vote])
 
+    const toggleShowConfig = useCallback(() => setIsOpen(prev => !prev), [])
+
+    const showChanges = useCallback(() => {
+        navigation.navigate('/?section=upgrade')
+        setIsOpen(false)
+    }, [])
+
     //hide confirmation if the update request doesn't exist or is signed
     if (!votingSettings || (votingSettings && !!ownSign))
         return <></>
@@ -37,15 +48,40 @@ export default function UpdateRequestVotingView({configuration}) {
     return <>
         <div className="segment warning">
             <div className="request-notification row row-center">
-                <div className="column column-50">
-                    <h3>Node configuration update request</h3>
+                <div className="column column-66">
+                    <h3>Node configuration update request <a className="icon-open-new-window" onClick={toggleShowConfig}/></h3>
+                    <div className="dimmed">
+                        {votingSettings.description || 'Without description'}
+                        <div className="text-tiny micro-space">
+                            Expiration date:&nbsp;
+                            <UtcTimestamp date={votingSettings.expirationDate}/>
+                        </div>
+                    </div>
                 </div>
-                <div className="column column-50">
+                <div className="column column-33">
                     <Button className="button-clear" onClick={confirm}>Improve</Button>
                     <Button className="button-clear" onClick={reject}>Reject</Button>
                 </div>
             </div>
         </div>
         <div className="space"/>
+        <DialogView dialogOpen={isOpen}>
+            <div>
+                <h3>Quorum configuration file</h3>
+                <hr className="flare"/>
+                <div className="space">
+                    <CodeBlock className="result" style={{height: '50vh'}} lang="js">{readonlyConfigProperties}</CodeBlock>
+                </div>
+            </div>
+            <div className="row space">
+                <div className="column column-25 column-offset-50">
+                    {(!!configuration.currentConfig && !!configuration.pendingConfig) &&
+                        <Button block onClick={showChanges}>View changes</Button>}
+                </div>
+                <div className="column column-25">
+                    <Button block onClick={toggleShowConfig}>Close</Button>
+                </div>
+            </div>
+        </DialogView>
     </>
 }

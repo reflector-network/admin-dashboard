@@ -19,7 +19,7 @@ export default function ConfigurationChangesView({configuration}) {
             const now = new Date().getTime()
             setTimeout(() => {
                 setChangedData([])
-            }, pendingConfig.timestamp - now)
+            }, pendingConfig.minDate - now)
         }
     }, [configuration])
 
@@ -33,7 +33,7 @@ export default function ConfigurationChangesView({configuration}) {
                     <hr className="double-space"/>
                     <div className="text-right">
                         <span className="dimmed">Changes will be applied:</span>&nbsp;
-                        <UtcTimestamp date={configuration.pendingConfig?.timestamp || 0}/>
+                        <UtcTimestamp date={configuration.pendingConfig?.config.config.minDate || 0}/>
                     </div>
                 </div> :
                 <div className="double-space text-center">There are no pending updates</div>}

@@ -27,7 +27,7 @@ export default function UpdateContractView({settings}) {
     return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Update contract</h3>
         <hr className="flare"/>
-        <ActionFormLayout updateSettings={setChangedSettings} validation={validation}>
+        <ActionFormLayout settings={changedSettings} updateSettings={setChangedSettings} validation={validation}>
             <div className="row">
                 <div className="column column-90">
                     <label>Wasm hash<br/>
