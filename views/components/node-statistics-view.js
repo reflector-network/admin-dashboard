@@ -5,42 +5,6 @@ import NodeStatisticsRecordView from './node-statistics-record-view'
 
 const statsRefreshInterval = 30//30 seconds
 
-const test = {
-    "startTime": 1703588666245,
-    "uptime": 217187,
-    "currentTime": 1703588883432,
-    "lastProcessedTimestamp": 0,
-    "totalProcessed": 4,
-    "submittedTransactions": 3,
-    "connectedNodes": [],
-    "oracleStatistics": {
-        "CB7ZNEEZOFGPFOY5ADF4U455NSHG3N5N2OVBM6EN6PF4ORBIK7DJRXXE": {
-            "isInitialized": true,
-            "lastOracleTimestamp": 1703588400000,
-            "lastProcessedTimestamp": 1703588700000,
-            "oracleId": "CB7ZNEEZOFGPFOY5ADF4U455NSHG3N5N2OVBM6EN6PF4ORBIK7DJRXXE",
-            "submittedTransactions": 1,
-            "totalProcessed": 2
-        },
-        "CBSQKYOITJSV7RIM3WPFUJESENEDBEJMSIFFIMJKRQQU35FH2C42IZ7P": {
-            "isInitialized": true,
-            "lastOracleTimestamp": 1703588400000,
-            "lastProcessedTimestamp": 1703588700000,
-            "oracleId": "CBSQKYOITJSV7RIM3WPFUJESENEDBEJMSIFFIMJKRQQU35FH2C42IZ7P",
-            "submittedTransactions": 2,
-            "totalProcessed": 2
-        }
-    },
-    "isTraceEnabled": true,
-    "currentConfigHash": "f8a843e60b6248474deee62ca2d4642e9201b5f88bf641ef52e7c779a02ad3a0",
-    "pendingConfigHash": null,
-    "connectionIssues": ['Issue 1', 'Issue 2'],
-    "version": "0.3.0",
-    "timeshift": 1
-}
-
-console.log(test)
-
 export default withErrorBoundary(function NodeStatisticsView() {
     const [statistics, setStatistics] = useState()
 
@@ -74,14 +38,24 @@ export default withErrorBoundary(function NodeStatisticsView() {
             <h3 style={{padding: 0}}><i className="icon-hexagon-dice"/>Statistics</h3>
             <hr className="flare"/>
             <div className="row">
-                {Object.keys(statistics).map(node => <div key={node} className="column column-50">
-                    <h3 className="space">
-                        <AccountAddress account={node} link={false} chars={16}/>
-                        <ConnectionIssuesView issues={test.connectionIssues}/>:</h3>
-                    <div className="block-indent">
-                        <NodeStatisticsRecordView stat={statistics[node] || test} node={node}/>
+                {Object.keys(statistics || {}).map(node => {
+                    const connectionIssues = statistics[node] ? [...statistics[node].connectionIssues] : []
+                    const timeshift = statistics[node]?.timeshift || 0
+                    //check server time
+                    if (Math.abs(timeshift) > 5000) {
+                        connectionIssues.push('Check server time')
+                    }
+                    return <div key={node} className="column column-50">
+                        <h3 className="space">
+                            <AccountAddress account={node} link={false} chars={16}/>
+                            <ConnectionIssuesView issues={connectionIssues}/>:</h3>
+                        {statistics[node] ?
+                            <div className="block-indent">
+                                <NodeStatisticsRecordView stat={statistics[node]}/>
+                            </div> :
+                            <div className="space text-center">No node statistics</div>}
                     </div>
-                </div>)}
+                })}
             </div>
         </div>
     </div>
@@ -89,7 +63,7 @@ export default withErrorBoundary(function NodeStatisticsView() {
 
 function ConnectionIssuesView({issues = []}) {
     if (!issues.length)
-        return
+        return <></>
 
     return <InfoTooltip icon="icon-warning color-warning">
         <ul>

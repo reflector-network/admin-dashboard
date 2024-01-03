@@ -29,7 +29,7 @@ export default function UpdateNodeNavigationView({configuration}) {
 
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
-            {section.hasChild ? Object.keys(contracts || []).map(contract => <>
+            {section.hasChild ? Object.keys(contracts || []).map(contract => <span key={contract}>
                 <span title={contract}>{shortenString(contract)}</span>
                 <ul key={contract} style={{margin: '0.3em 1em'}}>
                     {contractSections.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
@@ -39,7 +39,7 @@ export default function UpdateNodeNavigationView({configuration}) {
                                 {subSection.title}</a>}
                     </li>)}
                 </ul>
-            </>) :
+            </span>) :
             (section.name === activeSection ?
                 <span><i className="icon-angle-double-right"/>{section.title}</span> :
                 <a href={'/?section=' + section.name}>{section.title}</a>)}

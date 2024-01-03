@@ -1,34 +1,14 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback} from 'react'
 import TimeAgo from 'react-timeago'
 import {shortenString} from '@stellar-expert/formatter'
 import {AccountAddress, UtcTimestamp} from '@stellar-expert/ui-framework'
-import {postApi} from '../../api/interface'
 
-export default function NodeStatisticsRecordView({stat, node}) {
-    const [isTraceEnabled, setIsTraceEnabled] = useState(stat.isTraceEnabled)
-
-    const updateTrace = useCallback(() => {
-        postApi('trace', {isTraceEnabled: !isTraceEnabled})
-            .then(res => {
-                if (res.error)
-                    throw new Error(res.error)
-                notify({type: 'success', message: 'Update completed'})
-                setIsTraceEnabled(!isTraceEnabled)
-            })
-            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing'}))
-    }, [isTraceEnabled])
-
+export default function NodeStatisticsRecordView({stat}) {
     return <>
         <div>
             <span className="dimmed">Uptime: </span>
             <span className="inline-block">
                 <ElapsedTime ts={stat.startTime}/> <span className="dimmed small">(from <UtcTimestamp date={stat.startTime}/>)</span>
-            </span>
-        </div>
-        <div>
-            <span className="dimmed">Last round: </span>
-            <span className="inline-block">
-                <ElapsedTime ts={stat.lastProcessedTimestamp} suffix={<span className="dimmed"> ago</span>}/>
             </span>
         </div>
         {!!Object.keys(stat.oracleStatistics || {}).length && <OracleStatisticsView statistics={Object.values(stat.oracleStatistics)}/>}
@@ -42,15 +22,6 @@ export default function NodeStatisticsRecordView({stat, node}) {
             <span className="dimmed">Total processed: </span>
             <span className="inline-block">
                 {stat.totalProcessed || 'No data'}
-            </span>
-        </div>
-        <div>
-            <span className="dimmed">Tracing: </span>
-            <span className="inline-block">
-                {isTraceEnabled ? 'Enabled' : 'Disabled'}&emsp;|&emsp;
-                <a href="#" onClick={updateTrace} title="Enable/Disable tracing">
-                    {!isTraceEnabled ? 'enable' : 'disable'}
-                </a>
             </span>
         </div>
         <div>

@@ -15,6 +15,7 @@ export default function SettingsSectionView({configuration}) {
     if (!configuration.currentConfig)
         return <AboutSectionView/>
 
+    //reset settings for each opened section
     const settings = {
         description: '',
         expirationDate: '',
@@ -41,7 +42,7 @@ export default function SettingsSectionView({configuration}) {
 }
 
 function AboutSectionView() {
-    return <div className="segment blank">
+    return <div className="segment blank h-100">
         <div>
             <h3>About</h3>
             <hr className="flare"/>

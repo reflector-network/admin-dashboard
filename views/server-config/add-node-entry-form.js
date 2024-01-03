@@ -5,7 +5,8 @@ import {StrKey} from 'stellar-sdk'
 function validateNode(node) {
     if (!StrKey.isValidEd25519PublicKey(node.pubkey))
         return
-    if (!node.url?.length)
+    const pattern = new RegExp(/^(http:\/\/|https:\/\/|ws:\/\/|wss:\/\/)?(localhost|(([0-9]{1,3}\.){3}[0-9]{1,3})|([\da-z.-]+)\.([a-z.]{2,6}))(:(\d+))?$/)
+    if (!node.url?.length || !pattern.test(node.url))
         return
     if (!node.domain?.length)
         return
