@@ -1,10 +1,10 @@
 import React, {useCallback, useState} from 'react'
 import {AccountAddress, Button, CodeBlock, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {getConfigHistory} from '../../api/interface'
-import TabularDataView from '../components/tabular-data-view'
-import ConfigFiltersView from '../components/config-filter-view'
-import DialogView from '../components/dialog-view'
-import invocationFormatter from './../util/invocation-formatter'
+import invocationFormatter from '../util/invocation-formatter'
+import TabularDataView from './tabular-data-view'
+import ConfigFiltersView from './config-filter-view'
+import DialogView from './dialog-view'
 
 export default function ConfigurationHistoryView() {
     const [history, setHistory] = useState()

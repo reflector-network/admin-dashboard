@@ -51,6 +51,10 @@ export function getConfigHistory(params) {
     return getApi('config/history', params)
 }
 
+export function getServerLogs() {
+    return getApi('logs')
+}
+
 export function getStatistics() {
     return getApi('statistics')
 }

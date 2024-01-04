@@ -6,7 +6,8 @@ import AddAssetsView from '../server-config/add-assets-view'
 import UpdatePeriodView from '../server-config/update-period-view'
 import UpdateContractView from '../server-config/update-contract-view'
 import ConfigurationChangesView from '../server-config/configuration-changes-view'
-import ConfigurationHistoryView from '../server-config/configuration-history-view'
+import ConfigurationHistoryView from './configuration-history-view'
+import ConfigurationLogsView from './server-logs-view'
 
 export default function SettingsSectionView({configuration}) {
     const location = useLocation()
@@ -36,6 +37,8 @@ export default function SettingsSectionView({configuration}) {
             return <ConfigurationChangesView configuration={configuration}/>
         case 'history':
             return <ConfigurationHistoryView/>
+        case 'logs':
+            return <ConfigurationLogsView/>
         default:
             return <AboutSectionView/>
     }
