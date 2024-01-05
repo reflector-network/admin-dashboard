@@ -27,7 +27,8 @@ export default withErrorBoundary(function NodeStatisticsView() {
 
     useEffect(() => {
         updateStatistics()
-        setInterval(() => updateStatistics(), statsRefreshInterval * 1000)
+        const statsRefresh = setInterval(() => updateStatistics(), statsRefreshInterval * 1000)
+        return () => clearInterval(statsRefresh)
     }, [updateStatistics])
 
     if (!statistics || statistics.error)

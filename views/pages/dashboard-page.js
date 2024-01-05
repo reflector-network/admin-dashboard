@@ -32,10 +32,10 @@ export default function DashboardPage() {
     }, [])
 
     useEffect(() => {
-        if (!loaded) {
+        if (!loaded)
             updateConfig()
-            setInterval(() => updateConfig(), configRefreshInterval * 1000)
-        }
+        const configRefresh = setInterval(() => updateConfig(), configRefreshInterval * 1000)
+        return () => clearInterval(configRefresh)
     }, [loaded, updateConfig])
 
     if (!configuration)

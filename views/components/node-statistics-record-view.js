@@ -1,14 +1,15 @@
-import React, {useCallback} from 'react'
-import TimeAgo from 'react-timeago'
+import React from 'react'
 import {shortenString} from '@stellar-expert/formatter'
-import {AccountAddress, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {AccountAddress, ElapsedTime, UtcTimestamp} from '@stellar-expert/ui-framework'
 
 export default function NodeStatisticsRecordView({stat}) {
     return <>
         <div>
             <span className="dimmed">Uptime: </span>
             <span className="inline-block">
-                <ElapsedTime ts={stat.startTime}/> <span className="dimmed small">(from <UtcTimestamp date={stat.startTime}/>)</span>
+                {stat.startTime ?
+                    <><ElapsedTime ts={stat.startTime}/> <span className="dimmed small">(from <UtcTimestamp date={stat.startTime}/>)</span></> :
+                    'No data'}
             </span>
         </div>
         {!!Object.keys(stat.oracleStatistics || {}).length && <OracleStatisticsView statistics={Object.values(stat.oracleStatistics)}/>}
@@ -54,7 +55,9 @@ function OracleStatisticsView({statistics = []}) {
             <div>
                 <span className="dimmed">Last oracle round: </span>
                 <span className="inline-block">
-                    <ElapsedTime ts={stat.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/>
+                    {stat.lastOracleTimestamp ?
+                        <ElapsedTime ts={stat.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/> :
+                        'No data'}
                 </span>
             </div>
             <div>
@@ -71,22 +74,4 @@ function OracleStatisticsView({statistics = []}) {
             </div>
         </div>
     </div>)
-}
-
-const timeUnits = {
-    second: 's',
-    minute: 'm',
-    hour: 'h',
-    day: 'd',
-    week: 'w',
-    month: 'mo',
-    year: 'y'
-}
-
-function ElapsedTime({ts, className, suffix}) {
-    const formatter = useCallback((v, unit) => `${v}${timeUnits[unit]}`, [])
-
-    return <span className={className}>
-        {ts ? <><TimeAgo date={ts} formatter={formatter}/>{suffix}</> : 'No data'}
-    </span>
 }
