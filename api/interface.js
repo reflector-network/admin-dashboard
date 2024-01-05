@@ -56,7 +56,11 @@ export function getServerLogs() {
 }
 
 export function getStatistics() {
-    return getApi('statistics')
+    return getApi('statistics', {}, true)
+}
+
+export function getLogFile(filename) {
+    return getApi('logs/' + filename)
 }
 
 async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null, body = undefined}) {

@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {getServerLogs, postApi} from '../../api/interface'
+import {getLogFile, getServerLogs, postApi} from '../../api/interface'
 
 export default function ConfigurationLogsView() {
     const [links, setLinks] = useState([])
@@ -16,12 +16,33 @@ export default function ConfigurationLogsView() {
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing'}))
     }, [isTraceEnabled])
 
+    const handleDownload = (event, link) => {
+        event.preventDefault()
+        getLogFile(link)
+            .then(data => {
+                const blob = new Blob([data.logFile], {type: 'application/octet-stream'})
+                const downloadUrl = window.URL.createObjectURL(blob)
+
+                //Create a temporary link to trigger the download
+                const tempLink = document.createElement('a')
+                tempLink.href = downloadUrl
+                tempLink.download = link //Set the filename for download
+                document.body.appendChild(tempLink)
+                tempLink.click()
+                document.body.removeChild(tempLink)
+
+                window.URL.revokeObjectURL(downloadUrl)
+            })
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to download log'}))
+    }
+
     useEffect(() => {
         getServerLogs()
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                setLinks(res)
+                setLinks(res.logFiles)
+                setIsTraceEnabled(res.isTraceEnabled)
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration history'}))
     }, [])
@@ -42,7 +63,7 @@ export default function ConfigurationLogsView() {
             <div className="space">Download log:</div>
             {links.length ?
                 links?.map(link => <div key={link} className="nano-space">
-                    <a href={apiOrigin + `logs/download/${link}`} target="_blank" rel="noreferrer" download={link}>
+                    <a onClick={(e) => handleDownload(e, link)} target="_blank" rel="noreferrer" download={link}>
                         <span className="icon-download">{link}</span></a>
                 </div>) :
                 <div className="space text-center">There are no entries</div>}
