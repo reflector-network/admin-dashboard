@@ -64,14 +64,10 @@ export function getLogFile(filename) {
 }
 
 async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null, body = undefined}) {
-    const tunnelRequired = !(apiOrigin.startsWith('https://') || apiOrigin.startsWith('http://localhost') || apiOrigin.startsWith('http://127.0.0.1'))
-    const url = (tunnelRequired ? tunnelServer : apiOrigin) + relativeUrl
+    const url = apiOrigin + relativeUrl
     const headers = {'Content-Type': 'application/json'}
     if (authorizationHeader) {
         headers.Authorization = authorizationHeader
-    }
-    if (tunnelRequired) {
-        headers['X-TUNNEL'] = apiOrigin
     }
     const res = await fetch(url, {
         method,
