@@ -53,11 +53,11 @@ function ChangesRecordLayout({data}) {
                         data.changes.map(property => {
                             const contract = {[property.type]: property.changes}
                             return <div key={data.contract + property.type}>
-                                <ContractRecordlayout property={property.type} contract={contract}/>
+                                <ContractRecordLayout property={property.type} contract={contract}/>
                             </div>
                         }) :
                         Object.keys(data.changes).map(property => <div key={data.contract + property}>
-                            <ContractRecordlayout property={property} contract={data.changes}/>
+                            <ContractRecordLayout property={property} contract={data.changes}/>
                         </div>)}
                 </div>
             </div>
@@ -98,7 +98,7 @@ function ChangesRecordLayout({data}) {
     }
 }
 
-function ContractRecordlayout({property, contract}) {
+function ContractRecordLayout({property, contract}) {
     switch (property) {
         case 'assets':
             return <div>
@@ -114,7 +114,6 @@ function ContractRecordlayout({property, contract}) {
                     <AssetCodeView asset={contract[property]}/>
                 </span>
             </div>
-            
         case 'oracleId':
             return <div>
                 <span className="dimmed micro-space">{property}: </span>

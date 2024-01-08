@@ -1,16 +1,32 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
 import {Button, CodeBlock, UtcTimestamp} from '@stellar-expert/ui-framework'
-import {postApi} from '../../api/interface'
+import {getCurrentConfig, postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 import DialogView from './dialog-view'
 
+const configRefreshInterval = 10//30 seconds
+
 export default function UpdateRequestVotingView({configuration}) {
-    const votingSettings = configuration.pendingConfig?.config || configuration.currentConfig?.config
+    const [actualConfig, setActualConfig] = useState(configuration)
+    const votingSettings = actualConfig.pendingConfig?.config || actualConfig.currentConfig?.config
     const ownSign = votingSettings?.signatures.filter(sign => sign.pubkey === clientStatus.clientPublicKey).length
     const [isOpen, setIsOpen] = useState(false)
     const readonlyConfigProperties = invocationFormatter(votingSettings.config || {}, 1)
+
+    useEffect(() => {
+        const refreshConfig = setInterval(() => {
+            getCurrentConfig()
+                .then(res => {
+                    if (res.error)
+                        throw new Error(res.error)
+                    setActualConfig(res)
+                })
+                .catch(error => console.error(error))
+        }, configRefreshInterval * 1000)
+        return () => clearInterval(refreshConfig)
+    }, [configuration])
 
     const vote = useCallback(async (vote) => {
         const signature = await clientStatus.createSignature(votingSettings.config, !vote)
@@ -75,7 +91,7 @@ export default function UpdateRequestVotingView({configuration}) {
             </div>
             <div className="row space">
                 <div className="column column-25 column-offset-50">
-                    {(!!configuration.currentConfig && !!configuration.pendingConfig) &&
+                    {(!!actualConfig.currentConfig && !!actualConfig.pendingConfig) &&
                         <Button block onClick={showChanges}>View changes</Button>}
                 </div>
                 <div className="column column-25">

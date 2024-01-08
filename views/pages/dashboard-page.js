@@ -8,8 +8,6 @@ import NodeStatisticsView from '../components/node-statistics-view'
 import UpdateNodeNavigationView from '../components/update-node-navigation-view'
 import UpdateRequestVotingView from '../components/update-request-voting-view'
 
-const configRefreshInterval = 30//30 seconds
-
 export default function DashboardPage() {
     const [configuration, setConfiguration] = useState()
     const location = useLocation()
@@ -34,8 +32,6 @@ export default function DashboardPage() {
     useEffect(() => {
         if (!loaded)
             updateConfig()
-        const configRefresh = setInterval(() => updateConfig(), configRefreshInterval * 1000)
-        return () => clearInterval(configRefresh)
     }, [loaded, updateConfig])
 
     if (!configuration)

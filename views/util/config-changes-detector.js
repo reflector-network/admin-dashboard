@@ -13,7 +13,7 @@ export default function configChangesDetector(pendingConfig, currentConfig) {
     }
 
     //compare contracts (added, changed, removed)
-    const changedContracts = compareContracts(pendingConfig, currentConfig, changedData)
+    const changedContracts = compareContracts(pendingConfig, currentConfig)
     const addedContracts = Object.keys(pendingConfig.contracts).filter(contractId => !currentConfig.contracts[contractId])
     const removedContracts = Object.keys(currentConfig.contracts).filter(contractId => !pendingConfig.contracts[contractId])
 
@@ -120,7 +120,7 @@ function compareContracts(pendingConfig, currentConfig) {
         }
         const removedAssets = compareContract?.assets.filter(asset =>
             contract.assets.findIndex(a => a.code === asset.code) === -1) || []
-        if (addedAssets.length) {
+        if (removedAssets.length) {
             changedProperties.push({
                 type: 'assets',
                 action: 'Removed',
