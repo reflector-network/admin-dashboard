@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
 import AssetCodeView from '../components/asset-code-view'
 import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
@@ -18,6 +18,12 @@ export default function AddAssetsView({settings, contractId}) {
     if (!contract) {
         navigation.navigate('/')
     }
+
+    //reset form after update
+    useEffect(() => {
+        setEditableAssets([])
+        setChangedSettings(structuredClone(settings))
+    }, [settings])
 
     const validation = useCallback(newSettings => {
         if (newSettings.length === supportedAssets.length)

@@ -16,6 +16,7 @@ export default function UpdateRequestVotingView({configuration}) {
     const readonlyConfigProperties = invocationFormatter(votingSettings.config || {}, 1)
 
     useEffect(() => {
+        setActualConfig(configuration)
         const refreshConfig = setInterval(() => {
             getCurrentConfig()
                 .then(res => {

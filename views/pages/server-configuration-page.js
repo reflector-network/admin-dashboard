@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Button} from '@stellar-expert/ui-framework'
+import {Button, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {getCurrentConfig, postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
@@ -15,6 +15,15 @@ export default function ServerConfigurationPage() {
     const [configProperties, setConfigProperties] = useState('')
     const [inProgress, setInProgress] = useState(false)
     const [isValid, setIsValid] = useState(false)
+    const [isValidTime, setIsValidTime] = useState(false)
+
+    const validateTime = useCallback(time => {
+        try {
+            setIsValidTime(!!new Date(time).getTime())
+        } catch (err) {
+            setIsValidTime(false)
+        }
+    }, [])
 
     useEffect(() => {
         getCurrentConfig()
@@ -57,7 +66,8 @@ export default function ServerConfigurationPage() {
             setIsValid(validation(configuration))
             return configuration
         })
-    }, [])
+        validateTime(timestamp)
+    }, [validateTime])
 
     const changeExpirationDate = useCallback(e => {
         const expirationDate = parseInt(e.target.value, 10) || 0
@@ -66,7 +76,8 @@ export default function ServerConfigurationPage() {
             setIsValid(validation(configuration))
             return configuration
         })
-    }, [])
+        validateTime(expirationDate)
+    }, [validateTime])
 
     const changeDescription = useCallback(e => {
         setConfiguration(prev => ({...prev, description: e.target.value}))
@@ -97,11 +108,17 @@ export default function ServerConfigurationPage() {
                 <div className="space"/>
                 <label>Timestamp</label>
                 <input value={configuration.timestamp} onChange={changeTimestamp}/>
+                {(!!isValidTime && !!configuration.timestamp) && <div className="dimmed text-tiny">
+                    (<UtcTimestamp date={configuration.timestamp}/>)
+                </div>}
             </div>
             <div className="column column-50">
                 <div className="space"/>
                 <label>Expiration date</label>
                 <input value={configuration.expirationDate} onChange={changeExpirationDate}/>
+                {(!!isValidTime && !!configuration.expirationDate) && <div className="dimmed text-tiny">
+                    (<UtcTimestamp date={configuration.expirationDate}/>)
+                </div>}
             </div>
         </div>
         <div className="space">

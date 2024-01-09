@@ -13,13 +13,6 @@ export default function ConfigurationChangesView({configuration}) {
         const pendingConfig = configuration.pendingConfig.config.config
         const currentConfig = configuration.currentConfig.config.config
         setChangedData(configChangesDetector(pendingConfig, currentConfig))
-        //hide information when update will be completed
-        if (configuration.pendingConfig.status === 'pending') {
-            const now = new Date().getTime()
-            setTimeout(() => {
-                setChangedData([])
-            }, configuration.pendingConfig.config.timestamp - now)
-        }
     }, [configuration])
 
     return <div className="segment blank h-100">
