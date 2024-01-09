@@ -37,17 +37,18 @@ export default observer(function AuthLayout({children}) {
     }, [])
 
     return <div>
-        {!authorized && <SimplePageLayout title="Authorization">
-            <div className="text-center">
-                Please authorize Albedo to cryptographically sign<br/>server requests on behalf of your Reflector node
-                <div className="space">
-                    {!inProgress ?
-                        <Button onClick={authorize} style={{width: '50%'}}>Authorize</Button> :
-                        <div className="loader inline"/>
-                    }
+        {(!authorized || !clientStatus.hasSession) ?
+            <SimplePageLayout title="Authorization">
+                <div className="text-center">
+                    Please authorize Albedo to cryptographically sign<br/>server requests on behalf of your Reflector node
+                    <div className="space">
+                        {!inProgress ?
+                            <Button onClick={authorize} style={{width: '50%'}}>Authorize</Button> :
+                            <div className="loader inline"/>
+                        }
+                    </div>
                 </div>
-            </div>
-        </SimplePageLayout>}
-        {authorized ? children : null}
+            </SimplePageLayout> :
+            children}
     </div>
 })

@@ -25,7 +25,7 @@ export default function TabularDataView({dataList, updateList, rows = 10, isLoad
             <div className="space">
                 {children}
                 <div className="text-center space relative">
-                    <Dropdown className="row-selector micro-space" title={numberRows} options={['5', '10', '20', '50']} onChange={changeRows}/>
+                    <Dropdown className="row-selector micro-space" title={numberRows} options={['10', '20', '50']} onChange={changeRows}/>
                     <ButtonGroup className="space">
                         <Button disabled={isLoading || page === 1} onClick={prevPage}>Prev Page</Button>
                         <Button disabled={isLoading || (!dataList.length || !!(dataList.length % numberRows))}

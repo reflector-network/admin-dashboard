@@ -5,6 +5,7 @@ import objectKeySorter from '../views/util/object-key-sorter'
 class ClientStatus {
     constructor() {
         makeAutoObservable(this)
+        setInterval(() => this.pollSession(), 10_000)
     }
 
     /**
@@ -19,9 +20,7 @@ class ClientStatus {
      * @type {Boolean}
      * @readonly
      */
-    get hasSession() {
-        return checkAlbedoSession()
-    }
+    hasSession = false
 
     serverPublicKey = ''
 
@@ -39,9 +38,14 @@ class ClientStatus {
 
     setNodePubkey(key = '') {
         this.clientPublicKey = key
+        this.pollSession()
         if (this.hasSession && key && this.serverPublicKey && this.serverPublicKey !== key) {
             notify({type: 'warning', message: 'Unauthorized. Please authorize session for public key ' + this.serverPublicKey})
         }
+    }
+
+    pollSession() {
+        this.hasSession = checkAlbedoSession()
     }
 
     async createSignature(data, rejected) {
@@ -59,20 +63,4 @@ class ClientStatus {
     }
 }
 
-const clientStatus = new ClientStatus()
-
-
-/**
- * Update global configuration parameter in localStorage
- * @param {String} key
- * @param {String|undefined} value
- */
-function setGlobalConfigParam(key, value) {
-    if (value === undefined) {
-        localStorage.removeItem(key)
-    } else {
-        localStorage.setItem(key, value)
-    }
-}
-
-export default clientStatus
+export default new ClientStatus()

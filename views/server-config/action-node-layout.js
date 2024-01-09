@@ -15,9 +15,8 @@ export default function ActionNodeLayout({settings, currentConfig, isValid, chil
         setInProgress(true)
         const signature = await clientStatus.createSignature(newSettings.config)
 
-        const {id, initiator, status, ...otherSettings} = newSettings
         postApi('config', {
-            ...otherSettings,
+            ...newSettings,
             signatures: [signature]
         })
             .then(res => {

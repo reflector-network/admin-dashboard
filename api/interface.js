@@ -2,8 +2,6 @@ import {signData} from '../providers/albedo-provider'
 import clientStatus from '../state/client-status'
 import objectKeySorter from './../views/util/object-key-sorter'
 
-const tunnelServer = 'https://tunnel.reflector.world/'
-
 /**
  *
  * @param {any} payload - payload to sign with nonce

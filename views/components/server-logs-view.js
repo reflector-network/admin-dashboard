@@ -16,8 +16,8 @@ export default function ConfigurationLogsView() {
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing'}))
     }, [isTraceEnabled])
 
-    const handleDownload = (event, link) => {
-        event.preventDefault()
+    const handleDownload = useCallback(e => {
+        const link = e.target.dataset.link
         getLogFile(link)
             .then(data => {
                 const blob = new Blob([data.logFile], {type: 'application/octet-stream'})
@@ -34,7 +34,7 @@ export default function ConfigurationLogsView() {
                 window.URL.revokeObjectURL(downloadUrl)
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to download log'}))
-    }
+    }, [])
 
     useEffect(() => {
         getServerLogs()
@@ -55,7 +55,7 @@ export default function ConfigurationLogsView() {
                 <span className="dimmed">Tracing: </span>
                 <span className="inline-block">
                     {isTraceEnabled ? 'Enabled' : 'Disabled'}&emsp;|&emsp;
-                    <a href="#" onClick={updateTrace} title="Enable/Disable tracing">
+                    <a onClick={updateTrace} title="Enable/Disable tracing">
                         {!isTraceEnabled ? 'enable' : 'disable'}
                     </a>
                 </span>
@@ -63,7 +63,7 @@ export default function ConfigurationLogsView() {
             <div className="space">Download log:</div>
             {links.length ?
                 links?.map(link => <div key={link} className="nano-space">
-                    <a onClick={(e) => handleDownload(e, link)} target="_blank" rel="noreferrer" download={link}>
+                    <a data-link={link} onClick={handleDownload}>
                         <span className="icon-download">{link}</span></a>
                 </div>) :
                 <div className="space text-center">There are no entries</div>}

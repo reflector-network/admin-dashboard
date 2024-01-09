@@ -19,7 +19,7 @@ export default function DashboardPage() {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                //redirect to server configuration file if currentConfig doesn't exist
+                //redirect to server configuration file if configuration doesn't exist
                 if (!res.currentConfig && !res.pendingConfig)
                     return navigation.navigate('/config')
                 setConfiguration(res)
@@ -29,6 +29,7 @@ export default function DashboardPage() {
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration'}))
     }, [])
 
+    //getting actual configuration after the upgrade
     useEffect(() => {
         if (!loaded)
             updateConfig()

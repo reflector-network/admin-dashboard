@@ -54,6 +54,7 @@ export async function signData(data) {
 export function dropSession() {
     if (clientStatus.clientPublicKey) {
         //forget session
-        albedo.forgetImplicitSession(clientStatus.clientPublicKey)
+        albedo.forgetImplicitSession(clientStatus.clientPublicKey)//update status
+        clientStatus.pollSession()
     }
 }

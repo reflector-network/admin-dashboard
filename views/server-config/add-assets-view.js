@@ -1,7 +1,6 @@
-import React, {useCallback, useEffect, useState} from 'react'
-import {AssetLink} from '@stellar-expert/ui-framework'
-import {shortenString} from '@stellar-expert/formatter'
+import React, {useCallback, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
+import AssetCodeView from '../components/asset-code-view'
 import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
 import AddGenericAssetEntry from './add-generic-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
@@ -19,12 +18,6 @@ export default function AddAssetsView({settings, contractId}) {
     if (!contract) {
         navigation.navigate('/')
     }
-
-    //reset form if contract has been changed
-    useEffect(() => {
-        setEditableAssets([])
-        setChangedSettings(structuredClone(settings))
-    }, [settings, contractId])
 
     const validation = useCallback(newSettings => {
         if (newSettings.length === supportedAssets.length)
@@ -97,17 +90,4 @@ function AssetEntryLayout({asset, editableAssets = [], updateAssets}) {
         {editableAssets.findIndex(a => a.code === asset.code) !== -1 &&
             <a onClick={removeAsset} style={{marginLeft: '0.3em'}}><i className="icon-cancel"/></a>}
     </div>
-}
-
-export function AssetCodeView({asset}) {
-    if (!asset)
-        return <></>
-    const type = parseInt(asset.type, 10)
-    if (type === 1 && asset.code.length === 56) {
-        return <b title={asset.code}>{shortenString(asset.code, 8)}</b>
-    }
-    if (type === 1) {
-        return <AssetLink asset={asset.code.toUpperCase()}/>
-    }
-    return <b>{asset.code}</b>
 }

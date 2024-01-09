@@ -6,13 +6,13 @@ import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 import DialogView from './dialog-view'
 
-const configRefreshInterval = 10//30 seconds
+const configRefreshInterval = 30//30 seconds
 
 export default function UpdateRequestVotingView({configuration}) {
     const [actualConfig, setActualConfig] = useState(configuration)
+    const [isOpen, setIsOpen] = useState(false)
     const votingSettings = actualConfig.pendingConfig?.config || actualConfig.currentConfig?.config
     const ownSign = votingSettings?.signatures.filter(sign => sign.pubkey === clientStatus.clientPublicKey).length
-    const [isOpen, setIsOpen] = useState(false)
     const readonlyConfigProperties = invocationFormatter(votingSettings.config || {}, 1)
 
     useEffect(() => {
