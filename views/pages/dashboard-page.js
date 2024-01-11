@@ -26,10 +26,12 @@ export default function DashboardPage() {
                 //hide information when update will be completed
                 if (res?.pendingConfig?.config.status === 'pending') {
                     const now = new Date().getTime()
-                    setTimeout(() => {
-                        updateConfig()
-                        notify({type: 'success', message: 'New configuration is applied'})
-                    }, res.pendingConfig.config.timestamp - now)
+                    const timeToApply = res.pendingConfig.config.timestamp - now
+                    if (timeToApply > 0)
+                        setTimeout(() => {
+                            updateConfig()
+                            notify({type: 'success', message: 'New configuration is applied'})
+                        }, timeToApply)
                 }
                 //set global network
                 setStellarNetwork(res.currentConfig?.config.config.network)
