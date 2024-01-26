@@ -8,6 +8,7 @@ import UpdateContractView from '../server-config/update-contract-view'
 import ConfigurationChangesView from '../server-config/configuration-changes-view'
 import ConfigurationHistoryView from './configuration-history-view'
 import ConfigurationLogsView from './server-logs-view'
+import NotificationSettingsView from './notification-settings-view'
 
 export default function SettingsSectionView({configuration}) {
     const location = useLocation()
@@ -39,6 +40,8 @@ export default function SettingsSectionView({configuration}) {
             return <ConfigurationHistoryView/>
         case 'logs':
             return <ConfigurationLogsView/>
+        case 'notification':
+            return <NotificationSettingsView/>
         default:
             return <AboutSectionView/>
     }

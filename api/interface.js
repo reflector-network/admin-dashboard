@@ -37,12 +37,12 @@ export async function postApi(action, data) {
     })
 }
 
-export function getCurrentConfig() {
-    return getApi('config')
-}
-
 export function getNodePublicKeys() {
     return getApi('nodes')
+}
+
+export function getCurrentConfig() {
+    return getApi('config')
 }
 
 export function getConfigHistory(params) {
@@ -53,12 +53,16 @@ export function getServerLogs() {
     return getApi('logs')
 }
 
+export function getLogFile(filename) {
+    return getApi('logs/' + filename)
+}
+
 export function getStatistics() {
     return getApi('statistics', {}, true)
 }
 
-export function getLogFile(filename) {
-    return getApi('logs/' + filename)
+export function getNotificationSettings() {
+    return getApi('settings/node')
 }
 
 async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null, body = undefined}) {

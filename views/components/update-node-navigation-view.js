@@ -10,7 +10,8 @@ const allSections = [
     {name: 'contracts', hasChild: true},
     {name: 'upgrade', title: 'Quorum upgrade'},
     {name: 'history', title: 'History'},
-    {name: 'logs', title: 'Logs'}
+    {name: 'logs', title: 'Logs'},
+    {name: 'notification', title: 'Notification'}
 ]
 
 const contractSections = [
