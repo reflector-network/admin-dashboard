@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react'
 import {getLogFile, getServerLogs, postApi} from '../../api/interface'
 
 export default function ConfigurationLogsView() {
-    const [links, setLinks] = useState([])
+    const [links, setLinks] = useState(['error.log'])
     const [isTraceEnabled, setIsTraceEnabled] = useState(false)
 
     const updateTrace = useCallback(() => {
@@ -63,8 +63,7 @@ export default function ConfigurationLogsView() {
             <div className="space">Download log:</div>
             {links.length ?
                 links?.map(link => <div key={link} className="nano-space">
-                    <a data-link={link} onClick={handleDownload}>
-                        <span className="icon-download">{link}</span></a>
+                    <a className="icon-download" data-link={link} onClick={handleDownload}>{link}</a>
                 </div>) :
                 <div className="space text-center">There are no entries</div>}
         </div>
