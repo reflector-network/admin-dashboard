@@ -33,6 +33,6 @@ export default function TabularDataView({dataList, updateList, rows = 10, isLoad
                     </ButtonGroup>
                 </div>
             </div> :
-            <div className="text-center space dimmed">You don't have any entries yet</div>}
+            <div className="text-center space dimmed">Could not find data with these parameters</div>}
     </div>
 }

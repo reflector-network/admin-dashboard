@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {AccountAddress, Button, CodeBlock, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {getConfigHistory} from '../../api/interface'
 import invocationFormatter from '../util/invocation-formatter'
@@ -14,7 +14,7 @@ export default function ConfigurationHistoryView() {
     const [isOpen, setIsOpen] = useState(false)
     const readonlyConfigProperties = invocationFormatter(config || {}, 1)
 
-    const updateConfigHistory = useCallback((page, numberRows) => {
+    const updateConfigHistory = useCallback((page = 1, numberRows = 10) => {
         const params = {
             pageSize: numberRows,
             page
@@ -35,6 +35,8 @@ export default function ConfigurationHistoryView() {
             .finally(() => setIsLoading(false))
     }, [filters])
 
+    useEffect(() => updateConfigHistory(), [updateConfigHistory])
+
     const toggleShowConfig = useCallback(() => setIsOpen(prev => !prev), [])
 
     const showConfig = useCallback(e => {
@@ -49,49 +51,51 @@ export default function ConfigurationHistoryView() {
         <div>
             <h3>Configuration history</h3>
             <hr className="flare"/>
-            <TabularDataView dataList={history} updateList={updateConfigHistory} isLoading={isLoading}>
+            {history ? <>
                 <ConfigFiltersView filters={filters} updateFilters={setFilters}/>
-                {history?.length ? <table className="table space">
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th>Initiator</th>
-                            <th>Signatures</th>
-                            <th>Status</th>
-                            <th>Expiration date</th>
-                            <th/>
-                        </tr>
-                    </thead>
-                    <tbody className="condensed">
-                        {history.map(config => {
-                            const nodeDomains = Object.values(config.config.nodes).reduce((prev, curr) => {
-                                prev[curr.pubkey] = curr.domain
-                                return prev
-                            }, {})
-                            const signatures = config.signatures.map(signature => <div key={signature.pubkey}>
-                                {nodeDomains[signature.pubkey] ?
-                                    <span title={signature.pubkey}>{nodeDomains[signature.pubkey]}</span> :
-                                    <AccountAddress account={signature.pubkey} char={16}/>}
-                            </div>)
-                            return <tr key={config.id}>
-                                <td data-header="Description: ">{config.description || 'no desc'}</td>
-                                <td data-header="Initiator: ">
-                                    {nodeDomains[config.initiator] ?
-                                        <span title={config.initiator}>{nodeDomains[config.initiator]}</span> :
-                                        <AccountAddress account={config.initiator} char={16}/>}
-                                </td>
-                                <td data-header="Signatures: ">{signatures}</td>
-                                <td data-header="Status: ">{config.status}</td>
-                                <td data-header="Expiration date: ">
-                                    <UtcTimestamp date={config.expirationDate} dateOnly/>
-                                </td>
-                                <td><a className="icon-open-new-window" data-id={config.id} onClick={showConfig}/></td>
+                <TabularDataView dataList={history} updateList={updateConfigHistory} isLoading={isLoading}>
+                    <table className="table space">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Initiator</th>
+                                <th>Signatures</th>
+                                <th>Status</th>
+                                <th>Expiration date</th>
+                                <th/>
                             </tr>
-                        })}
-                    </tbody>
-                </table> :
-                <div className="text-center space dimmed">Could not find any configurations with this option</div>}
-            </TabularDataView>
+                        </thead>
+                        <tbody className="condensed">
+                            {history.map(config => {
+                                const nodeDomains = Object.values(config.config.nodes).reduce((prev, curr) => {
+                                    prev[curr.pubkey] = curr.domain
+                                    return prev
+                                }, {})
+                                const signatures = config.signatures.map(signature => <div key={signature.pubkey}>
+                                    {nodeDomains[signature.pubkey] ?
+                                        <span title={signature.pubkey}>{nodeDomains[signature.pubkey]}</span> :
+                                        <AccountAddress account={signature.pubkey} char={16}/>}
+                                </div>)
+                                return <tr key={config.id}>
+                                    <td data-header="Description: ">{config.description || 'no desc'}</td>
+                                    <td data-header="Initiator: ">
+                                        {nodeDomains[config.initiator] ?
+                                            <span title={config.initiator}>{nodeDomains[config.initiator]}</span> :
+                                            <AccountAddress account={config.initiator} char={16}/>}
+                                    </td>
+                                    <td data-header="Signatures: ">{signatures}</td>
+                                    <td data-header="Status: ">{config.status}</td>
+                                    <td data-header="Expiration date: ">
+                                        <UtcTimestamp date={config.expirationDate} dateOnly/>
+                                    </td>
+                                    <td><a className="icon-open-new-window" data-id={config.id} onClick={showConfig}/></td>
+                                </tr>
+                            })}
+                        </tbody>
+                    </table>
+                </TabularDataView>
+            </> :
+            <div className="text-center double-space dimmed">You don't have any entries yet</div>}
         </div>
         <DialogView dialogOpen={isOpen}>
             {!!config && <div>
