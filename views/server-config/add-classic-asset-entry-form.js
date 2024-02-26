@@ -1,6 +1,6 @@
 import React, {useCallback, useRef, useState} from 'react'
 import {observer} from 'mobx-react'
-import {StrKey} from 'stellar-sdk'
+import {StrKey} from '@stellar/stellar-sdk'
 import AddAssetEntryLayout from './add-asset-entry-layout'
 
 export default observer(function AddClassicAssetEntry({contract, save}) {

@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
-import {StrKey} from 'stellar-sdk'
+import {StrKey} from '@stellar/stellar-sdk'
 
 function validateNode(node) {
     if (!StrKey.isValidEd25519PublicKey(node.pubkey))
