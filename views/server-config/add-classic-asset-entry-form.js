@@ -1,34 +1,24 @@
 import React, {useCallback, useRef, useState} from 'react'
-import {Button} from '@stellar-expert/ui-framework'
 import {observer} from 'mobx-react'
-import {StrKey} from 'stellar-sdk'
+import {StrKey} from '@stellar/stellar-sdk'
+import AddAssetEntryLayout from './add-asset-entry-layout'
 
-export default observer(function AddClassicAssetEntry({title, settings, save}) {
-    const [isVisible, setIsVisible] = useState(false)
-    const [isValid, setIsValid] = useState(false)
+export default observer(function AddClassicAssetEntry({contract, save}) {
     const [asset, setAsset] = useState({})
+    const [isValid, setIsValid] = useState(false)
+    const [isEntered, setIsEntered] = useState(false)
     const currentInput = useRef(null)
-
-    const toggleShowForm = useCallback(() => {
-        setIsVisible(!isVisible)
-        setTimeout(() => {
-            const input = currentInput.current
-            if (input) {
-                input.focus()
-            }
-        }, 200)
-    }, [isVisible])
 
     const validate = useCallback(newAsset => {
         const pattern = new RegExp("[^a-zA-z]")
         if (!(newAsset.code?.length > 0 && newAsset.code?.length <= 12) || pattern.test(newAsset.code) ||
-            settings.data.assets.findIndex(asset => asset.code === `${newAsset.code}:${newAsset.issuer}`) !== -1) {
+            contract.assets.findIndex(asset => asset.code === `${newAsset.code}:${newAsset.issuer}`) !== -1) {
             return false
         }
-        if (newAsset.code !== 'XLM' && !StrKey.isValidEd25519PublicKey(newAsset.issuer))
+        if ((newAsset.code !== 'XLM') && !StrKey.isValidEd25519PublicKey(newAsset.issuer))
             return false
         return true
-    }, [settings])
+    }, [contract])
 
     const onChangeCode = useCallback(e => {
         const val = e.target.value.trim()
@@ -43,32 +33,12 @@ export default observer(function AddClassicAssetEntry({title, settings, save}) {
         setAsset(newAsset)
         setIsValid(validate(newAsset))
     }, [asset, validate])
-
-    const onSave = useCallback(() => {
-        const assetFormat = asset.issuer ? `${asset.code}:${asset.issuer}` : asset.code
-        save(assetFormat)
-        toggleShowForm()
-    }, [asset, save, toggleShowForm])
     //save on "Enter"
-    const onKeyDown = useCallback(function (e) {
-        if (e.keyCode === 13 && isValid) {
-            onSave()
-        }
-    }, [isValid, onSave])
+    const onKeyDown = useCallback(e => setIsEntered(e.keyCode === 13 && isValid), [isValid])
 
-    return <>
-        <a onClick={toggleShowForm}>{title}</a>
-        {!!isVisible && <div className="micro-space">
-            <input ref={currentInput} value={asset.code || ''} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset code"/>
-            <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="Issuer address"/>
-            <div className="row micro-space">
-                <div className="column column-50">
-                    <Button block disabled={!isValid} onClick={onSave}>Save</Button>
-                </div>
-                <div className="column column-50">
-                    <Button block outline onClick={toggleShowForm}>Cancel</Button>
-                </div>
-            </div>
-        </div>}
-    </>
+    return <AddAssetEntryLayout title="Add SAC asset" ref={currentInput} asset={`${asset.code}:${asset.issuer || ''}`}
+                                isEntered={isEntered} isValid={isValid} save={save}>
+        <input ref={currentInput} value={asset.code || ''} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset code"/>
+        <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="Issuer address"/>
+    </AddAssetEntryLayout>
 })

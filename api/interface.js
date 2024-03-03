@@ -1,63 +1,75 @@
 import {signData} from '../providers/albedo-provider'
 import clientStatus from '../state/client-status'
+import objectKeySorter from './../views/util/object-key-sorter'
 
-const tunnelServer = 'https://tunnel.reflector.world/'
-
-async function getApi(endpoint, data) {
-    if (!data) {
-        data = {nonce: generateNonce()}
-    }
-    const payload = new URLSearchParams(data).toString()
-    return fetchApi(endpoint + `?${payload}`, {
-        signature: await signData(payload)
-    })
+/**
+ *
+ * @param {any} payload - payload to sign with nonce
+ * @param {number} nonce - nonce to include in header
+ * @returns {Promise<string>}
+ */
+async function tryGetAuthHeader(payload, nonce) {
+    const signature = await signData(payload)
+    return `${clientStatus.clientPublicKey}.${signature}.${nonce}`
 }
 
-async function getNoAuthApi(endpoint, apiOrigin) {
-    return fetchApi('', {apiOrigin})
+async function getApi(endpoint, data = {}, anonymous = false) {
+    const getRelativeUrl = (params) => endpoint + (params.size > 0 ? '?' + params.toString() : '')
+    const relativeUrl = getRelativeUrl(new URLSearchParams(data))
+    let authorizationHeader = null
+    if (!anonymous) {
+        const nonce = generateNonce()
+        const payloadData = getRelativeUrl(new URLSearchParams(objectKeySorter({...data, nonce})))
+        authorizationHeader = clientStatus.hasSession ? await tryGetAuthHeader(payloadData, nonce) : null
+    }
+    return await fetchApi(relativeUrl, {authorizationHeader})
 }
 
 export async function postApi(action, data) {
-    const payload = {...data, nonce: generateNonce()}
+    const nonce = generateNonce()
+    const payload = objectKeySorter({...data, nonce})
+
+    const authorizationHeader = clientStatus.hasSession ? await tryGetAuthHeader(payload, nonce) : null
     return await fetchApi(action, {
         method: 'POST',
-        signature: await signData(payload),
-        body: JSON.stringify(payload)
+        authorizationHeader,
+        body: JSON.stringify(data)
     })
 }
 
-export function getCurrentSettings() {
-    return getApi('contract-settings')
+export function getNodePublicKeys() {
+    return getApi('nodes')
 }
 
-export function getStatistics() {
-    return getApi('statistics')
-}
-
-export function getConfig() {
+export function getCurrentConfig() {
     return getApi('config')
 }
 
-export function getConfigRequirements() {
-    return getNoAuthApi('config-requirements')
+export function getConfigHistory(params) {
+    return getApi('config/history', params)
 }
 
-export function getReflectorNodeInfo(nodeApiUrl) {
-    return getNoAuthApi('', nodeApiUrl)
+export function getServerLogs() {
+    return getApi('logs')
 }
 
-async function fetchApi(relativeUrl, {method = 'GET', apiOrigin = undefined, signature = null, body = undefined}) {
-    if (!apiOrigin) {
-        apiOrigin = clientStatus.apiOrigin
-    }
-    const tunnelRequired = !(apiOrigin.startsWith('https://') || apiOrigin.startsWith('http://localhost') || apiOrigin.startsWith('http://127.0.0.1'))
-    const url = (tunnelRequired ? tunnelServer : apiOrigin) + relativeUrl
+export function getLogFile(filename) {
+    return getApi('logs/' + filename)
+}
+
+export function getStatistics() {
+    return getApi('statistics', {}, true)
+}
+
+export function getNotificationSettings() {
+    return getApi('settings/node')
+}
+
+async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null, body = undefined}) {
+    const url = apiOrigin + relativeUrl
     const headers = {'Content-Type': 'application/json'}
-    if (signature) {
-        headers.Authorization = 'Signature ' + signature
-    }
-    if (tunnelRequired) {
-        headers['X-TUNNEL'] = apiOrigin
+    if (authorizationHeader) {
+        headers.Authorization = authorizationHeader
     }
     const res = await fetch(url, {
         method,
@@ -66,35 +78,6 @@ async function fetchApi(relativeUrl, {method = 'GET', apiOrigin = undefined, sig
     })
     return res.json()
 }
-
-function generateAuthHeaders(data, origin) {
-    return signData(data)
-        .then(message_signature => ({
-            'Authorization': 'Signature ' + message_signature
-
-        }))
-}
-
-function getUrl(relativeUrl, origin = null) {
-    if (!origin) {
-        origin = clientStatus.apiOrigin
-    }
-    if (!origin.startsWith('https://') && !origin.startsWith('http://localhost') && !origin.startsWith('http://127.0.0.1')) {
-        origin = tunnelServer
-    }
-    return origin + relativeUrl
-}
-
-function wrapTunnel(headers, url) {
-    if (!origin) {
-        origin = clientStatus.apiOrigin
-    }
-    if (origin.startsWith('https://') || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1'))
-        return headers
-    //add proxy
-    return {...headers, 'X-TUNNEL': clientStatus.apiOrigin}
-}
-
 
 function generateNonce() {
     return new Date().getTime()

@@ -1,108 +1,84 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
 import {AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
-import {StrKey} from 'stellar-sdk'
-import updateRequest from '../../state/config-update-request'
+import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
 import ActionNodeLayout from './action-node-layout'
-import ActionFormLayout from './action-form-layout'
 import AddNodeEntry from './add-node-entry-form'
 
-export default observer(function UpdateNodeView({settings}) {
+export default function UpdateNodeView({settings}) {
+    const [isValid, setIsValid] = useState(false)
+    const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
+    const [isLimitUpdates, setIsLimitUpdates] = useState(false)
+
     useEffect(() => {
-        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
-        if (updateParams?.nodes) {
-            runInAction(() => {
-                settings.isLimitUpdates = true
-                settings.data.nodes = updateParams?.nodes || []
-            })
-        } else {
-            runInAction(() => {
-                if (settings.isFinalized) {
-                    settings.isLimitUpdates = false
-                }
-                settings.data.nodes = settings.loadedData.nodes || []
-            })
-        }
-        settings.validate()
-    }, [settings, settings.loadedData, updateRequest.isConfirmed])
-
-    const validation = useCallback(node => {
-        if (!StrKey.isValidEd25519PublicKey(node.pubkey))
-            return
-        if (!node.url?.length)
-            return
-        return true
-    }, [])
-
-    const addNode = useCallback(node => {
-        const index = settings.data.nodes.findIndex(n => n.pubkey === node.pubkey)
-        if (index !== -1) {
-            runInAction(() => {
-                settings.data.nodes[index] = node
-                settings.isLimitUpdates = true
-            })
-        } else {
-            runInAction(() => {
-                settings.data.nodes.push(node)
-                settings.isLimitUpdates = true
-            })
-        }
-        settings.validate()
+        setChangedSettings(structuredClone(settings))
     }, [settings])
 
-    return <ActionNodeLayout settings={settings}>
+    const validation = useCallback(newSettings => {
+        if (!updateTimeValidation(newSettings))
+            return setIsValid(false)
+        setIsValid(true)
+    }, [])
+
+    const saveNode = useCallback((node) => {
+        setChangedSettings(prev => {
+            const newSettings = {...prev}
+            if (node.remove) {
+                delete newSettings.config.nodes[node.pubkey]
+            } else {
+                newSettings.config.nodes[node.pubkey] = node
+            }
+            validation(newSettings)
+            return newSettings
+        })
+        setIsLimitUpdates(true)
+    }, [validation])
+
+    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Peer nodes</h3>
         <hr className="flare"/>
-        <ActionFormLayout settings={settings}>
+        <ActionFormLayout settings={changedSettings} updateSettings={setChangedSettings} validation={validation}>
             <h3>Quorum nodes</h3>
-            {settings.data.nodes?.map(node => {
-                if (node.remove)
-                    return false
-                return <NodeEntryLayout key={node.pubkey} settings={settings} node={node} validation={validation} save={addNode}/>
-            })}
+            {Object.values(changedSettings.config.nodes || {}).map(node => !node.remove &&
+                <NodeEntryLayout key={node.pubkey} node={node} save={saveNode} isLimitUpdates={isLimitUpdates}/>)}
             <div className="space"/>
-            {!settings.isLimitUpdates && <AddNodeEntry title={<><i className="icon-plus"/>Add new node</>}
-                                                       validation={validation} save={addNode}/>}
+            {!isLimitUpdates && <AddNodeEntry title={<><i className="icon-plus"/>Add new node</>} save={saveNode}/>}
         </ActionFormLayout>
     </ActionNodeLayout>
-})
+}
 
-const NodeEntryLayout = observer(({settings, node, validation, save}) => {
+function NodeEntryLayout({node, save, isLimitUpdates}) {
     const [isEditFormOpen, setIsEditFormOpen] = useState(false)
 
-    const toggleShowForm = useCallback(() => setIsEditFormOpen(!isEditFormOpen), [isEditFormOpen])
+    const toggleShowForm = useCallback(() => setIsEditFormOpen(isOpen => !isOpen), [])
 
     const removeNode = useCallback(() => {
         const confirmation = `Do you really want to remove this node?`
         if (confirm(confirmation)) {
-            const index = settings.data.nodes.findIndex(n => n.pubkey === node.pubkey)
-            runInAction(() => {
-                settings.data.nodes[index].remove = true
-                delete settings.data.nodes[index].url
-                settings.isLimitUpdates = true
+            save({
+                ...node,
+                remove: true
             })
-            settings.validate()
         }
-    }, [settings, node])
+    }, [node, save])
 
-    const onSave = useCallback(e => {
+    const onSave = useCallback(node => {
         setIsEditFormOpen(false)
-        save(e)
+        save(node)
     }, [save])
 
     return <>
-        <div className="dual-layout space">
-            <div className="v-center-block">
-                <span><i className="icon-hexagon-dice color-success"/><AccountAddress account={node.pubkey} chars={16} link={false}/></span>
-                <span className="dimmed text-small">&emsp;&emsp;{node.url}</span>
-            </div>
-            <div style={{marginRight: 'auto'}}>
+        <div className="space">
+            <span><i className="icon-hexagon-dice color-success"/><AccountAddress account={node.pubkey} chars={16} link={false}/></span>
+            <span>
                 <CopyToClipboard text={node.pubkey} title="Copy public key to clipboard"/>
-                {!settings.isLimitUpdates && <a href="#" className="icon-cog" onClick={toggleShowForm}/>}
-                {!settings.isLimitUpdates && <a href="#" className="icon-cancel" onClick={removeNode}/>}
+                {!isLimitUpdates && <a href="#" className="icon-cog" onClick={toggleShowForm}/>}
+                {!isLimitUpdates && <a href="#" className="icon-cancel" onClick={removeNode}/>}
+            </span>
+            <div>
+                <span className="dimmed text-small">&emsp;&emsp;{node.url}</span>
+                <span className="dimmed text-small">&emsp;&emsp;{node.domain}</span>
             </div>
         </div>
-        {!settings.isLimitUpdates && <AddNodeEntry validation={validation} editNode={node} isEditFormOpen={isEditFormOpen} save={onSave}/>}
+        {!isLimitUpdates && <AddNodeEntry editNode={node} isEditFormOpen={isEditFormOpen} save={onSave}/>}
     </>
-})
+}

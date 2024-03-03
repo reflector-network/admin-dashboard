@@ -1,116 +1,99 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
-import {AssetLink} from '@stellar-expert/ui-framework'
-import updateRequest from '../../state/config-update-request'
-import ActionFormLayout from './action-form-layout'
-import AddAssetEntry from './add-asset-entry-form'
+import {navigation} from '@stellar-expert/navigation'
+import AssetCodeView from '../components/asset-code-view'
+import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
+import AddGenericAssetEntry from './add-generic-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
+import AddSorobanTokenEntry from './add-soroban-token-entry-form'
 import ActionNodeLayout from './action-node-layout'
 
-const removeDuplicateAssets = (assets = []) => {
-    const comparedAssets = []
-    return assets.filter(asset => {
-        if (comparedAssets.indexOf(asset.code) === -1) {
-            comparedAssets.push(asset.code)
-            return true
-        }
-        return false
-    })
-}
-
-export default observer(function AddAssetsView({settings}) {
+export default function AddAssetsView({settings, contractId}) {
+    const supportedAssets = settings.config.contracts[contractId].assets
     const [editableAssets, setEditableAssets] = useState([])
-    const [uniqueAssets, setUniqueAssets] = useState(removeDuplicateAssets(settings.data.assets))
+    const [isValid, setIsValid] = useState(false)
+    const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
+    const contract = changedSettings.config.contracts[contractId]
 
-    useEffect(() => {
-        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
-        if (updateParams?.assets) {
-            const updatedAssets = updateParams.assets || []
-            setEditableAssets(updatedAssets)
-            runInAction(() => {
-                settings.data.assets = settings.loadedData.assets || []
-                settings.updatedAssets = updatedAssets
-            })
-        } else {
-            runInAction(() => settings.data.assets = settings.loadedData.assets || [])
-            setEditableAssets([])
-        }
-        settings.validate()
-    }, [settings, settings.loadedData, settings.isFinalized, updateRequest.isConfirmed])
+    //redirect to main page if contractId from URL params is invalid
+    if (!contract) {
+        navigation.navigate('/')
+    }
 
+    //reset form after update
     useEffect(() => {
-        const uniqueAssetsList = removeDuplicateAssets(settings.data.assets)
-        const editableAssetsList = editableAssets.reduce((list, asset) => {
-            list.push(asset.code)
-            return list
-        }, [])
-        const supportedAssets = uniqueAssetsList.filter(asset => !editableAssetsList.includes(asset.code))
-        setUniqueAssets(supportedAssets)
-    }, [settings.data.assets, editableAssets])
+        setEditableAssets([])
+        setChangedSettings(structuredClone(settings))
+    }, [settings])
+
+    const validation = useCallback(newSettings => {
+        if (newSettings.length === supportedAssets.length)
+            return setIsValid(false)
+        if (!updateTimeValidation(newSettings))
+            return setIsValid(false)
+        setIsValid(true)
+    }, [supportedAssets])
+
+    const updateAssets = useCallback(assetList => {
+        setEditableAssets(assetList)
+        setChangedSettings(prev => {
+            const newSettings = {...prev}
+            newSettings.config.contracts[contractId].assets =
+                [...supportedAssets, ...assetList]
+            validation(newSettings)
+            return newSettings
+        })
+    }, [supportedAssets, contractId, validation])
 
     const addAsset = useCallback(val => {
         const [code, pubkey] = val.split(':')
-        const asset = pubkey ? {
-            type: 1,
-            code: code + ':' + pubkey
-        } : {
-            type: code === 'XLM' ? 1 : 2,
-            code
-        }
-        if (settings.data.assets.findIndex(a => a.code === asset.code) !== -1)
+        const asset = pubkey ?
+            {type: 1, code: code + ':' + pubkey} :
+            {
+                type: (code.length === 56 || code === 'XLM') ? 1 : 2,
+                code
+            }
+        if (contract.assets.findIndex(a => a.code === asset.code) !== -1)
             return false
-        const assets = [...editableAssets, asset]
-        setEditableAssets(assets)
-        runInAction(() => {
-            settings.data.assets = [...settings.data.assets, asset]
-            settings.updatedAssets = [...assets]
-        })
-        settings.validate()
-    }, [settings, editableAssets])
+        updateAssets([...editableAssets, asset])
+    }, [contract, editableAssets, updateAssets])
 
-    return <ActionNodeLayout settings={settings}>
+    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Tracked assets</h3>
         <hr className="flare"/>
-        <ActionFormLayout settings={settings}>
+        <ActionFormLayout timeframe={contract?.timeframe} validation={validation}
+                          settings={changedSettings} updateSettings={setChangedSettings}>
             <span>Supported assets</span>
             <br/>
             <span className="dimmed text-tiny">
                 (List of assets with prices tracked by the quorum nodes)
             </span>
-            {uniqueAssets?.map(asset =>
+            {supportedAssets?.map(asset =>
                 <AssetEntryLayout key={asset.code} asset={asset}/>)}
             {!!editableAssets.length && <h4 className="space">New assets</h4>}
             {editableAssets?.map(asset =>
-                <AssetEntryLayout key={asset.code} asset={asset} settings={settings}
-                                  editableAssets={editableAssets} setEditableAssets={setEditableAssets}/>)}
+                <AssetEntryLayout key={asset.code} asset={asset} editableAssets={editableAssets} updateAssets={updateAssets}/>)}
             <div className="space">
-                <AddClassicAssetEntry title="Add SAC asset" settings={settings} save={addAsset}/>
+                <AddClassicAssetEntry contract={contract} save={addAsset}/>
                 &nbsp;or&nbsp;
-                <AddAssetEntry title="Add generic asset" settings={settings} save={addAsset}/>
+                <AddSorobanTokenEntry contract={contract} save={addAsset}/>
+                &nbsp;or&nbsp;
+                <AddGenericAssetEntry contract={contract} save={addAsset}/>
             </div>
         </ActionFormLayout>
     </ActionNodeLayout>
-})
+}
 
-const AssetEntryLayout = observer(({asset, settings, editableAssets = [], setEditableAssets}) => {
+function AssetEntryLayout({asset, editableAssets = [], updateAssets}) {
     const removeAsset = useCallback(() => {
         const confirmation = `Do you really want to remove this asset?`
         if (confirm(confirmation)) {
-            setEditableAssets(editableAssets.filter(a => a.code !== asset.code))
-            runInAction(() => {
-                settings.data.assets = settings.data.assets.filter(a => a.code !== asset.code)
-                settings.updatedAssets = settings.updatedAssets.filter(a => a.code !== asset.code)
-            })
-            settings.validate()
+            updateAssets(editableAssets.filter(a => a.code !== asset.code))
         }
-    }, [settings, asset, editableAssets, setEditableAssets])
+    }, [asset, editableAssets, updateAssets])
 
     return <div key={asset.code} className="micro-space">
-        {(parseInt(asset.type, 10) === 1) ?
-            <AssetLink asset={asset.code}/> :
-            <b>{asset.code}</b>}
+        <AssetCodeView asset={asset}/>
         {editableAssets.findIndex(a => a.code === asset.code) !== -1 &&
             <a onClick={removeAsset} style={{marginLeft: '0.3em'}}><i className="icon-cancel"/></a>}
     </div>
-})
+}

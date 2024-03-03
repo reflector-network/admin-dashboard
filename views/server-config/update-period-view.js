@@ -1,42 +1,55 @@
-import React, {useCallback, useEffect} from 'react'
-import {observer} from 'mobx-react'
-import {runInAction} from 'mobx'
-import updateRequest from '../../state/config-update-request'
+import React, {useCallback, useEffect, useState} from 'react'
+import {navigation} from '@stellar-expert/navigation'
+import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
 import ActionNodeLayout from './action-node-layout'
-import ActionFormLayout from './action-form-layout'
 
-export default observer(function UpdatePeriodView({settings}) {
+export default function UpdatePeriodView({settings, contractId}) {
+    const [isValid, setIsValid] = useState(false)
+    const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
+    const contract = changedSettings.config.contracts[contractId]
+
+    //redirect to main page if contractId from URL params is invalid
+    if (!contract) {
+        navigation.navigate('/')
+    }
+
     useEffect(() => {
-        const updateParams = updateRequest.isConfirmed ? updateRequest.externalRequest : null
-        if (updateParams?.period) {
-            runInAction(() => settings.data.period = updateParams?.period)
-        } else {
-            runInAction(() => settings.data.period = settings.loadedData.period)
-        }
-        settings.validate()
-    }, [settings, settings.loadedData, updateRequest.isConfirmed])
+        setChangedSettings(structuredClone(settings))
+    }, [settings, contractId])
+
+    const validation = useCallback(newSettings => {
+        if (contract.period <= contract.timeframe)
+            return setIsValid(false)
+        if (!updateTimeValidation(newSettings))
+            return setIsValid(false)
+        setIsValid(true)
+    }, [contract])
 
     const updatePeriod = useCallback(e => {
         const val = e.target.value.replace(/[^0-9]/g, '')
-        runInAction(() => settings.data.period = parseInt(val, 10))
-        settings.validate()
-    }, [settings])
+        setChangedSettings(prev => {
+            const newSettings = {...prev}
+            newSettings.config.contracts[contractId].period = parseInt(val, 10)
+            validation(newSettings)
+            return newSettings
+        })
+    }, [contractId, validation])
 
-    return <ActionNodeLayout settings={settings}>
+    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
         <h3>Retention period</h3>
         <hr className="flare"/>
-        <ActionFormLayout settings={settings}>
+        <ActionFormLayout timeframe={contract?.timeframe} validation={validation}
+                          settings={changedSettings} updateSettings={setChangedSettings}>
             <div className="row">
                 <div className="column column-50">
                     <label>Price quotes retention period<br/>
                         <span className="dimmed text-tiny">
                             (How long quoted prices will be available for contract consumers after creation, in milliseconds)
                         </span>
-                        <input type="text" className="micro-space" placeholder="Period"
-                               value={settings.data.period || ''} onChange={updatePeriod}/>
+                        <input type="text" className="micro-space" value={contract?.period || ''} onChange={updatePeriod}/>
                     </label>
                 </div>
             </div>
         </ActionFormLayout>
     </ActionNodeLayout>
-})
+}

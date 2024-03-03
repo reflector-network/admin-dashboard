@@ -12,8 +12,8 @@ ${space(level - 1)}]`
         const args = []
         for (const key of Object.keys(value)) {
             const nestedValue = invocationFormatter(value[key], level + 1)
-            if (nestedValue) {
-                args.push(space(level) + `${key}: ${nestedValue}`)
+            if (nestedValue || nestedValue === 0 || nestedValue === null) {
+                args.push(space(level) + `"${key}": ${nestedValue}`)
             }
         }
         return !args.length ? '' : `{
@@ -23,7 +23,7 @@ ${space(level - 1)}}`
     if (typeof value === 'string') {
         if (!value)
             return value
-        return `'${value.trim().replace('\'', '\\\'')}'`
+        return `"${value.trim().replace("\"", "\\\"")}"`
     }
     return value
 }
