@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {getLogFile, getServerLogs, postApi} from '../../api/interface'
+import TabularDataView from './tabular-data-view'
 
 export default function ConfigurationLogsView() {
     const [links, setLinks] = useState(['error.log'])
@@ -15,6 +16,46 @@ export default function ConfigurationLogsView() {
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing'}))
     }, [isTraceEnabled])
+
+    useEffect(() => {
+        getServerLogs()
+            .then(res => {
+                if (res.error)
+                    throw new Error(res.error)
+                //sort logs by newest
+                const logs = res.logFiles?.sort((a, b) => b.localeCompare(a))
+                setLinks(logs)
+                setIsTraceEnabled(res.isTraceEnabled)
+            })
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration history'}))
+    }, [])
+
+    return <div className="segment blank h-100">
+        <div>
+            <h3>Server logs</h3>
+            <hr className="flare"/>
+            <div className="space">
+                <span className="dimmed">Tracing: </span>
+                <span className="inline-block">
+                    {isTraceEnabled ? 'Enabled' : 'Disabled'}&emsp;|&emsp;
+                    <a onClick={updateTrace} title="Enable/Disable tracing">
+                        {!isTraceEnabled ? 'enable' : 'disable'}
+                    </a>
+                </span>
+            </div>
+            <div className="space">Download log:</div>
+            {links.length ?
+                <PaginatedLogView links={links}/> :
+                <div className="space text-center">There are no entries</div>}
+        </div>
+    </div>
+}
+
+function PaginatedLogView({links, limit = 20}) {
+    const [partialLinks, setPartialLinks] = useState(links.slice(0, limit))
+
+    const updatePartialLinks = useCallback((page, limit) =>
+        setPartialLinks(links.slice(limit * (page - 1), limit * page)), [links])
 
     const handleDownload = useCallback(e => {
         const link = e.target.dataset.link
@@ -36,36 +77,9 @@ export default function ConfigurationLogsView() {
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to download log'}))
     }, [])
 
-    useEffect(() => {
-        getServerLogs()
-            .then(res => {
-                if (res.error)
-                    throw new Error(res.error)
-                setLinks(res.logFiles)
-                setIsTraceEnabled(res.isTraceEnabled)
-            })
-            .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration history'}))
-    }, [])
-
-    return <div className="segment blank h-100">
-        <div>
-            <h3>Server logs</h3>
-            <hr className="flare"/>
-            <div className="space">
-                <span className="dimmed">Tracing: </span>
-                <span className="inline-block">
-                    {isTraceEnabled ? 'Enabled' : 'Disabled'}&emsp;|&emsp;
-                    <a onClick={updateTrace} title="Enable/Disable tracing">
-                        {!isTraceEnabled ? 'enable' : 'disable'}
-                    </a>
-                </span>
-            </div>
-            <div className="space">Download log:</div>
-            {links.length ?
-                links?.map(link => <div key={link} className="nano-space">
-                    <a className="icon-download" data-link={link} onClick={handleDownload}>{link}</a>
-                </div>) :
-                <div className="space text-center">There are no entries</div>}
-        </div>
-    </div>
+    return <TabularDataView dataList={partialLinks} updateList={updatePartialLinks}>
+        {partialLinks.map(link => <div key={link} className="nano-space">
+            <a className="icon-download" data-link={link} onClick={handleDownload}>{link}</a>
+        </div>)}
+    </TabularDataView>
 }

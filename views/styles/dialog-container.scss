@@ -18,7 +18,8 @@
 
   > .dialog-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     justify-content: center;
     height: 100%;
 
@@ -28,6 +29,14 @@
       border-radius: $border-radius-input;
       box-shadow: 0 2px 4px -1px var(--color-modal-bg);
       padding: 0 $space-standard $space-standard;
+    }
+
+    .dialog-body {
+      overflow-x: hidden;
+      overflow-y: auto;
+      max-height: 90vh;
+      margin: 0 -1.5em;
+      padding: 0 1.5em;
     }
   }
 }

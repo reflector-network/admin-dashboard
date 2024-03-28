@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
-import {Button} from '@stellar-expert/ui-framework'
+import {AccountAddress, Button} from '@stellar-expert/ui-framework'
 import {StrKey} from '@stellar/stellar-sdk'
+import DialogView from '../components/dialog-view'
 
 function validateNode(node) {
     if (!StrKey.isValidEd25519PublicKey(node.pubkey))
@@ -14,26 +15,24 @@ function validateNode(node) {
 }
 
 export default function AddNodeEntry({title, editNode, isEditFormOpen, save}) {
-    const [isVisible, setIsVisible] = useState(isEditFormOpen)
+    const [isOpen, setIsOpen] = useState(isEditFormOpen)
     const [isValid, setIsValid] = useState(false)
     const [node, setNode] = useState(editNode || {})
     const pubkeyInput = useRef(null)
     const urlInput = useRef(null)
 
-    useEffect(() => setIsVisible(isEditFormOpen), [isEditFormOpen])
+    useEffect(() => setIsOpen(isEditFormOpen), [isEditFormOpen])
 
     useEffect(() => {
         setTimeout(() => {
             const input = pubkeyInput.current ? pubkeyInput.current : urlInput.current
-            if (isVisible && input) {
+            if (isOpen && input) {
                 input.focus()
             }
         }, 200)
-    }, [isVisible])
+    }, [isOpen])
 
-    const toggleShowForm = useCallback(() => {
-        setIsVisible(prev => !prev)
-    }, [])
+    const toggleShowForm = useCallback(() => setIsOpen(prev => !prev), [])
 
     const onChangePubkey = useCallback(e => {
         setNode(prev => {
@@ -72,7 +71,12 @@ export default function AddNodeEntry({title, editNode, isEditFormOpen, save}) {
 
     return <span>
         {!!title && <a onClick={toggleShowForm}>{title}</a>}
-        {!!isVisible && <div className="micro-space">
+        <DialogView dialogOpen={isOpen} smaller>
+            <h3>
+                {!editNode ? 'Add new node' :
+                <span>{'Edit node '}<i className="icon-hexagon-dice color-success"/><AccountAddress account={node.pubkey} chars={16} link={false}/></span>}
+            </h3>
+            <div className="space"/>
             {!editNode && <input ref={pubkeyInput} value={node.pubkey || ''} placeholder="Node public key"
                                  onChange={onChangePubkey} onKeyDown={onKeyDown}/>}
             <input ref={urlInput} value={node.url || ''} onChange={onChangeUrl} onKeyDown={onKeyDown}
@@ -80,13 +84,13 @@ export default function AddNodeEntry({title, editNode, isEditFormOpen, save}) {
             <input value={node.domain || ''} onChange={onChangeDomain} onKeyDown={onKeyDown}
                    placeholder="Domain"/>
             <div className="row micro-space">
-                <div className="column column-50">
-                    <Button block disabled={!isValid} onClick={onSave}>Save</Button>
+                <div className="column column-33 column-offset-33">
+                    <Button block disabled={!isValid} onClick={onSave}>Confirm</Button>
                 </div>
-                <div className="column column-50">
+                <div className="column column-33">
                     <Button block outline onClick={toggleShowForm}>Cancel</Button>
                 </div>
             </div>
-        </div>}
+        </DialogView>
     </span>
 }

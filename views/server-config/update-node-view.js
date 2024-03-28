@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
-import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
+import configChangesDetector from '../util/config-changes-detector'
 import ActionNodeLayout from './action-node-layout'
 import AddNodeEntry from './add-node-entry-form'
 
@@ -13,11 +13,11 @@ export default function UpdateNodeView({settings}) {
         setChangedSettings(structuredClone(settings))
     }, [settings])
 
-    const validation = useCallback(newSettings => {
-        if (!updateTimeValidation(newSettings))
+    const validation = useCallback(() => {
+        if (!configChangesDetector(changedSettings.config, settings.config).length)
             return setIsValid(false)
         setIsValid(true)
-    }, [])
+    }, [changedSettings, settings])
 
     const saveNode = useCallback((node) => {
         setChangedSettings(prev => {
@@ -33,16 +33,15 @@ export default function UpdateNodeView({settings}) {
         setIsLimitUpdates(true)
     }, [validation])
 
-    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
+    return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
         <h3>Peer nodes</h3>
         <hr className="flare"/>
-        <ActionFormLayout settings={changedSettings} updateSettings={setChangedSettings} validation={validation}>
-            <h3>Quorum nodes</h3>
-            {Object.values(changedSettings.config.nodes || {}).map(node => !node.remove &&
-                <NodeEntryLayout key={node.pubkey} node={node} save={saveNode} isLimitUpdates={isLimitUpdates}/>)}
-            <div className="space"/>
-            {!isLimitUpdates && <AddNodeEntry title={<><i className="icon-plus"/>Add new node</>} save={saveNode}/>}
-        </ActionFormLayout>
+        <div className="space"/>
+        <h4>Quorum nodes</h4>
+        {Object.values(changedSettings.config.nodes || {}).map(node => !node.remove &&
+            <NodeEntryLayout key={node.pubkey} node={node} save={saveNode} isLimitUpdates={isLimitUpdates}/>)}
+        <div className="space"/>
+        {!isLimitUpdates && <AddNodeEntry title={<><i className="icon-plus"/>Add new node</>} save={saveNode}/>}
     </ActionNodeLayout>
 }
 
