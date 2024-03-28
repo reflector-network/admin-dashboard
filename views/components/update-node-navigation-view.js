@@ -2,6 +2,7 @@ import React from 'react'
 import {useLocation} from 'react-router'
 import {parseQuery} from '@stellar-expert/navigation'
 import {shortenString} from '@stellar-expert/formatter'
+import {AccountAddress} from '@stellar-expert/ui-framework'
 
 const allSections = [
     {name: 'about', title: 'About'},
@@ -32,7 +33,7 @@ export default function UpdateNodeNavigationView({configuration}) {
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
             {section.hasChild ? Object.keys(contracts || []).map(contract => <span key={contract}>
-                <span title={contract}>{shortenString(contract)}</span>
+                Oracle <AccountAddress account={contract} className="condensed"/>
                 <ul key={contract} style={{margin: '0.3em 1em'}}>
                     {contractSections.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
                         {(subSection.name === activeSection && currentContract === contract) ?
