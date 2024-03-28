@@ -1,18 +1,16 @@
 import React from 'react'
-import {shortenString} from '@stellar-expert/formatter'
 import {AccountAddress, ElapsedTime, UtcTimestamp} from '@stellar-expert/ui-framework'
 
 export default function NodeStatisticsRecordView({stat}) {
-    return <>
+    return <div className="text-small">
         <div>
             <span className="dimmed">Uptime: </span>
             <span className="inline-block">
                 {stat.startTime ?
-                    <><ElapsedTime ts={stat.startTime}/> <span className="dimmed small">(from <UtcTimestamp date={stat.startTime}/>)</span></> :
+                    <><ElapsedTime ts={stat.startTime}/> <span className="dimmed text-tiny">(started <UtcTimestamp date={stat.startTime}/>)</span></> :
                     'No data'}
             </span>
         </div>
-        {!!Object.keys(stat.oracleStatistics || {}).length && <OracleStatisticsView statistics={Object.values(stat.oracleStatistics)}/>}
         <div>
             <span className="dimmed">Submitted transactions: </span>
             <span className="inline-block">
@@ -36,7 +34,8 @@ export default function NodeStatisticsRecordView({stat}) {
                 </div> :
                 <span className="inline-block"><i className="icon-warning color-warning"/> Peer nodes not connected</span>}
         </div>
-    </>
+        {!!Object.keys(stat.oracleStatistics || {}).length && <OracleStatisticsView statistics={Object.values(stat.oracleStatistics)}/>}
+    </div>
 }
 
 function OracleStatisticsView({statistics = []}) {
@@ -44,8 +43,8 @@ function OracleStatisticsView({statistics = []}) {
         return
 
     return statistics.map(stat => <div key={stat.oracleId}>
-        <span title={stat.oracleId}>{shortenString(stat.oracleId)}</span>
-        <div className="block-indent">
+        <h4>Oracle <AccountAddress account={stat.oracleId}/></h4>
+        <div className="block-indent text-small">
             <div>
                 <span className="dimmed">Oracle initialization: </span>
                 <span className="inline-block">

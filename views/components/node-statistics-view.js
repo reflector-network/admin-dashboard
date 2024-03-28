@@ -31,12 +31,17 @@ export default withErrorBoundary(function NodeStatisticsView() {
         return () => clearInterval(statsRefresh)
     }, [updateStatistics])
 
-    if (!statistics || statistics.error)
+    if (!statistics)
         return <div className="loader"/>
+    if (statistics.error)
+        return <div className="segment error">
+            <h3>Failed to load quorum state</h3>
+            <div className="space text-small">{statistics.error}</div>
+        </div>
 
     return <div className="segment blank">
         <div>
-            <h3 style={{padding: 0}}><i className="icon-hexagon-dice"/>Statistics</h3>
+            <h3 style={{padding: 0}}><i className="icon-hexagon-dice"/>Quorum state</h3>
             <hr className="flare"/>
             <div className="row">
                 {Object.keys(statistics || {}).map(node => {
@@ -46,15 +51,15 @@ export default withErrorBoundary(function NodeStatisticsView() {
                     if (Math.abs(timeshift) > 5000) {
                         connectionIssues.push('Check server time')
                     }
-                    return <div key={node} className="column column-50">
+                    return <div key={node} className="column column-33">
                         <h3 className="space">
-                            <AccountAddress account={node} link={false} chars={16}/>
-                            <ConnectionIssuesView issues={connectionIssues}/>:</h3>
+                            Node <AccountAddress account={node} link={false} chars={12}/>
+                            <ConnectionIssuesView issues={connectionIssues}/></h3>
                         {statistics[node] ?
                             <div className="block-indent">
                                 <NodeStatisticsRecordView stat={statistics[node]}/>
                             </div> :
-                            <div className="space text-center">No node statistics</div>}
+                            <div className="space text-center">Not connected</div>}
                     </div>
                 })}
             </div>
@@ -62,10 +67,9 @@ export default withErrorBoundary(function NodeStatisticsView() {
     </div>
 })
 
-function ConnectionIssuesView({issues = []}) {
-    if (!issues.length)
-        return <></>
-
+function ConnectionIssuesView({issues}) {
+    if (!issues?.length)
+        return null
     return <InfoTooltip icon="icon-warning color-warning">
         <ul>
             {issues.map(issue => <li key={issue}> - {issue}</li>)}
