@@ -76,7 +76,7 @@ export default function UpdateRequestVotingView({configuration}) {
                     </div>
                 </div>
                 <div className="column column-33">
-                    <Button className="button-clear" onClick={confirm}>Improve</Button>
+                    <Button className="button-clear" onClick={confirm}>Approve</Button>
                     <Button className="button-clear" onClick={reject}>Reject</Button>
                 </div>
             </div>
