@@ -34,7 +34,11 @@ export default function DashboardPage() {
                         }, timeToApply)
                 }
                 //set global network
-                setStellarNetwork(res.currentConfig?.config.config.network)
+                let network = res.currentConfig?.config.config.network
+                if (network === 'pubnet') {
+                    network = 'public'
+                }
+                setStellarNetwork(network)
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration'}))
     }, [])
