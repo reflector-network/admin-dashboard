@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
+import DialogView from './dialog-view'
 
 function validateNotification(notification) {
     const pattern = new RegExp(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$/)
@@ -9,23 +10,23 @@ function validateNotification(notification) {
 }
 
 export default function AddNotificationEntry({title, editNotification, isEditFormOpen, save}) {
-    const [isVisible, setIsVisible] = useState(isEditFormOpen)
+    const [isOpen, setIsOpen] = useState(isEditFormOpen)
     const [isValid, setIsValid] = useState(false)
     const [notification, setNotification] = useState(editNotification || {})
     const emailInput = useRef(null)
 
-    useEffect(() => setIsVisible(isEditFormOpen), [isEditFormOpen])
+    useEffect(() => setIsOpen(isEditFormOpen), [isEditFormOpen])
 
     useEffect(() => {
         setTimeout(() => {
             const input = emailInput.current
-            if (isVisible && input) {
+            if (isOpen && input) {
                 input.focus()
             }
         }, 200)
-    }, [isVisible])
+    }, [isOpen])
 
-    const toggleShowForm = useCallback(() => setIsVisible(prev => !prev), [])
+    const toggleShowForm = useCallback(() => setIsOpen(prev => !prev), [])
 
     const onChangeEmail = useCallback(e => {
         setNotification(prev => {
@@ -37,6 +38,7 @@ export default function AddNotificationEntry({title, editNotification, isEditFor
 
     const onSave = useCallback(() => {
         save(notification)
+        setNotification({})
         toggleShowForm()
     }, [notification, save, toggleShowForm])
     //save on "Enter"
@@ -48,19 +50,20 @@ export default function AddNotificationEntry({title, editNotification, isEditFor
 
     return <div>
         {!!title && <div className="space"><a onClick={toggleShowForm}>{title}</a></div>}
-        {!!isVisible && <div className="row micro-space">
-            <div className="column column-66">
+        <DialogView dialogOpen={isOpen} smaller>
+            <h3>{editNotification ? 'Edit email' : 'Add new email'}</h3>
+            <div className="space">
                 <input ref={emailInput} value={notification.email || ''} placeholder="Email for notification"
                        onChange={onChangeEmail} onKeyDown={onKeyDown}/>
                 <div className="row micro-space">
-                    <div className="column column-50">
-                        <Button block disabled={!isValid} onClick={onSave}>Save</Button>
+                    <div className="column column-33 column-offset-33">
+                        <Button block disabled={!isValid} onClick={onSave}>Confirm</Button>
                     </div>
-                    <div className="column column-50">
+                    <div className="column column-33">
                         <Button block outline onClick={toggleShowForm}>Cancel</Button>
                     </div>
                 </div>
             </div>
-        </div>}
+        </DialogView>
     </div>
 }

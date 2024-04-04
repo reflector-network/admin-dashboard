@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {AccountAddress, Button, CodeBlock, UtcTimestamp} from '@stellar-expert/ui-framework'
-import {getConfigHistory} from '../../api/interface'
+import {getConfigHistory, getTx} from '../../api/interface'
 import invocationFormatter from '../util/invocation-formatter'
 import TabularDataView from './tabular-data-view'
 import ConfigFiltersView from './config-filter-view'
@@ -14,7 +14,7 @@ export default function ConfigurationHistoryView() {
     const [isOpen, setIsOpen] = useState(false)
     const readonlyConfigProperties = invocationFormatter(config || {}, 1)
 
-    const updateConfigHistory = useCallback((page = 1, numberRows = 10) => {
+    const updateConfigHistory = useCallback((page = 1, numberRows = 20) => {
         const params = {
             pageSize: numberRows,
             page
@@ -57,11 +57,10 @@ export default function ConfigurationHistoryView() {
                     <table className="table space">
                         <thead>
                             <tr>
-                                <th>Description</th>
+                                <th>Status</th>
                                 <th>Initiator</th>
                                 <th>Signatures</th>
-                                <th>Status</th>
-                                <th>Expiration date</th>
+                                <th>Description</th>
                                 <th/>
                             </tr>
                         </thead>
@@ -77,18 +76,22 @@ export default function ConfigurationHistoryView() {
                                         <AccountAddress account={signature.pubkey} char={16}/>}
                                 </div>)
                                 return <tr key={config.id}>
-                                    <td data-header="Description: ">{config.description || 'no desc'}</td>
+                                    <td data-header="Status: ">
+                                        {config.status === 'replaced' ? 'applied' : config.status}
+                                        <div className="dimmed text-tiny">
+                                            {(config.status !== 'pending' && config.txhash) ?
+                                                <TxLinkView config={config}/> :
+                                                <UtcTimestamp date={config.expirationDate}/>}
+                                        </div>
+                                    </td>
                                     <td data-header="Initiator: ">
                                         {nodeDomains[config.initiator] ?
                                             <span title={config.initiator}>{nodeDomains[config.initiator]}</span> :
                                             <AccountAddress account={config.initiator} char={16}/>}
                                     </td>
                                     <td data-header="Signatures: ">{signatures}</td>
-                                    <td data-header="Status: ">{config.status}</td>
-                                    <td data-header="Expiration date: ">
-                                        <UtcTimestamp date={config.expirationDate} dateOnly/>
-                                    </td>
-                                    <td><a className="icon-open-new-window" data-id={config.id} onClick={showConfig}/></td>
+                                    <td className="word-break" data-header="Description: ">{config.description || 'no desc'}</td>
+                                    <td className="collapsing"><a className="icon-open-new-window" data-id={config.id} onClick={showConfig}/></td>
                                 </tr>
                             })}
                         </tbody>
@@ -112,4 +115,22 @@ export default function ConfigurationHistoryView() {
             </div>
         </DialogView>
     </div>
+}
+
+function TxLinkView({config}) {
+    const txLink = `${explorerFrontendOrigin}/explorer/${config.config.network}/tx/${config.txhash}`
+    const [timestamp, setTimestamp] = useState(0)
+
+    useEffect(() => {
+        getTx(config.txhash)
+            .then(tx => setTimestamp(tx.created_at))
+            .catch(error => console.error(error))
+    }, [config])
+
+    if (!timestamp)
+        return <UtcTimestamp date={config.expirationDate}/>
+
+    return <a href={txLink} target="_blank" rel="noreferrer">
+        <UtcTimestamp date={timestamp}/>
+    </a>
 }
