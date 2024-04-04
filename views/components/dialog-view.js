@@ -1,14 +1,16 @@
 import React from 'react'
 
-export default function DialogView({dialogOpen, children}) {
+export default function DialogView({dialogOpen, smaller, children}) {
     if (!dialogOpen) return null
     return <div className="dialog">
         <div className="dialog-backdrop"/>
         <div className="dialog-content container">
-            <div className="row">
-                <div className="column column-80 column-offset-10">
+            <div className="row row-center v-center-block">
+                <div className={`column column-${smaller ? '50' : '80'}`}>
                     <div className="segment blank">
-                        {children}
+                        <div className="dialog-body">
+                            {children}
+                        </div>
                     </div>
                 </div>
             </div>

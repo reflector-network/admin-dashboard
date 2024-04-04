@@ -1,12 +1,13 @@
 import React, {forwardRef, useCallback, useEffect, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
+import DialogView from '../components/dialog-view'
 
 export default forwardRef(function AddAssetEntryLayout(props, ref) {
     const {title, asset, isValid, isEntered, save, children} = props
-    const [isVisible, setIsVisible] = useState(false)
+    const [isOpen, setIsOpen] = useState(false)
 
     const toggleShowForm = useCallback(() => {
-        setIsVisible(prev => !prev)
+        setIsOpen(prev => !prev)
         setTimeout(() => {
             const input = ref?.current
             if (input) {
@@ -27,16 +28,18 @@ export default forwardRef(function AddAssetEntryLayout(props, ref) {
 
     return <>
         <a onClick={toggleShowForm}>{title}</a>
-        {!!isVisible && <div className="micro-space">
+        <DialogView dialogOpen={isOpen} smaller>
+            <h3>{title}</h3>
+            <div className="space"/>
             {children}
             <div className="row micro-space">
-                <div className="column column-50">
-                    <Button block disabled={!isValid} onClick={onSave}>Save</Button>
+                <div className="column column-33 column-offset-33">
+                    <Button block disabled={!isValid} onClick={onSave}>Confirm</Button>
                 </div>
-                <div className="column column-50">
+                <div className="column column-33">
                     <Button block outline onClick={toggleShowForm}>Cancel</Button>
                 </div>
             </div>
-        </div>}
+        </DialogView>
     </>
 })

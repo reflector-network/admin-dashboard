@@ -1,9 +1,9 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {Button} from '@stellar-expert/ui-framework'
 import {requestAlbedoSession} from '../../providers/albedo-provider'
-import clientStatus from '../../state/client-status'
 import {getNodePublicKeys} from '../../api/interface'
+import clientStatus from '../../state/client-status'
 import SimplePageLayout from './simple-page-layout'
 
 export default observer(function AuthLayout({children}) {
@@ -35,6 +35,11 @@ export default observer(function AuthLayout({children}) {
                 notify({type: 'error', message: 'Authorization failed. ' + error?.message || ''})
             })
     }, [])
+
+    useEffect(() => {
+        if (localStorage.getItem('albedo_session'))
+            authorize()
+    }, [authorize])
 
     return <div>
         {(!authorized || !clientStatus.hasSession) ?

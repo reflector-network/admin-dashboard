@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
 import AssetCodeView from '../components/asset-code-view'
-import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
+import configChangesDetector from '../util/config-changes-detector'
 import AddGenericAssetEntry from './add-generic-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
 import AddSorobanTokenEntry from './add-soroban-token-entry-form'
@@ -28,10 +28,10 @@ export default function AddAssetsView({settings, contractId}) {
     const validation = useCallback(newSettings => {
         if (newSettings.length === supportedAssets.length)
             return setIsValid(false)
-        if (!updateTimeValidation(newSettings))
+        if (!configChangesDetector(changedSettings.config, settings.config).length)
             return setIsValid(false)
         setIsValid(true)
-    }, [supportedAssets])
+    }, [supportedAssets, changedSettings, settings])
 
     const updateAssets = useCallback(assetList => {
         setEditableAssets(assetList)
@@ -57,29 +57,27 @@ export default function AddAssetsView({settings, contractId}) {
         updateAssets([...editableAssets, asset])
     }, [contract, editableAssets, updateAssets])
 
-    return <ActionNodeLayout settings={changedSettings} currentConfig={settings} isValid={isValid}>
+    return <ActionNodeLayout settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
         <h3>Tracked assets</h3>
         <hr className="flare"/>
-        <ActionFormLayout timeframe={contract?.timeframe} validation={validation}
-                          settings={changedSettings} updateSettings={setChangedSettings}>
-            <span>Supported assets</span>
-            <br/>
+        <div className="space">
+            <h4 style={{marginBottom: 0}}>Supported assets</h4>
             <span className="dimmed text-tiny">
                 (List of assets with prices tracked by the quorum nodes)
             </span>
-            {supportedAssets?.map(asset =>
-                <AssetEntryLayout key={asset.code} asset={asset}/>)}
-            {!!editableAssets.length && <h4 className="space">New assets</h4>}
-            {editableAssets?.map(asset =>
-                <AssetEntryLayout key={asset.code} asset={asset} editableAssets={editableAssets} updateAssets={updateAssets}/>)}
-            <div className="space">
-                <AddClassicAssetEntry contract={contract} save={addAsset}/>
-                &nbsp;or&nbsp;
-                <AddSorobanTokenEntry contract={contract} save={addAsset}/>
-                &nbsp;or&nbsp;
-                <AddGenericAssetEntry contract={contract} save={addAsset}/>
-            </div>
-        </ActionFormLayout>
+        </div>
+        {supportedAssets?.map(asset =>
+            <AssetEntryLayout key={asset.code} asset={asset}/>)}
+        {!!editableAssets.length && <h4 className="space">New assets</h4>}
+        {editableAssets?.map(asset =>
+            <AssetEntryLayout key={asset.code} asset={asset} editableAssets={editableAssets} updateAssets={updateAssets}/>)}
+        <div className="space">
+            <AddClassicAssetEntry contract={contract} save={addAsset}/>
+            &nbsp;or&nbsp;
+            <AddSorobanTokenEntry contract={contract} save={addAsset}/>
+            &nbsp;or&nbsp;
+            <AddGenericAssetEntry contract={contract} save={addAsset}/>
+        </div>
     </ActionNodeLayout>
 }
 

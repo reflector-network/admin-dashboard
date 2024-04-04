@@ -15,9 +15,16 @@ export function checkAlbedoSession() {
  */
 export async function requestAlbedoSession() {
     try {
-        const {pubkey} = await albedo.implicitFlow({
+        //check whether the session is saved and valid
+        const savedAlbedoSession = JSON.parse(localStorage.getItem('albedo_session'))
+        if (savedAlbedoSession?.valid_until > Date.now())
+            return savedAlbedoSession.pubkey
+
+        const {grants, session, pubkey, valid_until} = await albedo.implicitFlow({
             intents: 'sign_message'
         })
+        //save current session
+        localStorage.setItem('albedo_session', JSON.stringify({grants, session, pubkey, valid_until}))
         return pubkey
     } catch (e) {
         notify({type: 'error', message: e.error?.message || 'Failed to obtain session permission'})
@@ -55,6 +62,8 @@ export function dropSession() {
     if (clientStatus.clientPublicKey) {
         //forget session
         albedo.forgetImplicitSession(clientStatus.clientPublicKey)//update status
+        localStorage.removeItem('albedo_session')
+        clientStatus.clientPublicKey = ''
         clientStatus.pollSession()
     }
 }

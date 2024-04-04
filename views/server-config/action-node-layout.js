@@ -1,49 +1,30 @@
 import React, {useCallback, useState} from 'react'
-import {navigation} from '@stellar-expert/navigation'
 import {Button} from '@stellar-expert/ui-framework'
-import {postApi} from '../../api/interface'
-import clientStatus from '../../state/client-status'
-import configChangesDetector from '../util/config-changes-detector'
+import DialogView from '../components/dialog-view'
+import ActionConfirmationFormView from './action-form-confirmation-view'
 
-export default function ActionNodeLayout({settings, currentConfig, isValid, children}) {
-    const newSettings = structuredClone(settings)
-    //ready to submitting if there are valid changes
-    const isReady = isValid && !!configChangesDetector(newSettings.config, currentConfig.config).length
-    const [inProgress, setInProgress] = useState(false)
+export default function ActionNodeLayout({settings, timeframe, isValid, children}) {
+    const [isOpen, setIsOpen] = useState(false)
 
-    const submitUpdates = useCallback(async () => {
-        setInProgress(true)
-        const signature = await clientStatus.createSignature(newSettings.config)
-
-        postApi('config', {
-            ...newSettings,
-            signatures: [signature]
-        })
-            .then(res => {
-                if (res.error)
-                    throw new Error(res.error)
-                //reload configuration after update
-                navigation.updateQuery({reload: 1})
-                notify({type: 'success', message: 'Update submitted'})
-            })
-            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
-            .finally(() => setInProgress(false))
-    }, [newSettings])
+    const toggleShowForm = useCallback(() => setIsOpen(prev => !prev), [])
 
     return <div className="segment blank h-100">
         <div>
             {children}
         </div>
         <div className="space row">
-            <div className="column column-66 text-center">
-                {!!inProgress && <>
-                    <div className="loader inline"/>
-                    <span className="dimmed text-small"> In progress...</span>
-                </>}
+            <div className="column column-66">
+                {(!!isValid) && <div className="dimmed text-small micro-space"> You have unsaved pending changes</div>}
+                <div className="only-mobile micro-space"/>
             </div>
             <div className="column column-33">
-                <Button block disabled={!isReady || inProgress} onClick={submitUpdates}>Submit</Button>
+                <Button block disabled={!isValid} onClick={toggleShowForm}>Submit</Button>
             </div>
         </div>
+        {!!isValid && <DialogView dialogOpen={isOpen}>
+            <h3>Setting up a configuration update</h3>
+            <hr className="flare"/>
+            <ActionConfirmationFormView settings={settings} timeframe={timeframe} toggleShowForm={toggleShowForm}/>
+        </DialogView>}
     </div>
 }

@@ -1,21 +1,15 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Button, ButtonGroup, Dropdown} from '@stellar-expert/ui-framework'
+import {Button, ButtonGroup} from '@stellar-expert/ui-framework'
 
-export default function TabularDataView({dataList, updateList, rows = 10, isLoading, children}) {
+export default function TabularDataView({dataList, updateList, rows = 20, isLoading, children}) {
     const [page, setPage] = useState(1)
-    const [numberRows, setNumberRows] = useState(rows)
+    const hiddenButtons = dataList?.length < rows && page === 1
 
-    useEffect(() => setPage(1), [numberRows])
-
-    useEffect(() => {
-        updateList(page, numberRows)
-    }, [updateList, page, numberRows])
+    useEffect(() => updateList(page, rows), [updateList, page, rows])
 
     const prevPage = useCallback(() => setPage(prev => prev - 1), [])
 
     const nextPage = useCallback(() => setPage(prev => prev + 1), [])
-
-    const changeRows = useCallback(rows => setNumberRows(rows), [])
 
     if (!dataList)
         return <div className="loader"/>
@@ -25,12 +19,11 @@ export default function TabularDataView({dataList, updateList, rows = 10, isLoad
             <div className="space">
                 {children}
                 <div className="text-center space relative">
-                    <Dropdown className="row-selector micro-space" title={numberRows} options={['10', '20', '50']} onChange={changeRows}/>
-                    <ButtonGroup className="space">
+                    {!hiddenButtons && <ButtonGroup className="space">
                         <Button disabled={isLoading || page === 1} onClick={prevPage}>Prev Page</Button>
-                        <Button disabled={isLoading || (!dataList.length || !!(dataList.length % numberRows))}
+                        <Button disabled={isLoading || (!dataList.length || !!(dataList.length % rows))}
                                 onClick={nextPage}>Next Page</Button>
-                    </ButtonGroup>
+                    </ButtonGroup>}
                 </div>
             </div> :
             <div className="text-center space dimmed">Could not find data with these parameters</div>}

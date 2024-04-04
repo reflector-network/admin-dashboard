@@ -65,6 +65,13 @@ export function getNotificationSettings() {
     return getApi('settings/node')
 }
 
+export async function getTx(hash) {
+    const res = await fetch('https://horizon.stellar.org/transactions/' + hash, {
+        method: 'GET'
+    })
+    return res.json()
+}
+
 async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null, body = undefined}) {
     const url = apiOrigin + relativeUrl
     const headers = {'Content-Type': 'application/json'}
