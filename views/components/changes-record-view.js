@@ -48,14 +48,13 @@ export default function ChangesRecordView({data}) {
                     {!!node.domain && <div className="dimmed text-small">&emsp;&emsp;{node.domain}</div>}
                 </div>)}
             </div>
-        case 'wasmHash':
+        default:
             return <div className="space">
-                <span className="dimmed micro-space">Changed wasmHash:</span>
+                <span className="dimmed micro-space">{data.action} {data.type}: </span>
                 <span className="text-small word-break">
                     {data.changes}
                 </span>
             </div>
-        default: return <></>
     }
 }
 
