@@ -1,9 +1,11 @@
+import isEqual from "react-fast-compare"
+
 let changedData = []
 
 export default function configChangesDetector(pendingConfig, currentConfig) {
     changedData = []
     //returns an empty array if nothing is compared
-    if (!pendingConfig || !currentConfig)
+    if (!pendingConfig || !currentConfig || isEqual(pendingConfig, currentConfig))
         return changedData
 
     compareObjects(pendingConfig, currentConfig)
@@ -52,6 +54,7 @@ function compareNodes(pendingConfig, currentConfig) {
         changedData.push({
             type: 'nodes',
             action: 'Added',
+            uniqId: newNodes[0].pubkey,
             changes: newNodes
         })
     }
@@ -67,15 +70,15 @@ function compareNodes(pendingConfig, currentConfig) {
     const changedSameNodes = changedDomainNodes.filter(node => changedUrlNodes.findIndex(n => n.pubkey === node.pubkey) !== -1)
 
     changedUrlNodes.forEach(({pubkey, url}) => {
-        changedNodes[pubkey] = {pubkey, url}
+        changedNodes[pubkey] = {...changedNodes[pubkey], url, pubkey}
     })
 
     changedDomainNodes.forEach(({pubkey, domain}) => {
-        changedNodes[pubkey] = {pubkey, domain}
+        changedNodes[pubkey] = {...changedNodes[pubkey], domain, pubkey}
     })
 
     changedSameNodes.forEach(node => {
-        changedNodes[node.pubkey] = node
+        changedNodes[node.pubkey] = {...node, uniqId: node.pubkey}
     })
 
     if (Object.keys(changedNodes).length) {
@@ -106,7 +109,7 @@ function compareContracts(pendingConfig, currentConfig) {
         changedData.push({
             type: 'contract',
             action: 'Changed',
-            contract,
+            uniqId: contract,
             changes: changedContracts[contract]
         })
     })
@@ -115,7 +118,7 @@ function compareContracts(pendingConfig, currentConfig) {
         changedData.push({
             type: 'contract',
             action: 'Added',
-            contract,
+            uniqId: contract,
             changes: pendingConfig.contracts[contract] || {}
         })
     })
@@ -124,7 +127,7 @@ function compareContracts(pendingConfig, currentConfig) {
         changedData.push({
             type: 'contract',
             action: 'Removed',
-            contract,
+            uniqId: contract,
             changes: currentConfig.contracts[contract] || {}
         })
     })
@@ -136,16 +139,24 @@ function compareDiffContracts(pendingConfig, currentConfig) {
     Object.values(pendingConfig.contracts).forEach(contract => {
         const compareContract = currentConfig.contracts[contract.oracleId]
         const changedProperties = []
-
+        if (!compareContract)
+            return
+        //compare simple property
         Object.keys(contract || {}).forEach(prop => {
-            if (compareContract && typeof contract[prop] !== 'object' && contract[prop] !== compareContract[prop]) {
+            if (typeof contract[prop] !== 'object' && contract[prop] !== compareContract[prop]) {
                 changedProperties.push({
                     type: prop,
                     changes: contract[prop]
                 })
             }
         })
-
+        if (!isEqual(contract.baseAsset, compareContract.baseAsset)) {
+            changedProperties.push({
+                type: 'baseAsset',
+                changes: contract.baseAsset
+            })
+        }
+        //compare assets
         const addedAssets = contract?.assets.filter(asset =>
             compareContract?.assets.findIndex(a => a.code === asset.code) === -1) || []
         if (addedAssets.length) {

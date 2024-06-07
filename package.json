@@ -1,7 +1,7 @@
 {
   "name": "@reflector/admin-dashboard",
   "private": true,
-  "version": "0.5.4",
+  "version": "0.5.5",
   "author": "team@stellar.expert",
   "description": "Admin dashboard for Reflector nodes",
   "scripts": {
@@ -23,6 +23,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router": "^5.3.3",
+    "react-fast-compare": "^3.2.2",
     "mobx": "^6.6.2",
     "mobx-react": "^7.5.3"
   },

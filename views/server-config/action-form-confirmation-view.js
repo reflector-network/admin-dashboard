@@ -3,20 +3,7 @@ import {Button, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {navigation} from '@stellar-expert/navigation'
 import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
-
-export function updateTimeValidation({timestamp, expirationDate, ...settings}) {
-    const minDate = settings.config.minDate
-    const min = new Date().getTime() + 30 * 60 * 1000
-    const max = new Date().getTime() + 10 * 24 * 60 * 60 * 1000
-    if (timestamp === 0 && minDate === 0 && expirationDate)
-        return true
-    if (!timestamp && !minDate || !expirationDate)
-        return
-    //check only minDate, if set minDate timestamp will be with same value
-    if (minDate < min || minDate > max)
-        return
-    return true
-}
+import {updateTimeValidation} from "./action-form-layout"
 
 export default function ActionConfirmationFormView({settings, timeframe, toggleShowForm}) {
     const [changedSettings, setChangedSettings] = useState(settings)
@@ -107,6 +94,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
                 if (res.error)
                     throw new Error(res.error)
                 //reload configuration after update
+                toggleShowForm()
                 navigation.updateQuery({reload: 1})
                 notify({type: 'success', message: 'Update submitted'})
             })
