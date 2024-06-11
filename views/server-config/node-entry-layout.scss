@@ -1,0 +1,19 @@
+.node-url-hidden {
+  &:before {
+    content: 'ws://**************';
+  }
+
+  span {
+    display: none;
+  }
+
+  &:hover {
+    &:before {
+      content: none;
+    }
+
+    span {
+      display: unset;
+    }
+  }
+}

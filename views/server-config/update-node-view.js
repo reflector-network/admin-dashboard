@@ -3,6 +3,7 @@ import {AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
 import configChangesDetector from '../util/config-changes-detector'
 import ActionNodeLayout from './action-node-layout'
 import AddNodeEntry from './add-node-entry-form'
+import './node-entry-layout.scss'
 
 export default function UpdateNodeView({settings}) {
     const [isValid, setIsValid] = useState(false)
@@ -73,9 +74,9 @@ function NodeEntryLayout({node, save, isLimitUpdates}) {
                 {!isLimitUpdates && <a href="#" className="icon-cog" onClick={toggleShowForm}/>}
                 {!isLimitUpdates && <a href="#" className="icon-cancel" onClick={removeNode}/>}
             </span>
-            <div>
-                <span className="dimmed text-small">&emsp;&emsp;{node.url}</span>
-                <span className="dimmed text-small">&emsp;&emsp;{node.domain}</span>
+            <div className="block-indent">
+                <span className="dimmed text-small inline-block" style={{minWidth:'16em'}}>{node.domain}</span>&emsp;
+                <span className="dimmed text-small node-url-hidden"><span>{node.url}</span></span>
             </div>
         </div>
         {!isLimitUpdates && <AddNodeEntry editNode={node} isEditFormOpen={isEditFormOpen} save={onSave}/>}
