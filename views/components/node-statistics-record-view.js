@@ -4,6 +4,10 @@ import {AccountAddress, ElapsedTime, UtcTimestamp} from '@stellar-expert/ui-fram
 export default function NodeStatisticsRecordView({stat}) {
     return <div className="text-small">
         <div>
+            <span className="dimmed">Software version: </span>
+            {stat.version}
+        </div>
+        <div>
             <span className="dimmed">Uptime: </span>
             <span className="inline-block">
                 {stat.startTime ?
