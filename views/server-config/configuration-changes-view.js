@@ -21,7 +21,7 @@ export default function ConfigurationChangesView({configuration}) {
             <hr className="flare"/>
             {changedData.length ?
                 <div className="space">
-                    {changedData.map(data => <ChangesRecordView key={data.type} data={data}/>)}
+                    {changedData.map(data => <ChangesRecordView key={data.type + data.action + data.uniqId} data={data}/>)}
                     <hr className="double-space"/>
                     <div className="text-right">
                         <span className="dimmed">Changes will be applied:</span>&nbsp;
