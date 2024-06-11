@@ -1,6 +1,6 @@
 .node-url-hidden {
   &:before {
-    content: 'ws://**************';
+    content: '**********';
   }
 
   span {
@@ -9,11 +9,11 @@
 
   &:hover {
     &:before {
-      content: none;
+      content: none !important;
     }
 
     span {
-      display: unset;
+      display: unset !important;;
     }
   }
 }
