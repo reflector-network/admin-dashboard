@@ -6,40 +6,39 @@ import AssetCodeView from './asset-code-view'
 export default function ChangesRecordView({data}) {
     switch (data.type) {
         case 'contract':
-            return <div className="space">
-                <span className="dimmed micro-space">{data.action} contract&nbsp;
-                    <span title={data.uniqId}>{shortenString(data.uniqId)}</span>:&emsp;</span>
-                <div style={{padding: '0.3em 1em'}}>
-                    {data.action === 'Changed' ?
+            return <div className="micro-space">
+                <i className="icon-puzzle"/> Contract <span title={data.uid}>{shortenString(data.uid)}</span> {data.action}:
+                <div className="block-indent">
+                    {data.action === 'updated' ?
                         data.changes.map(property => {
                             const changes = {[property.type]: property.changes}
-                            return <div key={data.uniqId + property.type + property.action}>
+                            return <div key={data.uid + property.type + property.action}>
                                 <ContractRecordView property={property.type} action={property.action} changes={changes}/>
                             </div>
                         }) :
-                        Object.keys(data.changes).map(property => <div key={data.uniqId + property}>
+                        Object.keys(data.changes).map(property => <div key={data.uid + property}>
                             <ContractRecordView property={property} changes={data.changes}/>
                         </div>)}
                 </div>
             </div>
         case 'nodes':
-            return <div className="space">
-                <div className="dimmed micro-space">{data.action} node:</div>
-                {data.changes.map(node => <div key={node.pubkey}>
-                    <div className="text-small word-break">
-                        <i className="icon-hexagon-dice color-success"/>
-                        <AccountAddress account={node.pubkey} char={16}/>
-                    </div>
-                    {!!node.url && <div className="dimmed text-small">&emsp;&emsp;{node.url}</div>}
-                    {!!node.domain && <div className="dimmed text-small">&emsp;&emsp;{node.domain}</div>}
-                </div>)}
+            return <div className="micro-space">
+                <i className="icon-puzzle"/> Cluster node {data.action}:
+                <div className="block-indent">
+                    {data.changes.map(node => <div key={node.pubkey}>
+                        <div className="word-break">
+                            <i className="icon-hexagon-dice color-success"/>
+                            <AccountAddress account={node.pubkey} char={16}/>
+                        </div>
+                        {!!node.url && <div className="dimmed text-small">&emsp;&emsp;{node.url}</div>}
+                        {!!node.domain && <div className="dimmed text-small">&emsp;&emsp;{node.domain}</div>}
+                    </div>)}
+                </div>
             </div>
         default:
-            return <div className="space">
-                <span className="dimmed micro-space">{data.action} {data.type}: </span>
-                <span className="text-small word-break">
-                    {data.changes}
-                </span>
+            return <div>
+                <i className="icon-puzzle"/> Parameter "{data.type}" {data.action}:
+                <span className="word-break"> {data.changes}</span>
             </div>
     }
 }

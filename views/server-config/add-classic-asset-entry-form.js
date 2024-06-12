@@ -12,7 +12,7 @@ export default observer(function AddClassicAssetEntry({contract, save}) {
     const validate = useCallback(newAsset => {
         const pattern = new RegExp("[^a-zA-z]")
         if (!(newAsset.code?.length > 0 && newAsset.code?.length <= 12) || pattern.test(newAsset.code) ||
-            contract.assets.findIndex(asset => asset.code === `${newAsset.code}:${newAsset.issuer}`) !== -1) {
+            contract.assets.some(asset => asset.code === `${newAsset.code}:${newAsset.issuer}`)) {
             return false
         }
         if ((newAsset.code !== 'XLM') && !StrKey.isValidEd25519PublicKey(newAsset.issuer))
@@ -38,7 +38,13 @@ export default observer(function AddClassicAssetEntry({contract, save}) {
 
     return <AddAssetEntryLayout title="Add SAC asset" ref={currentInput} asset={`${asset.code}:${asset.issuer || ''}`}
                                 isEntered={isEntered} isValid={isValid} save={save}>
-        <input ref={currentInput} value={asset.code || ''} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset code"/>
-        <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="Issuer address"/>
+        <label>
+            <span className="dimmed">Asset code</span>
+            <input ref={currentInput} value={asset.code || ''} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="e.g. USD"/>
+        </label>
+        <label>
+            <span className="dimmed">Issuer address</span>
+            <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="GC3N..."/>
+        </label>
     </AddAssetEntryLayout>
 })

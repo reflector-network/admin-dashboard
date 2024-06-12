@@ -1,18 +1,16 @@
 import React from 'react'
 import {useLocation} from 'react-router'
 import {parseQuery} from '@stellar-expert/navigation'
-import {shortenString} from '@stellar-expert/formatter'
 import {AccountAddress} from '@stellar-expert/ui-framework'
 
 const allSections = [
-    {name: 'about', title: 'About'},
     {name: 'nodes', title: 'Peer nodes'},
     // {name: 'contract', title: 'Update contract'},
     {name: 'contracts', hasChild: true},
     {name: 'upgrade', title: 'Quorum upgrade'},
-    {name: 'history', title: 'History'},
-    {name: 'logs', title: 'Logs'},
-    {name: 'notification', title: 'Notification'}
+    {name: 'history', title: 'Changes history'},
+    {name: 'logs', title: 'Server logs'},
+    {name: 'notification', title: 'Notifications'}
 ]
 
 const contractSections = [

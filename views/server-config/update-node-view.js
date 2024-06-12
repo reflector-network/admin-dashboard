@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {AccountAddress, CopyToClipboard} from '@stellar-expert/ui-framework'
-import configChangesDetector from '../util/config-changes-detector'
+import detectConfigChanges from '../util/config-changes-detector'
 import ActionNodeLayout from './action-node-layout'
 import AddNodeEntry from './add-node-entry-form'
 import './node-entry-layout.scss'
@@ -15,7 +15,7 @@ export default function UpdateNodeView({settings}) {
     }, [settings])
 
     const validation = useCallback(() => {
-        if (!configChangesDetector(changedSettings.config, settings.config).length)
+        if (!detectConfigChanges(changedSettings.config, settings.config).length)
             return setIsValid(false)
         setIsValid(true)
     }, [changedSettings, settings])
@@ -34,9 +34,7 @@ export default function UpdateNodeView({settings}) {
         setIsLimitUpdates(true)
     }, [validation])
 
-    return <ActionNodeLayout settings={changedSettings} isValid={isValid}>
-        <h3>Peer nodes</h3>
-        <hr className="flare"/>
+    return <ActionNodeLayout title="Peer nodes" settings={changedSettings} isValid={isValid}>
         <div className="space"/>
         <h4>Quorum nodes</h4>
         {Object.values(changedSettings.config.nodes || {}).map(node => !node.remove &&
@@ -75,7 +73,7 @@ function NodeEntryLayout({node, save, isLimitUpdates}) {
                 {!isLimitUpdates && <a href="#" className="icon-cancel" onClick={removeNode}/>}
             </span>
             <div className="block-indent">
-                <span className="dimmed text-small inline-block" style={{minWidth:'16em'}}>{node.domain}</span>&emsp;
+                <span className="dimmed text-small inline-block">{node.domain}</span>&emsp;
                 <span className="dimmed text-small node-url-hidden"><span>{node.url}</span></span>
             </div>
         </div>

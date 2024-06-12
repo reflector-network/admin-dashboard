@@ -57,18 +57,18 @@ export default function NotificationSettingsView() {
                     <p className="micro-space">There are no notification emails</p>}
             </div>
             <AddNotificationEntry title={<><i className="icon-plus"/>Add new email</>} save={updateNotifications}/>
-            <div className="space row">
+            {!!hasChanges && <div className="space row">
                 <div className="column column-66">
-                    {(!!hasChanges && !inProgress) && <div className="dimmed text-small micro-space"> You have unsaved pending changes</div>}
+                    {!inProgress && <div className="dimmed text-small micro-space"> You have unsaved pending changes</div>}
                     {!!inProgress && <>
                         <div className="loader inline"/>
                         <span className="dimmed text-small"> In progress...</span>
                     </>}
                 </div>
                 <div className="column column-33">
-                    <Button block disabled={inProgress || !hasChanges} onClick={saveNotifications}>Submit</Button>
+                    <Button block disabled={inProgress || !hasChanges} onClick={saveNotifications}>Save</Button>
                 </div>
-            </div>
+            </div>}
         </div>
     </div>
 }

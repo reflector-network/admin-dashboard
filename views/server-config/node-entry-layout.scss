@@ -1,6 +1,8 @@
 .node-url-hidden {
+  cursor: default;
+
   &:before {
-    content: '**********';
+    content: '*******************';
   }
 
   span {

@@ -11,7 +11,7 @@ export default observer(function AuthStatusView() {
         <><i className="icon-warning-circle color-warning"/> Invalid authentication: </> :
         <><i className="icon-ok color-success"/> Authenticated as </>
 
-    return <div>
+    return <div className="micro-space">
         {status} <AccountAddress account={clientStatus.clientPublicKey} chars={12} link={false}/>&emsp;|&emsp;
         <a href="#" className="dimmed text-tiny" onClick={dropSession} title="Change authentication">change</a>
     </div>

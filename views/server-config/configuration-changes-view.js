@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {UtcTimestamp} from '@stellar-expert/ui-framework'
-import configChangesDetector from '../util/config-changes-detector'
+import detectConfigChanges from '../util/config-changes-detector'
 import ChangesRecordView from '../components/changes-record-view'
 
 export default function ConfigurationChangesView({configuration}) {
@@ -12,23 +12,23 @@ export default function ConfigurationChangesView({configuration}) {
 
         const pendingConfig = configuration.pendingConfig.config.config
         const currentConfig = configuration.currentConfig.config.config
-        setChangedData(configChangesDetector(pendingConfig, currentConfig))
+        setChangedData(detectConfigChanges(pendingConfig, currentConfig))
     }, [configuration])
 
     return <div className="segment blank h-100">
         <div>
-            <h3>Pending quorum upgrade</h3>
+            <div className="row">
+                <div className="column column-50"><h3>Pending quorum upgrade</h3></div>
+                <div className="column column-50 text-right mobile-left micro-space text-tiny">{changedData.length > 0 && <>
+                    Scheduled <UtcTimestamp date={configuration.pendingConfig?.config.timestamp || 0}/>
+                </>}</div>
+            </div>
             <hr className="flare"/>
-            {changedData.length ?
-                <div className="space">
-                    {changedData.map(data => <ChangesRecordView key={data.type + data.action + data.uniqId} data={data}/>)}
-                    <hr className="double-space"/>
-                    <div className="text-right">
-                        <span className="dimmed">Changes will be applied:</span>&nbsp;
-                        <UtcTimestamp date={configuration.pendingConfig?.config.timestamp || 0}/>
-                    </div>
-                </div> :
-                <div className="double-space text-center">There are no pending updates</div>}
+            {changedData.length > 0 && <div className="space">
+                <h4>Changes:</h4>
+                <div>{changedData.map(data => <ChangesRecordView key={data.type + data.action + data.uid} data={data}/>)}</div>
+            </div>}
+            {!changedData.length && <div className="double-space text-center">There are no pending updates</div>}
         </div>
     </div>
 }
