@@ -16,15 +16,15 @@ export default function NodeStatisticsRecordView({stat}) {
             </span>
         </div>
         <div>
-            <span className="dimmed">Submitted transactions: </span>
+            <span className="dimmed">Processed transactions: </span>
             <span className="inline-block">
-                {stat.submittedTransactions || 'No data'}
+                {stat.totalProcessed || 'No data'}
             </span>
         </div>
         <div>
-            <span className="dimmed">Total processed: </span>
+            <span className="dimmed">Submitted transactions: </span>
             <span className="inline-block">
-                {stat.totalProcessed || 'No data'}
+                {stat.submittedTransactions || 'No data'}
             </span>
         </div>
         <div>
@@ -50,7 +50,7 @@ function OracleStatisticsView({statistics = []}) {
         <h4>Oracle <AccountAddress account={stat.oracleId}/></h4>
         <div className="block-indent text-small">
             <div>
-                <span className="dimmed">Oracle status: </span>
+                <span className="dimmed">Contract status: </span>
                 <span className="inline-block">{stat.isInitialized ? 'Initialized' : 'Not initialized'}</span>
             </div>
             <div>
@@ -64,10 +64,6 @@ function OracleStatisticsView({statistics = []}) {
             <div>
                 <span className="dimmed">Processed transactions: </span>
                 <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
-            </div>
-            <div>
-                <span className="dimmed">Submitted transactions: </span>
-                <span className="inline-block">{stat.submittedTransactions || 'No data'}</span>
             </div>
         </div>
     </div>)
