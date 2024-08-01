@@ -1,20 +1,6 @@
 import React, {useCallback, useState} from 'react'
 import {UtcTimestamp} from '@stellar-expert/ui-framework'
 
-export function updateTimeValidation({timestamp, expirationDate, ...settings}) {
-    const minDate = settings.config.minDate
-    const min = new Date().getTime() + 30 * 60 * 1000
-    const max = new Date().getTime() + 10 * 24 * 60 * 60 * 1000
-    if (timestamp === 0 && minDate === 0 && expirationDate)
-        return true
-    if (!timestamp && !minDate || !expirationDate)
-        return
-    //check only minDate, if set minDate timestamp will be with same value
-    if (minDate < min || minDate > max)
-        return
-    return true
-}
-
 export default function ActionFormLayout({timeframe, settings, updateSettings, validation, children}) {
     const [isValidTime, setIsValidTime] = useState(false)
 

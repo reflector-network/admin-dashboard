@@ -14,8 +14,9 @@ const allSections = [
 ]
 
 const contractSections = [
-    {name: 'assets', title: 'Tracked assets'},
-    {name: 'period', title: 'Retention period'}
+    {name: 'assets', title: 'Tracked assets', type: 'oracle'},
+    {name: 'period', title: 'Retention period', type: 'oracle'},
+    {name: 'baseFee', title: 'Base fee', type: 'subscriptions'}
 ]
 
 export default function UpdateNodeNavigationView({configuration}) {
@@ -30,20 +31,30 @@ export default function UpdateNodeNavigationView({configuration}) {
 
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
-            {section.hasChild ? Object.keys(contracts || []).map(contract => <span key={contract}>
-                Oracle <AccountAddress account={contract} className="condensed"/>
-                <ul key={contract} style={{margin: '0.3em 1em'}}>
-                    {contractSections.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
-                        {(subSection.name === activeSection && currentContract === contract) ?
-                            <span><i className="icon-angle-double-right"/>{subSection.title}</span> :
-                            <a href={'/?section=' + subSection.name + '&contract=' + contract}>
-                                {subSection.title}</a>}
-                    </li>)}
-                </ul>
-            </span>) :
-            (section.name === activeSection ?
-                <span><i className="icon-angle-double-right"/>{section.title}</span> :
-                <a href={'/?section=' + section.name}>{section.title}</a>)}
+            {section.hasChild ? Object.keys(contracts || []).map(contract => {
+                const type = contracts[contract].type === 'subscriptions' ? 'Subscriptions' : 'Oracle'
+                const list = contractSections.filter(item => item.type === type.toLowerCase())
+                return <span key={contract}>
+                    {type} <AccountAddress account={contract} className="condensed"/>
+                    <ul key={contract} style={{margin: '0.3em 1em'}}>
+                        {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
+                            {(subSection.name === activeSection && currentContract === contract) ?
+                                <NavigationItemView title={subSection.title}/> :
+                                <NavigationItemView title={subSection.title}
+                                                    link={'/?section=' + subSection.name + '&contract=' + contract}/>}
+                        </li>)}
+                    </ul>
+                </span>
+                }) :
+                (section.name === activeSection ?
+                    <NavigationItemView title={section.title}/> :
+                    <NavigationItemView title={section.title} link={'/?section=' + section.name}/>)}
         </li>)}
     </ul>
+}
+
+function NavigationItemView({title, link}) {
+    if (link)
+        return <a href={link}>{title}</a>
+    return <span><i className="icon-angle-double-right"/>{title}</span>
 }

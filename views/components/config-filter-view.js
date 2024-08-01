@@ -12,8 +12,9 @@ const statusOptions = [
 export default function ConfigFiltersView({updateFilters}) {
     const [value, setValue] = useState('')
     const setFilterValue = useCallback(val => {
-        setValue(val)
-        updateFilters(prev => ({status: val}))
+        const status = typeof val === 'string' ? val : val.value
+        setValue(status)
+        updateFilters(prev => ({status}))
     }, [updateFilters])
 
 

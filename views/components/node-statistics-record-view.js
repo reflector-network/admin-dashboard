@@ -38,20 +38,24 @@ export default function NodeStatisticsRecordView({stat}) {
                 </div> :
                 <span className="inline-block"><i className="icon-warning color-warning"/> Peer nodes not connected</span>}
         </div>
-        {!!Object.keys(stat.oracleStatistics || {}).length && <OracleStatisticsView statistics={Object.values(stat.oracleStatistics)}/>}
+        {!!Object.keys(stat.contractStatistics || {}).length && <ContractStatisticsView statistics={Object.values(stat.contractStatistics)}/>}
     </div>
 }
 
-function OracleStatisticsView({statistics = []}) {
+function ContractStatisticsView({statistics = []}) {
     if (!statistics.length)
         return
 
-    return statistics.map(stat => <div key={stat.oracleId}>
-        <h4>Oracle <AccountAddress account={stat.oracleId}/></h4>
+    return statistics.map(stat => <div key={stat.contractId || stat.oracleId}>
+        <h4>Oracle <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
         <div className="block-indent text-small">
             <div>
                 <span className="dimmed">Contract status: </span>
                 <span className="inline-block">{stat.isInitialized ? 'Initialized' : 'Not initialized'}</span>
+            </div>
+            <div>
+                <span className="dimmed">Contract type: </span>
+                <span className="inline-block">{stat.type === 'subscriptions' ? 'Subscriptions' : 'Oracle'}</span>
             </div>
             <div>
                 <span className="dimmed">Last processed round: </span>

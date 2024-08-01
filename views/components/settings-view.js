@@ -6,6 +6,7 @@ import AddAssetsView from '../server-config/add-assets-view'
 import UpdatePeriodView from '../server-config/update-period-view'
 import UpdateContractView from '../server-config/update-contract-view'
 import ConfigurationChangesView from '../server-config/configuration-changes-view'
+import UpdateBaseFeeView from "../server-config/update-base-fee-view"
 import ConfigurationHistoryView from './configuration-history-view'
 import ConfigurationLogsView from './server-logs-view'
 import NotificationSettingsView from './notification-settings-view'
@@ -30,6 +31,8 @@ export default function SettingsSectionView({configuration}) {
             return <AddAssetsView settings={settings} contractId={contract}/>
         case 'period':
             return <UpdatePeriodView settings={settings} contractId={contract}/>
+        case 'baseFee':
+            return <UpdateBaseFeeView settings={settings} contractId={contract}/>
         case 'contract':
             return <UpdateContractView settings={settings}/>
         case 'upgrade':

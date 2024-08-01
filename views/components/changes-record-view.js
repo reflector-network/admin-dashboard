@@ -1,13 +1,14 @@
 import React from 'react'
-import {AccountAddress} from '@stellar-expert/ui-framework'
+import {AccountAddress, CodeBlock} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
 import AssetCodeView from './asset-code-view'
 
 export default function ChangesRecordView({data}) {
-    switch (data.type) {
+    switch (data.variety) {
         case 'contract':
+            const type = data.type === 'subscriptions' ? 'Subscriptions' : 'Oracle'
             return <div className="micro-space">
-                <i className="icon-puzzle"/> Contract <span title={data.uid}>{shortenString(data.uid)}</span> {data.action}:
+                <i className="icon-puzzle"/> {type} <span title={data.uid}>{shortenString(data.uid)}</span> {data.action}:
                 <div className="block-indent">
                     {data.action === 'updated' ?
                         data.changes.map(property => {
@@ -37,8 +38,10 @@ export default function ChangesRecordView({data}) {
             </div>
         default:
             return <div>
-                <i className="icon-puzzle"/> Parameter "{data.type}" {data.action}:
-                <span className="word-break"> {data.changes}</span>
+                <i className="icon-puzzle"/> Parameter "{data.variety}" {data.action}:
+                {(data.variety === 'wasmHash') ?
+                    <CodeBlock className="result" style={{height: '35vh'}} lang="js">{data.changes}</CodeBlock> :
+                    <span className="word-break"> {data.changes}</span>}
             </div>
     }
 }
@@ -60,6 +63,7 @@ function ContractRecordView({property, action, changes}) {
                 </span>
             </div>
         case 'oracleId':
+        case 'contractId':
             return <div>
                 <span className="dimmed micro-space">{property}: </span>
                 <span title={changes[property]}>{shortenString(changes[property])}</span>

@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react'
-import ActionFormLayout, {updateTimeValidation} from './action-form-layout'
+import {updateTimeValidation} from "./action-form-confirmation-view"
+import ActionFormLayout from './action-form-layout'
 import ActionNodeLayout from './action-node-layout'
 
 export default function UpdateContractView({settings}) {
