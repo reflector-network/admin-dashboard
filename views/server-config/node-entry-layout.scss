@@ -1,0 +1,21 @@
+.node-url-hidden {
+  cursor: default;
+
+  &:before {
+    content: '*******************';
+  }
+
+  span {
+    display: none;
+  }
+
+  &:hover {
+    &:before {
+      content: none !important;
+    }
+
+    span {
+      display: unset !important;;
+    }
+  }
+}

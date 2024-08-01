@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {observer} from 'mobx-react'
 import {Button} from '@stellar-expert/ui-framework'
-import {requestAlbedoSession} from '../../providers/albedo-provider'
+import {checkAlbedoSession, dropSession, requestAlbedoSession, retrieveAlbedoSession} from '../../providers/albedo-provider'
 import {getNodePublicKeys} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import SimplePageLayout from './simple-page-layout'
@@ -10,18 +10,13 @@ export default observer(function AuthLayout({children}) {
     const [authorized, setAuthorized] = useState(null)
     const [inProgress, setInProgress] = useState(false)
 
-    const authorize = useCallback(() => {
-        let authPubkey = null
-        requestAlbedoSession()
-            .then(pubkey => {
-                if (!pubkey)
-                    throw new Error('Public key is invalid.')
-                authPubkey = pubkey
-                return getNodePublicKeys()
-            })
+    const establishSession = useCallback((authPubkey) => {
+        getNodePublicKeys()
             .then(res => {
-                if (!(res && res.indexOf(authPubkey) >= 0))
-                    throw new Error('Please, check the key you using to login.')
+                if (!(res && res.indexOf(authPubkey) >= 0)) {
+                    dropSession(authPubkey)
+                    throw new Error('Please check the key you are using to log in.')
+                }
                 clientStatus.setNodePubkey(authPubkey)
                 setInProgress(true)
                 //for some reason, immediately after session created, sign data is not working
@@ -36,9 +31,24 @@ export default observer(function AuthLayout({children}) {
             })
     }, [])
 
+    const authorize = useCallback(() => {
+        let authPubkey = null
+        requestAlbedoSession()
+            .then(pubkey => {
+                if (!pubkey)
+                    throw new Error('Public key is invalid.')
+                authPubkey = pubkey
+                return establishSession(pubkey)
+            })
+    }, [])
+
     useEffect(() => {
-        if (localStorage.getItem('albedo_session'))
-            authorize()
+        retrieveAlbedoSession()
+            .then(pubkey => {
+                if (checkAlbedoSession(pubkey)) {
+                    establishSession(pubkey)
+                }
+            })
     }, [authorize])
 
     return <div>

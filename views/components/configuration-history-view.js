@@ -19,10 +19,9 @@ export default function ConfigurationHistoryView() {
             pageSize: numberRows,
             page
         }
-        if (filters.initiator)
-            params.initiator = filters.initiator
-        if (filters.status)
+        if (filters.status) {
             params.status = filters.status
+        }
 
         setIsLoading(true)
         getConfigHistory(params)
@@ -58,7 +57,6 @@ export default function ConfigurationHistoryView() {
                         <thead>
                             <tr>
                                 <th>Status</th>
-                                <th>Initiator</th>
                                 <th>Signatures</th>
                                 <th>Description</th>
                                 <th/>
@@ -84,14 +82,9 @@ export default function ConfigurationHistoryView() {
                                                 <UtcTimestamp date={config.expirationDate}/>}
                                         </div>
                                     </td>
-                                    <td data-header="Initiator: ">
-                                        {nodeDomains[config.initiator] ?
-                                            <span title={config.initiator}>{nodeDomains[config.initiator]}</span> :
-                                            <AccountAddress account={config.initiator} char={16}/>}
-                                    </td>
                                     <td data-header="Signatures: ">{signatures}</td>
                                     <td className="word-break" data-header="Description: ">{config.description || 'no desc'}</td>
-                                    <td className="collapsing"><a className="icon-open-new-window" data-id={config.id} onClick={showConfig}/></td>
+                                    <td className="collapsing"><a className="icon-info text-tiny" data-id={config.id} onClick={showConfig}/></td>
                                 </tr>
                             })}
                         </tbody>

@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
-import configChangesDetector from '../util/config-changes-detector'
+import detectConfigChanges from '../util/config-changes-detector'
 import ActionNodeLayout from './action-node-layout'
 
 export default function UpdatePeriodView({settings, contractId}) {
@@ -20,7 +20,7 @@ export default function UpdatePeriodView({settings, contractId}) {
     const validation = useCallback(() => {
         if (contract.period <= contract.timeframe)
             return setIsValid(false)
-        if (!configChangesDetector(changedSettings.config, settings.config).length)
+        if (!detectConfigChanges(changedSettings.config, settings.config).length)
             return setIsValid(false)
         setIsValid(true)
     }, [contract, changedSettings, settings])
@@ -35,9 +35,7 @@ export default function UpdatePeriodView({settings, contractId}) {
         })
     }, [contractId, validation])
 
-    return <ActionNodeLayout settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
-        <h3>Retention period</h3>
-        <hr className="flare"/>
+    return <ActionNodeLayout title="Retention period" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
         <div className="row micro-space">
             <div className="column column-50">
                 <label>

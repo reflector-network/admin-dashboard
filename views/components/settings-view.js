@@ -26,8 +26,6 @@ export default function SettingsSectionView({configuration}) {
     }
 
     switch (section) {
-        case 'nodes':
-            return <UpdateNodeView settings={settings}/>
         case 'assets':
             return <AddAssetsView settings={settings} contractId={contract}/>
         case 'period':
@@ -42,8 +40,9 @@ export default function SettingsSectionView({configuration}) {
             return <ConfigurationLogsView/>
         case 'notification':
             return <NotificationSettingsView/>
+        case 'nodes':
         default:
-            return <AboutSectionView/>
+            return <UpdateNodeView settings={settings}/>
     }
 }
 

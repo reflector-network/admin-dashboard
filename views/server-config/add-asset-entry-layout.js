@@ -30,7 +30,8 @@ export default forwardRef(function AddAssetEntryLayout(props, ref) {
         <a onClick={toggleShowForm}>{title}</a>
         <DialogView dialogOpen={isOpen} smaller>
             <h3>{title}</h3>
-            <div className="space"/>
+            <hr className="flare"/>
+            <div className="micro-space"/>
             {children}
             <div className="row micro-space">
                 <div className="column column-33 column-offset-33">

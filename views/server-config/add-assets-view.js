@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
 import AssetCodeView from '../components/asset-code-view'
-import configChangesDetector from '../util/config-changes-detector'
+import detectConfigChanges from '../util/config-changes-detector'
 import AddGenericAssetEntry from './add-generic-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
 import AddSorobanTokenEntry from './add-soroban-token-entry-form'
@@ -28,7 +28,7 @@ export default function AddAssetsView({settings, contractId}) {
     const validation = useCallback(newSettings => {
         if (newSettings.length === supportedAssets.length)
             return setIsValid(false)
-        if (!configChangesDetector(changedSettings.config, settings.config).length)
+        if (!detectConfigChanges(changedSettings.config, settings.config).length)
             return setIsValid(false)
         setIsValid(true)
     }, [supportedAssets, changedSettings, settings])
@@ -52,14 +52,12 @@ export default function AddAssetsView({settings, contractId}) {
                 type: (code.length === 56 || code === 'XLM') ? 1 : 2,
                 code
             }
-        if (contract.assets.findIndex(a => a.code === asset.code) !== -1)
+        if (contract.assets.some(a => a.code === asset.code))
             return false
         updateAssets([...editableAssets, asset])
     }, [contract, editableAssets, updateAssets])
 
-    return <ActionNodeLayout settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
-        <h3>Tracked assets</h3>
-        <hr className="flare"/>
+    return <ActionNodeLayout title="Tracked assets" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
         <div className="space">
             <h4 style={{marginBottom: 0}}>Supported assets</h4>
             <span className="dimmed text-tiny">
@@ -91,7 +89,7 @@ function AssetEntryLayout({asset, editableAssets = [], updateAssets}) {
 
     return <div key={asset.code} className="micro-space">
         <AssetCodeView asset={asset}/>
-        {editableAssets.findIndex(a => a.code === asset.code) !== -1 &&
+        {editableAssets.some(a => a.code === asset.code) &&
             <a onClick={removeAsset} style={{marginLeft: '0.3em'}}><i className="icon-cancel"/></a>}
     </div>
 }

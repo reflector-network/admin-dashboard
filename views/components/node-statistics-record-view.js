@@ -4,23 +4,27 @@ import {AccountAddress, ElapsedTime, UtcTimestamp} from '@stellar-expert/ui-fram
 export default function NodeStatisticsRecordView({stat}) {
     return <div className="text-small">
         <div>
+            <span className="dimmed">Software version: </span>
+            {stat.version}
+        </div>
+        <div>
             <span className="dimmed">Uptime: </span>
             <span className="inline-block">
                 {stat.startTime ?
-                    <><ElapsedTime ts={stat.startTime}/> <span className="dimmed text-tiny">(started <UtcTimestamp date={stat.startTime}/>)</span></> :
+                    <><ElapsedTime ts={stat.startTime}/> <span className="dimmed text-tiny">(from <UtcTimestamp date={stat.startTime}/>)</span></> :
                     'No data'}
+            </span>
+        </div>
+        <div>
+            <span className="dimmed">Processed transactions: </span>
+            <span className="inline-block">
+                {stat.totalProcessed || 'No data'}
             </span>
         </div>
         <div>
             <span className="dimmed">Submitted transactions: </span>
             <span className="inline-block">
                 {stat.submittedTransactions || 'No data'}
-            </span>
-        </div>
-        <div>
-            <span className="dimmed">Total processed: </span>
-            <span className="inline-block">
-                {stat.totalProcessed || 'No data'}
             </span>
         </div>
         <div>
@@ -46,13 +50,11 @@ function OracleStatisticsView({statistics = []}) {
         <h4>Oracle <AccountAddress account={stat.oracleId}/></h4>
         <div className="block-indent text-small">
             <div>
-                <span className="dimmed">Oracle initialization: </span>
-                <span className="inline-block">
-                    {stat.isInitialized ? 'Initialized' : 'Not initialized'}
-                </span>
+                <span className="dimmed">Contract status: </span>
+                <span className="inline-block">{stat.isInitialized ? 'Initialized' : 'Not initialized'}</span>
             </div>
             <div>
-                <span className="dimmed">Last oracle round: </span>
+                <span className="dimmed">Last processed round: </span>
                 <span className="inline-block">
                     {stat.lastOracleTimestamp ?
                         <ElapsedTime ts={stat.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/> :
@@ -60,16 +62,8 @@ function OracleStatisticsView({statistics = []}) {
                 </span>
             </div>
             <div>
-                <span className="dimmed">Submitted transactions: </span>
-                <span className="inline-block">
-                    {stat.submittedTransactions || 'No data'}
-                </span>
-            </div>
-            <div>
-                <span className="dimmed">Total processed: </span>
-                <span className="inline-block">
-                    {stat.totalProcessed || 'No data'}
-                </span>
+                <span className="dimmed">Processed transactions: </span>
+                <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
             </div>
         </div>
     </div>)
