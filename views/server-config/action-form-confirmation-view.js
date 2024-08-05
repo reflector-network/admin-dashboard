@@ -1,10 +1,11 @@
 import React, {useCallback, useState} from 'react'
-import {Button, DateSelector} from '@stellar-expert/ui-framework'
+import {Button} from '@stellar-expert/ui-framework'
 import {trimIsoDateSeconds} from "@stellar-expert/ui-framework/date/date-selector"
+import {normalizeDate} from "@stellar-expert/formatter/src/timestamp-format"
 import {navigation} from '@stellar-expert/navigation'
 import {postApi} from '../../api/interface'
+import {DateSelector} from '../util/date-selector'
 import clientStatus from '../../state/client-status'
-import {normalizeDate} from "@stellar-expert/formatter/src/timestamp-format"
 
 export const minDateUpdate = trimIsoDateSeconds(new Date().getTime() + 30 * 60 * 1000)
 export const maxDateUpdate = trimIsoDateSeconds(new Date().getTime() + 10 * 24 * 60 * 60 * 1000)
@@ -66,7 +67,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
     }, [timeframe])
 
     const normalizeTimestamp = useCallback(e => {
-        const val =  new Date(normalizeDate(e.target.value || 0)).getTime()
+        const val = new Date(normalizeDate(e.target.value || 0)).getTime()
         const timestamp = val ? timeFormatter(val) : val
         setChangedSettings(prev => {
             const newSettings = {...prev, timestamp}
@@ -91,7 +92,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
 
         postApi('config', {
             ...changedSettings,
-            submitWhenAllReady: submitWhenAllReady,
+            submitWhenAllReady,
             signatures: [signature]
         })
             .then(res => {

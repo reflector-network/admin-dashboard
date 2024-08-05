@@ -1,7 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Button, DateSelector} from '@stellar-expert/ui-framework'
+import {Button} from '@stellar-expert/ui-framework'
 import {getCurrentConfig, postApi} from '../../api/interface'
 import {maxDateUpdate, minDateUpdate} from "../server-config/action-form-confirmation-view"
+import {DateSelector} from '../util/date-selector'
 import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 
