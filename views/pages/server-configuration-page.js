@@ -7,6 +7,7 @@ import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 
 function validation(configuration) {
+    console.log(configuration)
     if (isNaN(parseInt(configuration.timestamp, 10)) || !configuration.expirationDate || !configuration.config)
         return
     return true
@@ -54,7 +55,7 @@ export default function ServerConfigurationPage() {
 
     const changeTimestamp = useCallback(timestamp => {
         setConfiguration(prev => {
-            const configuration = {...prev, timestamp}
+            const configuration = {...prev, timestamp: timestamp || 0}
             setIsValid(validation(configuration))
             return configuration
         })

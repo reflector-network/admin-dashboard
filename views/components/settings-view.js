@@ -22,8 +22,8 @@ export default function SettingsSectionView({configuration}) {
     const settings = {
         description: '',
         expirationDate: '',
-        timestamp: '',
-        config: {...configuration.currentConfig.config.config, minDate: ''}
+        timestamp: 0,
+        config: {...configuration.currentConfig.config.config, minDate: 0}
     }
 
     switch (section) {

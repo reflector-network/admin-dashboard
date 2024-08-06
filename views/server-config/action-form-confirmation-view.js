@@ -24,31 +24,43 @@ export function updateTimeValidation({timestamp, expirationDate, ...settings}) {
 
 export default function ActionConfirmationFormView({settings, timeframe, toggleShowForm}) {
     const [changedSettings, setChangedSettings] = useState(settings)
+    const [isOpenTimestamp, setIsOpenTimestamp] = useState(false)
+    const [isOpenMinDate, setIsOpenMinDate] = useState(false)
     const [isReady, setIsReady] = useState(false)
     const [submitWhenAllReady, setSubmitWhenAllReady] = useState(false)
     const [inProgress, setInProgress] = useState(false)
 
     const toggleSubmitWhenAllReady = useCallback(() => setSubmitWhenAllReady(prev => !prev), [])
+    const toggleTimestamp = useCallback(() => setIsOpenTimestamp(prev => !prev), [])
+    const toggleMinDate = useCallback(() => setIsOpenMinDate(prev => !prev), [])
 
-    const updateTimestamp = useCallback(timestamp => {
+    const updateTime = useCallback(({minDate, timestamp}) => {
         setChangedSettings(prev => {
-            const newSettings = {...prev, timestamp}
-            newSettings.config.minDate = timestamp
+            const newSettings = {...prev, timestamp: timestamp || 0}
+            newSettings.config.minDate = minDate ? minDate : timestamp || 0
             setIsReady(updateTimeValidation(newSettings))
             return newSettings
         })
     }, [])
 
-    const updateMinDate = useCallback(minDate => {
-        setChangedSettings(prev => {
-            const newSettings = {...prev, timestamp: 0}
-            newSettings.config.minDate = minDate
-            setIsReady(updateTimeValidation(newSettings))
-            return newSettings
-        })
-    }, [])
+    const clearTime = useCallback(() => {
+        updateTime({timestamp: 0})
+        setIsOpenTimestamp(false)
+        setIsOpenMinDate(false)
+    }, [updateTime, setIsOpenTimestamp, setIsOpenMinDate])
 
-    const changeExpirationDate = useCallback(expirationDate => {
+    const changeTimestamp = useCallback(timestamp => {
+        updateTime({timestamp})
+        setIsOpenMinDate(true)
+    }, [updateTime])
+
+    const changeMinDate = useCallback(minDate => {
+        updateTime({minDate})
+        setIsOpenTimestamp(false)
+    }, [updateTime])
+
+    const changeExpirationDate = useCallback(val => {
+        const expirationDate = new Date(normalizeDate(val || 0)).getTime()
         setChangedSettings(prev => {
             const newSettings = {...prev, expirationDate}
             setIsReady(updateTimeValidation(newSettings))
@@ -69,22 +81,14 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
     const normalizeTimestamp = useCallback(e => {
         const val = new Date(normalizeDate(e.target.value || 0)).getTime()
         const timestamp = val ? timeFormatter(val) : val
-        setChangedSettings(prev => {
-            const newSettings = {...prev, timestamp}
-            newSettings.config.minDate = timestamp
-            return newSettings
-        })
-    }, [timeFormatter])
+        updateTime({timestamp})
+    }, [timeFormatter, updateTime])
 
     const normalizeMinDate = useCallback(e => {
         const val = new Date(normalizeDate(e.target.value || 0)).getTime()
         const minDate = val ? timeFormatter(val) : val
-        setChangedSettings(prev => {
-            const newSettings = {...prev, timestamp: 0}
-            newSettings.config.minDate = minDate
-            return newSettings
-        })
-    }, [timeFormatter])
+        updateTime({minDate})
+    }, [timeFormatter, updateTime])
 
     const confirmUpdates = useCallback(async () => {
         setInProgress(true)
@@ -109,18 +113,20 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
 
     return <div className="row">
         <div className="column column-33">
-            <div className="space"/>
-            <label>Scheduled quorum update time (UTC)<br/>
-                <DateSelector value={changedSettings.timestamp} onChange={updateTimestamp} onBlur={normalizeTimestamp}
+            <div className="space">Scheduled quorum update time (UTC)</div>
+            {!!isOpenTimestamp && <>
+                <DateSelector value={changedSettings.timestamp} onChange={changeTimestamp} onBlur={normalizeTimestamp}
                               min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
-            </label>
+                <a className="icon-cancel" onClick={clearTime}/></>}
+            {!isOpenTimestamp && <ManualDate onChange={toggleTimestamp}/>}
         </div>
         <div className="column column-33">
-            <div className="space"/>
-            <label>Min date of quorum update time (UTC)<br/>
-                <DateSelector value={changedSettings.config.minDate} onChange={updateMinDate} onBlur={normalizeMinDate}
+            <div className="space">Min date of quorum update time (UTC)</div>
+            {!!isOpenMinDate && <>
+                <DateSelector value={changedSettings.config.minDate} onChange={changeMinDate} onBlur={normalizeMinDate}
                               min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
-            </label>
+                <a className="icon-cancel" onClick={clearTime}/></>}
+            {!isOpenMinDate && <ManualDate onChange={toggleMinDate}/>}
         </div>
         <div className="column column-33">
             <div className="space"/>
@@ -148,4 +154,11 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
             <Button block outline onClick={toggleShowForm}>Cancel</Button>
         </div>
     </div>
+}
+
+function ManualDate({onChange}) {
+    return <label className="space">
+        <input type="checkbox" onChange={onChange} style={{'marginRight': '0.75em', 'top': '-0.4em'}}/>
+        set the date manually
+    </label>
 }
