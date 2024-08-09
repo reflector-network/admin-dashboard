@@ -8,6 +8,7 @@ import clientStatus from '../../state/client-status'
 
 export const minDateUpdate = trimIsoDateSeconds(new Date().getTime() + 30 * 60 * 1000)
 export const maxDateUpdate = trimIsoDateSeconds(new Date().getTime() + 10 * 24 * 60 * 60 * 1000)
+export const maxExpirationDate = trimIsoDateSeconds(new Date().getTime() + 1000 * 24 * 60 * 60 * 1000)
 
 export function updateTimeValidation({timestamp, expirationDate, ...settings}) {
     const minDate = settings.config.minDate
@@ -29,10 +30,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
     const [allowEarlySubmission, setAllowEarlySubmission] = useState(false)
     const [inProgress, setInProgress] = useState(false)
 
-    const toggleAllowEarlySubmission = useCallback(() => setAllowEarlySubmission(prev => {
-        console.log('allowEarlySubmission', !prev)
-        return !prev
-    }), [])
+    const toggleAllowEarlySubmission = useCallback(() => setAllowEarlySubmission(prev => !prev), [])
     const toggleTimestamp = useCallback(() => setIsOpenTimestamp(prev => !prev), [])
     const toggleMinDate = useCallback(() => setIsOpenMinDate(prev => !prev), [])
 
@@ -95,7 +93,6 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
     const confirmUpdates = useCallback(async () => {
         setInProgress(true)
         const signature = await clientStatus.createSignature(changedSettings.config)
-
         postApi('config', {
             ...changedSettings,
             allowEarlySubmission,
@@ -111,7 +108,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
-    }, [changedSettings])
+    }, [allowEarlySubmission, changedSettings, toggleShowForm])
 
     return <div className="row">
         <div className="column column-33">
@@ -134,7 +131,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
             <div className="space"/>
             <label>Expiration date of update (UTC)<br/>
                 <DateSelector value={changedSettings.expirationDate} onChange={changeExpirationDate}
-                              min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
+                              min={maxDateUpdate} max={maxExpirationDate} className="micro-space" style={{'width': '13em'}}/>
             </label>
         </div>
         <div className="column">
