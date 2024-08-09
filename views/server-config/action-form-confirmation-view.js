@@ -26,10 +26,13 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
     const [isOpenTimestamp, setIsOpenTimestamp] = useState(false)
     const [isOpenMinDate, setIsOpenMinDate] = useState(false)
     const [isReady, setIsReady] = useState(false)
-    const [submitWhenAllReady, setSubmitWhenAllReady] = useState(false)
+    const [allowEarlySubmission, setAllowEarlySubmission] = useState(false)
     const [inProgress, setInProgress] = useState(false)
 
-    const toggleSubmitWhenAllReady = useCallback(() => setSubmitWhenAllReady(prev => !prev), [])
+    const toggleAllowEarlySubmission = useCallback(() => setAllowEarlySubmission(prev => {
+        console.log('allowEarlySubmission', !prev)
+        return !prev
+    }), [])
     const toggleTimestamp = useCallback(() => setIsOpenTimestamp(prev => !prev), [])
     const toggleMinDate = useCallback(() => setIsOpenMinDate(prev => !prev), [])
 
@@ -95,7 +98,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
 
         postApi('config', {
             ...changedSettings,
-            submitWhenAllReady,
+            allowEarlySubmission,
             signatures: [signature]
         })
             .then(res => {
@@ -142,7 +145,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
         </div>
         <div className="column column-50">
             <label className="micro-space">
-                <input onChange={toggleSubmitWhenAllReady} type="checkbox" checked={submitWhenAllReady}/>&nbsp;
+                <input onChange={toggleAllowEarlySubmission} type="checkbox" checked={allowEarlySubmission}/>&nbsp;
                 Submit when all ready
             </label>
         </div>
