@@ -1,10 +1,9 @@
 import React, {useCallback, useState} from 'react'
-import {Button} from '@stellar-expert/ui-framework'
+import {Button, DateSelector} from '@stellar-expert/ui-framework'
 import {trimIsoDateSeconds} from "@stellar-expert/ui-framework/date/date-selector"
 import {normalizeDate} from "@stellar-expert/formatter/src/timestamp-format"
 import {navigation} from '@stellar-expert/navigation'
 import {postApi} from '../../api/interface'
-import {DateSelector} from '../util/date-selector'
 import clientStatus from '../../state/client-status'
 
 export const minDateUpdate = trimIsoDateSeconds(new Date().getTime() + 30 * 60 * 1000)

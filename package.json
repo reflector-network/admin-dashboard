@@ -1,7 +1,7 @@
 {
   "name": "@reflector/admin-dashboard",
   "private": true,
-  "version": "0.5.9",
+  "version": "0.6.0",
   "author": "team@stellar.expert",
   "description": "Admin dashboard for Reflector nodes",
   "scripts": {
@@ -17,10 +17,9 @@
     "@stellar-expert/formatter": "^2.3.0",
     "@stellar-expert/client-cache": "github:stellar-expert/client-cache",
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
-    "@stellar-expert/ui-framework": "1.12.1",
-    "@stellar/stellar-sdk": "12.0.1",
+    "@stellar-expert/ui-framework": "1.13.1",
+    "@stellar/stellar-sdk": "^12.2.0",
     "classnames": "^2.5.1",
-    "throttle-debounce": "^5.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router": "^5.3.3",
