@@ -18,7 +18,9 @@ export default function ServerConfigurationPage() {
     const [inProgress, setInProgress] = useState(false)
     const [isValid, setIsValid] = useState(false)
     const [isOpenTimestamp, setIsOpenTimestamp] = useState(false)
+    const [allowEarlySubmission, setAllowEarlySubmission] = useState(false)
 
+    const toggleAllowEarlySubmission = useCallback(() => setAllowEarlySubmission(prev => !prev), [])
     const toggleTimestamp = useCallback(() => setIsOpenTimestamp(prev => !prev), [])
 
     useEffect(() => {
@@ -88,6 +90,7 @@ export default function ServerConfigurationPage() {
 
         postApi('config', {
             ...configuration,
+            allowEarlySubmission,
             signatures: [signature]
         })
             .then(res => {
@@ -97,7 +100,7 @@ export default function ServerConfigurationPage() {
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
-    }, [configuration])
+    }, [configuration, allowEarlySubmission])
 
     return <div className="segment blank">
         <h3>Quorum configuration file</h3>
@@ -130,11 +133,11 @@ export default function ServerConfigurationPage() {
                       placeholder="Set up configuration"/>
         </div>
         <div className="space row">
-            <div className="column column-75 text-center">
-                {!!inProgress && <>
-                    <div className="loader inline"/>
-                    <span className="dimmed text-small"> In progress...</span>
-                </>}
+            <div className="column column-75">
+                <label className="micro-space">
+                    <input onChange={toggleAllowEarlySubmission} type="checkbox" checked={allowEarlySubmission}/>&nbsp;
+                    Submit when all ready
+                </label>
             </div>
             <div className="column column-25">
                 <Button block disabled={!isValid || inProgress} onClick={submitUpdates}>Submit</Button>
