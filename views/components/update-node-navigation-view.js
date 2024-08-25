@@ -5,7 +5,6 @@ import {AccountAddress} from '@stellar-expert/ui-framework'
 
 const allSections = [
     {name: 'nodes', title: 'Peer nodes'},
-    // {name: 'contract', title: 'Update contract'},
     {name: 'contracts', hasChild: true},
     {name: 'upgrade', title: 'Quorum upgrade'},
     {name: 'history', title: 'Changes history'},
