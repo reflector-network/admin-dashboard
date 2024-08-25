@@ -1,13 +1,13 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {Button, DateSelector} from '@stellar-expert/ui-framework'
+import {normalizeDate} from '@stellar-expert/formatter/src/timestamp-format'
 import {getCurrentConfig, postApi} from '../../api/interface'
-import {maxDateUpdate, minDateUpdate} from "../server-config/action-form-confirmation-view"
+import {ManualDate, maxDateUpdate, maxExpirationDate, minDateUpdate} from "../server-config/action-form-confirmation-view"
 import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 
-function validation(configuration) {
-    console.log(configuration)
-    if (isNaN(parseInt(configuration.timestamp, 10)) || !configuration.expirationDate || !configuration.config)
+function validation({timestamp, expirationDate, config}) {
+    if (isNaN(parseInt(timestamp, 10)) || !expirationDate || !config)
         return
     return true
 }
@@ -17,6 +17,9 @@ export default function ServerConfigurationPage() {
     const [configProperties, setConfigProperties] = useState('')
     const [inProgress, setInProgress] = useState(false)
     const [isValid, setIsValid] = useState(false)
+    const [isOpenTimestamp, setIsOpenTimestamp] = useState(false)
+
+    const toggleTimestamp = useCallback(() => setIsOpenTimestamp(prev => !prev), [])
 
     useEffect(() => {
         getCurrentConfig()
@@ -52,15 +55,22 @@ export default function ServerConfigurationPage() {
         }
     }, [])
 
-    const changeTimestamp = useCallback(timestamp => {
+    const changeTimestamp = useCallback(val => {
+        const timestamp = new Date(normalizeDate(val || 0)).getTime()
         setConfiguration(prev => {
-            const configuration = {...prev, timestamp: timestamp || 0}
+            const configuration = {...prev, timestamp: val ? timestamp : 0}
             setIsValid(validation(configuration))
             return configuration
         })
     }, [])
 
-    const changeExpirationDate = useCallback(expirationDate => {
+    const clearTime = useCallback(() => {
+        changeTimestamp(0)
+        setIsOpenTimestamp(false)
+    }, [changeTimestamp, setIsOpenTimestamp])
+
+    const changeExpirationDate = useCallback(val => {
+        const expirationDate = new Date(normalizeDate(val || 0)).getTime()
         setConfiguration(prev => {
             const configuration = {...prev, expirationDate}
             setIsValid(validation(configuration))
@@ -96,14 +106,17 @@ export default function ServerConfigurationPage() {
             <div className="column column-50">
                 <div className="space"/>
                 <label>Timestamp</label>
-                <DateSelector value={configuration.timestamp} onChange={changeTimestamp}
-                              min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
+                {!!isOpenTimestamp && <>
+                    <DateSelector value={configuration.timestamp} onChange={changeTimestamp}
+                                  min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
+                    <a className="icon-cancel" onClick={clearTime}/></>}
+                {!isOpenTimestamp && <ManualDate onChange={toggleTimestamp}/>}
             </div>
             <div className="column column-50">
                 <div className="space"/>
                 <label>Expiration date</label>
                 <DateSelector value={configuration.expirationDate} onChange={changeExpirationDate}
-                              min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
+                              min={maxDateUpdate} max={maxExpirationDate} className="micro-space" style={{'width': '13em'}}/>
             </div>
         </div>
         <div className="space">

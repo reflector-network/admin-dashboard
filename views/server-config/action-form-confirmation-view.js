@@ -155,7 +155,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
     </div>
 }
 
-function ManualDate({onChange}) {
+export function ManualDate({onChange}) {
     return <label className="space">
         <input type="checkbox" onChange={onChange} style={{'marginRight': '0.75em', 'top': '-0.4em'}}/>
         set the date manually
