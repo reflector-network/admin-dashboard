@@ -1,5 +1,6 @@
 import React from 'react'
 import {AccountAddress, ElapsedTime, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {shortenString} from '@stellar-expert/formatter'
 
 export default function NodeStatisticsRecordView({stat}) {
     return <div className="text-small">
@@ -61,7 +62,7 @@ function ContractStatisticsView({statistics = []}) {
                 ? <div>
                     <span className="dimmed">Root hash: </span>
                     <span className="inline-block account-key">
-                        {stat.syncDataHash ? stat.syncDataHash : 'No data'}
+                        {stat.syncDataHash ? shortenString(stat.syncDataHash, 4) : 'No data'}
                     </span>
                 </div>
                 : <div>
