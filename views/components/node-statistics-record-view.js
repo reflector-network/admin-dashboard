@@ -47,7 +47,7 @@ function ContractStatisticsView({statistics = []}) {
         return
 
     return statistics.map(stat => <div key={stat.contractId || stat.oracleId}>
-        <h4>Oracle <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
+        <h4>{stat.type === 'subscriptions' ? 'Subscriptions' : 'Oracle'} <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
         <div className="block-indent text-small">
             <div>
                 <span className="dimmed">Contract status: </span>
@@ -57,14 +57,22 @@ function ContractStatisticsView({statistics = []}) {
                 <span className="dimmed">Contract type: </span>
                 <span className="inline-block">{stat.type === 'subscriptions' ? 'Subscriptions' : 'Oracle'}</span>
             </div>
-            <div>
-                <span className="dimmed">Last processed round: </span>
-                <span className="inline-block">
-                    {stat.lastOracleTimestamp ?
-                        <ElapsedTime ts={stat.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/> :
+            {stat.type === 'subscriptions'
+                ? <div>
+                    <span className="dimmed">Root hash: </span>
+                    <span className="inline-block account-key">
+                        {stat.syncDataHash ? stat.syncDataHash : 'No data'}
+                    </span>
+                </div>
+                : <div>
+                    <span className="dimmed">Last processed round: </span>
+                    <span className="inline-block">
+                        {stat.lastOracleTimestamp ?
+                            <ElapsedTime ts={stat.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/> :
                         'No data'}
-                </span>
-            </div>
+                    </span>
+                </div>
+            }
             <div>
                 <span className="dimmed">Processed transactions: </span>
                 <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
