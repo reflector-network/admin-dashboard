@@ -39,7 +39,7 @@ function compareObjects(a, b, parentProperty) {
     const removedProperties = Object.keys(b).filter(prop => !a.hasOwnProperty(prop))
     for (const prop of removedProperties) {
         changedData.push({
-            variety: prop,
+            category: prop,
             action: 'removed',
             changes: b[prop]
         })
@@ -54,7 +54,7 @@ function compareAtomicProperty(a, b, key, parentProperty) {
         return
 
     changedData.push({
-        variety: parentProperty ? parentProperty.trim() + ' -> ' + key : key,
+        category: parentProperty ? parentProperty.trim() + ' -> ' + key : key,
         action: (a.hasOwnProperty(key) && !b.hasOwnProperty(key)) ? 'added' : 'updated',
         changes: a[key]
     })
@@ -62,7 +62,7 @@ function compareAtomicProperty(a, b, key, parentProperty) {
 
 function addDifferentTypesChanges(value, key) {
     changedData.push({
-        variety: key,
+        category: key,
         action: 'updated',
         changes: invocationFormatter(value || {}, 1)
     })
@@ -73,7 +73,7 @@ function compareNodes(pendingConfig, currentConfig) {
     const newNodes = Object.values(pendingConfig.nodes).filter(node => !currentConfig.nodes[node.pubkey])
     if (newNodes.length) {
         changedData.push({
-            variety: 'nodes',
+            category: 'nodes',
             action: 'added',
             uid: newNodes[0].pubkey,
             changes: newNodes
@@ -107,7 +107,7 @@ function compareNodes(pendingConfig, currentConfig) {
 
     if (Object.keys(updates).length) {
         changedData.push({
-            variety: 'nodes',
+            category: 'nodes',
             action: 'updated',
             changes: Object.values(updates || {})
         })
@@ -117,7 +117,7 @@ function compareNodes(pendingConfig, currentConfig) {
 
     if (removedNodes.length) {
         changedData.push({
-            variety: 'nodes',
+            category: 'nodes',
             action: 'removed',
             changes: removedNodes
         })
@@ -132,7 +132,7 @@ function compareContracts(pendingConfig, currentConfig) {
 
     for (const [contract, changes] of Object.entries(changedContracts)) {
         changedData.push({
-            variety: 'contract',
+            category: 'contract',
             action: 'updated',
             uid: contract,
             type: pendingConfig.contracts[contract].type || 'oracle',
@@ -142,7 +142,7 @@ function compareContracts(pendingConfig, currentConfig) {
 
     for (const contract of addedContracts) {
         changedData.push({
-            variety: 'contract',
+            category: 'contract',
             action: 'added',
             uid: contract,
             type: pendingConfig.contracts[contract].type || 'oracle',
@@ -152,7 +152,7 @@ function compareContracts(pendingConfig, currentConfig) {
 
     for (const contract of removedContracts) {
         changedData.push({
-            variety: 'contract',
+            category: 'contract',
             action: 'removed',
             uid: contract,
             type: currentConfig.contracts[contract].type || 'oracle',
@@ -170,17 +170,17 @@ function compareContractProps(pendingConfig, currentConfig) {
         if (!existingContract)
             continue
         //compare simple property
-        for (const [type, changes] of Object.entries(contract || {})) {
-            if (typeof changes !== 'object' && changes !== existingContract[type]) {
+        for (const [name, changes] of Object.entries(contract || {})) {
+            if (typeof changes !== 'object' && changes !== existingContract[name]) {
                 changedProperties.push({
-                    type,
+                    name,
                     changes
                 })
             }
         }
         if (!isEqual(contract.baseAsset, existingContract.baseAsset)) {
             changedProperties.push({
-                variety: 'baseAsset',
+                name: 'baseAsset',
                 changes: contract.baseAsset
             })
         }
@@ -188,7 +188,7 @@ function compareContractProps(pendingConfig, currentConfig) {
         const addedAssets = contract.assets?.filter(asset => !existingContract.assets?.some(a => a.code === asset.code)) || []
         if (addedAssets.length) {
             changedProperties.push({
-                variety: 'assets',
+                name: 'assets',
                 action: 'added',
                 changes: addedAssets
             })
@@ -196,7 +196,7 @@ function compareContractProps(pendingConfig, currentConfig) {
         const removedAssets = existingContract.assets?.filter(asset => !contract.assets.some(a => a.code === asset.code)) || []
         if (removedAssets.length) {
             changedProperties.push({
-                variety: 'assets',
+                name: 'assets',
                 action: 'removed',
                 changes: removedAssets
             })

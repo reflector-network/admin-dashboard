@@ -4,7 +4,7 @@ import {shortenString} from '@stellar-expert/formatter'
 import AssetCodeView from './asset-code-view'
 
 export default function ChangesRecordView({data}) {
-    switch (data.variety) {
+    switch (data.category) {
         case 'contract':
             const type = data.type === 'subscriptions' ? 'Subscriptions' : 'Oracle'
             return <div className="micro-space">
@@ -12,9 +12,9 @@ export default function ChangesRecordView({data}) {
                 <div className="block-indent">
                     {data.action === 'updated' ?
                         data.changes.map(property => {
-                            const changes = {[property.type]: property.changes}
-                            return <div key={data.uid + property.type + property.action}>
-                                <ContractRecordView property={property.type} action={property.action} changes={changes}/>
+                            const changes = {[property.name]: property.changes}
+                            return <div key={data.uid + property.name + property.action}>
+                                <ContractRecordView property={property.name} action={property.action} changes={changes}/>
                             </div>
                         }) :
                         Object.keys(data.changes).map(property => <div key={data.uid + property}>
@@ -38,8 +38,8 @@ export default function ChangesRecordView({data}) {
             </div>
         default:
             return <div>
-                <i className="icon-puzzle"/> Parameter "{data.variety}" {data.action}:
-                {(data.variety === 'wasmHash') ?
+                <i className="icon-puzzle"/> Parameter &quot;{data.category}&quot; {data.action}:
+                {(data.category === 'wasmHash') ?
                     <CodeBlock className="result" style={{height: '35vh'}} lang="js">{data.changes}</CodeBlock> :
                     <span className="word-break"> {data.changes}</span>}
             </div>

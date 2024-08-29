@@ -2,13 +2,13 @@ import React, {useCallback, useEffect, useState} from 'react'
 import {Button, DateSelector} from '@stellar-expert/ui-framework'
 import {normalizeDate} from '@stellar-expert/formatter/src/timestamp-format'
 import {getCurrentConfig, postApi} from '../../api/interface'
-import {ManualDate, maxDateUpdate, maxExpirationDate, minDateUpdate} from "../server-config/action-form-confirmation-view"
+import {DateInput, maxDateUpdate, maxExpirationDate, minDateUpdate} from "../server-config/action-form-confirmation-view"
 import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 
 function validation({timestamp, expirationDate, config}) {
     if (isNaN(parseInt(timestamp, 10)) || !expirationDate || !config)
-        return
+        return false
     return true
 }
 
@@ -113,7 +113,7 @@ export default function ServerConfigurationPage() {
                     <DateSelector value={configuration.timestamp} onChange={changeTimestamp}
                                   min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
                     <a className="icon-cancel" onClick={clearTime}/></>}
-                {!isOpenTimestamp && <ManualDate onChange={toggleTimestamp}/>}
+                {!isOpenTimestamp && <DateInput value={isOpenTimestamp} onChange={toggleTimestamp}/>}
             </div>
             <div className="column column-50">
                 <div className="space"/>

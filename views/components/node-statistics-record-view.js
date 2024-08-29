@@ -3,6 +3,7 @@ import {AccountAddress, ElapsedTime, UtcTimestamp} from '@stellar-expert/ui-fram
 import {shortenString} from '@stellar-expert/formatter'
 
 export default function NodeStatisticsRecordView({stat}) {
+    const contractStatistics = Object.values(stat.contractStatistics || stat.oracleStatistics || {})
     return <div className="text-small">
         <div>
             <span className="dimmed">Software version: </span>
@@ -39,16 +40,22 @@ export default function NodeStatisticsRecordView({stat}) {
                 </div> :
                 <span className="inline-block"><i className="icon-warning color-warning"/> Peer nodes not connected</span>}
         </div>
-        {!!Object.keys(stat.contractStatistics || stat.oracleStatistics || {}).length && <ContractStatisticsView statistics={Object.values(stat.contractStatistics || stat.oracleStatistics)}/>}
+        <ContractStatisticsView statistics={contractStatistics}/>
     </div>
 }
 
 function ContractStatisticsView({statistics = []}) {
     if (!statistics.length)
-        return
+        return null
 
     return statistics.map(stat => <div key={stat.contractId || stat.oracleId}>
-        <h4>{stat.type === 'subscriptions' ? 'Subscriptions' : 'Oracle'} <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
+        {stat.type === 'subscriptions' ? <SubscriptionStatsView stat={stat}/> : <OracleStatsView stat={stat}/>}
+    </div>)
+}
+
+function SubscriptionStatsView({stat}) {
+    return <>
+        <h4>Subscriptions <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
         <div className="block-indent text-small">
             <div>
                 <span className="dimmed">Contract status: </span>
@@ -56,28 +63,46 @@ function ContractStatisticsView({statistics = []}) {
             </div>
             <div>
                 <span className="dimmed">Contract type: </span>
-                <span className="inline-block">{stat.type === 'subscriptions' ? 'Subscriptions' : 'Oracle'}</span>
+                <span className="inline-block">Subscriptions</span>
             </div>
-            {stat.type === 'subscriptions'
-                ? <div>
-                    <span className="dimmed">Root hash: </span>
-                    <span className="inline-block account-key">
-                        {stat.syncDataHash ? shortenString(stat.syncDataHash, 8) : 'No data'}
-                    </span>
-                </div>
-                : <div>
-                    <span className="dimmed">Last processed round: </span>
-                    <span className="inline-block">
-                        {stat.lastOracleTimestamp ?
-                            <ElapsedTime ts={stat.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/> :
-                        'No data'}
-                    </span>
-                </div>
-            }
+            <div>
+                <span className="dimmed">Root hash: </span>
+                <span className="inline-block account-key">
+                    {stat.syncDataHash ? shortenString(stat.syncDataHash, 8) : 'No data'}
+                </span>
+            </div>
             <div>
                 <span className="dimmed">Processed transactions: </span>
                 <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
             </div>
         </div>
-    </div>)
+    </>
+}
+
+function OracleStatsView({stat}) {
+    return <>
+        <h4>Oracle <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
+        <div className="block-indent text-small">
+            <div>
+                <span className="dimmed">Contract status: </span>
+                <span className="inline-block">{stat.isInitialized ? 'Initialized' : 'Not initialized'}</span>
+            </div>
+            <div>
+                <span className="dimmed">Contract type: </span>
+                <span className="inline-block">Oracle</span>
+            </div>
+            <div>
+                <span className="dimmed">Last processed round: </span>
+                <span className="inline-block">
+                    {stat.lastOracleTimestamp ?
+                        <ElapsedTime ts={stat.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/> :
+                        'No data'}
+                </span>
+            </div>
+            <div>
+                <span className="dimmed">Processed transactions: </span>
+                <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
+            </div>
+        </div>
+    </>
 }

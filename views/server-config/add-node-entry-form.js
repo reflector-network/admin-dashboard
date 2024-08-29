@@ -5,12 +5,12 @@ import DialogView from '../components/dialog-view'
 
 function validateNode(node) {
     if (!StrKey.isValidEd25519PublicKey(node.pubkey))
-        return
+        return false
     const pattern = new RegExp(/^(http:\/\/|https:\/\/|ws:\/\/|wss:\/\/)?(localhost|(([0-9]{1,3}\.){3}[0-9]{1,3})|([\da-z.-]+)\.([a-z.]{2,6}))(:(\d+))?$/)
     if (!node.url?.length || !pattern.test(node.url))
-        return
+        return false
     if (!node.domain?.length)
-        return
+        return false
     return true
 }
 

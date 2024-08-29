@@ -5,7 +5,7 @@ import DialogView from './dialog-view'
 function validateNotification(notification) {
     const pattern = new RegExp(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+$/)
     if (!notification.email?.length || !pattern.test(notification.email))
-        return
+        return false
     return true
 }
 

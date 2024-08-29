@@ -10,15 +10,15 @@ export const minDateUpdate = trimIsoDateSeconds(new Date().getTime() + 30 * 60 *
 export const maxDateUpdate = trimIsoDateSeconds(new Date().getTime() + 10 * 24 * 60 * 60 * 1000)
 export const maxExpirationDate = trimIsoDateSeconds(new Date().getTime() + 1000 * 24 * 60 * 60 * 1000)
 
-export function updateTimeValidation({timestamp, expirationDate, ...settings}) {
+export function validateTimestamp({timestamp, expirationDate, ...settings}) {
     const minDate = settings.config.minDate
     if (timestamp === 0 && minDate === 0 && expirationDate)
         return true
     if (!timestamp && !minDate || !expirationDate)
-        return
+        return false
     //check only minDate, if set minDate timestamp will be with same value
     if (minDate < minDateUpdate || minDate > maxDateUpdate)
-        return
+        return false
     return true
 }
 
@@ -38,7 +38,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
         setChangedSettings(prev => {
             const newSettings = {...prev, timestamp: timestamp || 0}
             newSettings.config.minDate = minDate ? minDate : timestamp || 0
-            setIsReady(updateTimeValidation(newSettings))
+            setIsReady(validateTimestamp(newSettings))
             return newSettings
         })
     }, [])
@@ -63,7 +63,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
         const expirationDate = new Date(normalizeDate(val || 0)).getTime()
         setChangedSettings(prev => {
             const newSettings = {...prev, expirationDate}
-            setIsReady(updateTimeValidation(newSettings))
+            setIsReady(validateTimestamp(newSettings))
             return newSettings
         })
     }, [])
@@ -117,7 +117,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
                 <DateSelector value={changedSettings.timestamp} onChange={changeTimestamp} onBlur={normalizeTimestamp}
                               min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
                 <a className="icon-cancel" onClick={clearTime}/></>}
-            {!isOpenTimestamp && <ManualDate onChange={toggleTimestamp}/>}
+            {!isOpenTimestamp && <DateInput value={isOpenTimestamp} onChange={toggleTimestamp}/>}
         </div>
         <div className="column column-33">
             <div className="space">Min date of quorum update time (UTC)</div>
@@ -125,7 +125,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
                 <DateSelector value={changedSettings.config.minDate} onChange={changeMinDate} onBlur={normalizeMinDate}
                               min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
                 <a className="icon-cancel" onClick={clearTime}/></>}
-            {!isOpenMinDate && <ManualDate onChange={toggleMinDate}/>}
+            {!isOpenMinDate && <DateInput value={isOpenMinDate} onChange={toggleMinDate}/>}
         </div>
         <div className="column column-33">
             <div className="space"/>
@@ -155,9 +155,9 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
     </div>
 }
 
-export function ManualDate({onChange}) {
+export function DateInput({value, onChange}) {
     return <label className="space">
-        <input type="checkbox" onChange={onChange} style={{'marginRight': '0.75em', 'top': '-0.4em'}}/>
+        <input type="checkbox" value={value} onChange={onChange} style={{'marginRight': '0.75em', 'top': '-0.4em'}}/>
         set the date manually
     </label>
 }
