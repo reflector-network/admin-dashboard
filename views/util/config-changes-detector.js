@@ -1,136 +1,210 @@
-export default function configChangesDetector(pendingConfig, currentConfig) {
-    const changedData = []
+import isEqual from 'react-fast-compare'
+import invocationFormatter from "./invocation-formatter"
 
+let changedData = []
+
+export default function detectConfigChanges(pendingConfig, currentConfig) {
+    changedData = []
     //returns an empty array if nothing is compared
-    if (!pendingConfig || !currentConfig)
+    if (!pendingConfig || !currentConfig || isEqual(pendingConfig, currentConfig))
         return changedData
 
-    if (pendingConfig.wasmHash !== currentConfig.wasmHash) {
-        changedData.push({
-            type: 'wasmHash',
-            changes: pendingConfig.wasmHash
-        })
+    compareObjects(pendingConfig, currentConfig)
+    return changedData
+}
+
+function compareObjects(a, b, parentProperty) {
+    for (const key of Object.keys(a)) {
+        const value = a[key]
+        const parentPropertyPath = `${parentProperty || ''}${parentProperty ? ' ->': ''} ${key}`
+        //check differences for object value
+        if (value !== null && typeof value === 'object') {
+            switch (key) {
+                case 'nodes':
+                    compareNodes(a, b)
+                    continue
+                case 'contracts':
+                    compareContracts(a, b)
+                    continue
+                default:
+                    (typeof value === typeof  b[key]) ?
+                        compareObjects(value, b[key] || {}, parentPropertyPath) :
+                        addDifferentTypesChanges(value, key)
+                    continue
+            }
+        }
+        compareAtomicProperty(a, b, key, parentProperty)
     }
 
-    //compare contracts (added, changed, removed)
-    const changedContracts = compareContracts(pendingConfig, currentConfig)
-    const addedContracts = Object.keys(pendingConfig.contracts).filter(contractId => !currentConfig.contracts[contractId])
-    const removedContracts = Object.keys(currentConfig.contracts).filter(contractId => !pendingConfig.contracts[contractId])
-
-    Object.keys(changedContracts).forEach(contract => {
+    const removedProperties = Object.keys(b).filter(prop => !a.hasOwnProperty(prop))
+    for (const prop of removedProperties) {
         changedData.push({
-            type: 'contract',
-            action: 'Changed',
-            contract,
-            changes: changedContracts[contract]
+            category: prop,
+            action: 'removed',
+            changes: b[prop]
         })
-    })
+    }
+}
 
-    addedContracts.forEach(contract => {
-        changedData.push({
-            type: 'contract',
-            action: 'Added',
-            contract,
-            changes: pendingConfig.contracts[contract] || {}
-        })
-    })
+function compareAtomicProperty(a, b, key, parentProperty) {
+    if (['minDate'].includes(key))
+        return //ignore certain properties
 
-    removedContracts.forEach(contract => {
-        changedData.push({
-            type: 'contract',
-            action: 'Removed',
-            contract,
-            changes: currentConfig.contracts[contract] || {}
-        })
-    })
+    if (a[key] === b[key])
+        return
 
-    //compare nodes (added, changed, removed)
+    changedData.push({
+        category: parentProperty ? parentProperty.trim() + ' -> ' + key : key,
+        action: (a.hasOwnProperty(key) && !b.hasOwnProperty(key)) ? 'added' : 'updated',
+        changes: a[key]
+    })
+}
+
+function addDifferentTypesChanges(value, key) {
+    changedData.push({
+        category: key,
+        action: 'updated',
+        changes: invocationFormatter(value || {}, 1)
+    })
+}
+
+//compare nodes (added, changed, removed)
+function compareNodes(pendingConfig, currentConfig) {
     const newNodes = Object.values(pendingConfig.nodes).filter(node => !currentConfig.nodes[node.pubkey])
     if (newNodes.length) {
         changedData.push({
-            type: 'nodes',
-            action: 'Added',
+            category: 'nodes',
+            action: 'added',
+            uid: newNodes[0].pubkey,
             changes: newNodes
         })
     }
 
+    const currentConfigNodes = Object.values(currentConfig.nodes)
+
     const changedUrlNodes = Object.values(pendingConfig.nodes).filter(node =>
-        Object.values(currentConfig.nodes).findIndex(n => n.url === node.url) === -1 &&
-        newNodes.findIndex(n => n.pubkey === node.pubkey) === -1)
+        !currentConfigNodes.some(n => n.url === node.url) &&
+        !newNodes.some(n => n.pubkey === node.pubkey))
     const changedDomainNodes = Object.values(pendingConfig.nodes).filter(node =>
-        Object.values(currentConfig.nodes).findIndex(n => n.domain === node.domain) === -1 &&
-        newNodes.findIndex(n => n.pubkey === node.pubkey) === -1)
-    const changedNodes = {}
+        !currentConfigNodes.some(n => n.domain === node.domain) &&
+        !newNodes.some(n => n.pubkey === node.pubkey))
+
+    const updates = {}
     //combine changes in one node
-    const changedSameNodes = changedDomainNodes.filter(node => changedUrlNodes.findIndex(n => n.pubkey === node.pubkey) !== -1)
+    const changedNodes = changedDomainNodes.filter(node => changedUrlNodes.some(n => n.pubkey === node.pubkey))
 
-    changedUrlNodes.forEach(({pubkey, url}) => {
-        changedNodes[pubkey] = {pubkey, url}
-    })
+    for (const {pubkey, url} of changedUrlNodes) {
+        updates[pubkey] = {...updates[pubkey], url, pubkey}
+    }
 
-    changedDomainNodes.forEach(({pubkey, domain}) => {
-        changedNodes[pubkey] = {pubkey, domain}
-    })
+    for (const {pubkey, domain} of changedDomainNodes) {
+        updates[pubkey] = {...updates[pubkey], domain, pubkey}
+    }
 
-    changedSameNodes.forEach(node => {
-        changedNodes[node.pubkey] = node
-    })
+    for (const node of changedNodes) {
+        updates[node.pubkey] = {...node, uid: node.pubkey}
+    }
 
-    if (Object.keys(changedNodes).length) {
+    if (Object.keys(updates).length) {
         changedData.push({
-            type: 'nodes',
-            action: 'Changed',
-            changes: Object.values(changedNodes || {})
+            category: 'nodes',
+            action: 'updated',
+            changes: Object.values(updates || {})
         })
     }
 
     const removedNodes = Object.values(currentConfig.nodes).filter(node => !pendingConfig.nodes[node.pubkey])
+
     if (removedNodes.length) {
         changedData.push({
-            type: 'nodes',
-            action: 'Removed',
+            category: 'nodes',
+            action: 'removed',
             changes: removedNodes
         })
     }
-
-    return changedData
 }
 
+//compare contracts (added, changed, removed)
 function compareContracts(pendingConfig, currentConfig) {
-    const changedContracts = {}
-    Object.values(pendingConfig.contracts).forEach(contract => {
-        const compareContract = currentConfig.contracts[contract.oracleId]
-        const changedProperties = []
+    const changedContracts = compareContractProps(pendingConfig, currentConfig)
+    const addedContracts = Object.keys(pendingConfig.contracts).filter(contractId => !currentConfig.contracts[contractId])
+    const removedContracts = Object.keys(currentConfig.contracts).filter(contractId => !pendingConfig.contracts[contractId])
 
-        if (compareContract && contract.period !== compareContract.period) {
+    for (const [contract, changes] of Object.entries(changedContracts)) {
+        changedData.push({
+            category: 'contract',
+            action: 'updated',
+            uid: contract,
+            type: pendingConfig.contracts[contract].type || 'oracle',
+            changes
+        })
+    }
+
+    for (const contract of addedContracts) {
+        changedData.push({
+            category: 'contract',
+            action: 'added',
+            uid: contract,
+            type: pendingConfig.contracts[contract].type || 'oracle',
+            changes: pendingConfig.contracts[contract] || {}
+        })
+    }
+
+    for (const contract of removedContracts) {
+        changedData.push({
+            category: 'contract',
+            action: 'removed',
+            uid: contract,
+            type: currentConfig.contracts[contract].type || 'oracle',
+            changes: currentConfig.contracts[contract] || {}
+        })
+    }
+}
+
+function compareContractProps(pendingConfig, currentConfig) {
+    const changedContracts = {}
+    for (const contract of Object.values(pendingConfig.contracts)) {
+        const contractId = contract.contractId || contract.oracleId
+        const existingContract = currentConfig.contracts[contractId]
+        const changedProperties = []
+        if (!existingContract)
+            continue
+        //compare simple property
+        for (const [name, changes] of Object.entries(contract || {})) {
+            if (typeof changes !== 'object' && changes !== existingContract[name]) {
+                changedProperties.push({
+                    name,
+                    changes
+                })
+            }
+        }
+        if (!isEqual(contract.baseAsset, existingContract.baseAsset)) {
             changedProperties.push({
-                type: 'period',
-                changes: contract.period
+                name: 'baseAsset',
+                changes: contract.baseAsset
             })
         }
-
-        const addedAssets = contract?.assets.filter(asset =>
-            compareContract?.assets.findIndex(a => a.code === asset.code) === -1) || []
+        //compare assets
+        const addedAssets = contract.assets?.filter(asset => !existingContract.assets?.some(a => a.code === asset.code)) || []
         if (addedAssets.length) {
             changedProperties.push({
-                type: 'assets',
-                action: 'Added',
+                name: 'assets',
+                action: 'added',
                 changes: addedAssets
             })
         }
-        const removedAssets = compareContract?.assets.filter(asset =>
-            contract.assets.findIndex(a => a.code === asset.code) === -1) || []
+        const removedAssets = existingContract.assets?.filter(asset => !contract.assets.some(a => a.code === asset.code)) || []
         if (removedAssets.length) {
             changedProperties.push({
-                type: 'assets',
-                action: 'Removed',
+                name: 'assets',
+                action: 'removed',
                 changes: removedAssets
             })
         }
 
         if (changedProperties.length) {
-            changedContracts[contract.oracleId] = changedProperties
+            changedContracts[contractId] = changedProperties
         }
-    })
+    }
     return changedContracts
 }

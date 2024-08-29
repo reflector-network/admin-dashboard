@@ -5,12 +5,12 @@ import DialogView from '../components/dialog-view'
 
 function validateNode(node) {
     if (!StrKey.isValidEd25519PublicKey(node.pubkey))
-        return
+        return false
     const pattern = new RegExp(/^(http:\/\/|https:\/\/|ws:\/\/|wss:\/\/)?(localhost|(([0-9]{1,3}\.){3}[0-9]{1,3})|([\da-z.-]+)\.([a-z.]{2,6}))(:(\d+))?$/)
     if (!node.url?.length || !pattern.test(node.url))
-        return
+        return false
     if (!node.domain?.length)
-        return
+        return false
     return true
 }
 
@@ -74,16 +74,23 @@ export default function AddNodeEntry({title, editNode, isEditFormOpen, save}) {
         <DialogView dialogOpen={isOpen} smaller>
             <h3>
                 {!editNode ? 'Add new node' :
-                <span>{'Edit node '}<i className="icon-hexagon-dice color-success"/><AccountAddress account={node.pubkey} chars={16} link={false}/></span>}
+                <span>{'Update node '} <AccountAddress account={node.pubkey} chars={16} link={false}/></span>}
             </h3>
+            <hr/>
             <div className="space"/>
-            {!editNode && <input ref={pubkeyInput} value={node.pubkey || ''} placeholder="Node public key"
-                                 onChange={onChangePubkey} onKeyDown={onKeyDown}/>}
-            <input ref={urlInput} value={node.url || ''} onChange={onChangeUrl} onKeyDown={onKeyDown}
-                   placeholder="Node websocket URL, like ws://127.0.0.1:9000"/>
-            <input value={node.domain || ''} onChange={onChangeDomain} onKeyDown={onKeyDown}
-                   placeholder="Domain"/>
-            <div className="row micro-space">
+            {!editNode && <label>
+                <span className="dimmed">Node public key</span>
+                <input ref={pubkeyInput} value={node.pubkey || ''} placeholder="GC3N..." onChange={onChangePubkey} onKeyDown={onKeyDown}/>
+            </label>}
+            <label>
+                <span className="dimmed">Node websocket URL</span>
+                <input ref={urlInput} value={node.url || ''} onChange={onChangeUrl} onKeyDown={onKeyDown} placeholder="ws://8.8.8.8:9000"/>
+            </label>
+            <label>
+                <span className="dimmed">Organization domain</span>
+                <input value={node.domain || ''} onChange={onChangeDomain} onKeyDown={onKeyDown} placeholder="example.com"/>
+            </label>
+            <div className="row space">
                 <div className="column column-33 column-offset-33">
                     <Button block disabled={!isValid} onClick={onSave}>Confirm</Button>
                 </div>

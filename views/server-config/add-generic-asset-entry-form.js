@@ -10,7 +10,7 @@ export default observer(function AddGenericAssetEntry({contract, save}) {
 
     const validate = useCallback(val => {
         const pattern = new RegExp("[^a-zA-z]")
-        if (pattern.test(val) || contract.assets.findIndex(asset => asset.code === val) !== -1) {
+        if (pattern.test(val) || contract.assets.some(asset => asset.code === val)) {
             return false
         }
         return true
@@ -26,6 +26,10 @@ export default observer(function AddGenericAssetEntry({contract, save}) {
 
     return <AddAssetEntryLayout title="Add generic asset" ref={currentInput} asset={asset}
                                 isEntered={isEntered} isValid={isValid} save={save}>
-        <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset symbol"/>
+        <label>
+            <span className="dimmed">Asset symbol</span>
+            <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="e.g. USD"/>
+        </label>
+
     </AddAssetEntryLayout>
 })

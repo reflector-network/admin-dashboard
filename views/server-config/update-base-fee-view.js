@@ -3,13 +3,13 @@ import {navigation} from '@stellar-expert/navigation'
 import detectConfigChanges from '../util/config-changes-detector'
 import ActionNodeLayout from './action-node-layout'
 
-export default function UpdatePeriodView({settings, contractId}) {
+export default function UpdateBaseFeeView({settings, contractId}) {
     const [isValid, setIsValid] = useState(false)
     const [changedSettings, setChangedSettings] = useState(structuredClone(settings))
     const contract = changedSettings.config.contracts[contractId]
 
     //redirect to main page if contractId from URL params is invalid
-    if (!contract) {
+    if (!contract || contract.type !== 'subscriptions') {
         navigation.navigate('/')
     }
 
@@ -18,32 +18,30 @@ export default function UpdatePeriodView({settings, contractId}) {
     }, [settings, contractId])
 
     const validation = useCallback(() => {
-        if (contract.period <= contract.timeframe)
-            return setIsValid(false)
         if (!detectConfigChanges(changedSettings.config, settings.config).length)
             return setIsValid(false)
         setIsValid(true)
     }, [contract, changedSettings, settings])
 
-    const updatePeriod = useCallback(e => {
+    const updateBaseFee = useCallback(e => {
         const val = e.target.value.replace(/[^0-9]/g, '')
         setChangedSettings(prev => {
             const newSettings = {...prev}
-            newSettings.config.contracts[contractId].period = parseInt(val, 10)
-            validation(newSettings)
+            newSettings.config.contracts[contractId].baseFee = parseInt(val, 10)
+            validation()
             return newSettings
         })
     }, [contractId, validation])
 
-    return <ActionNodeLayout title="Retention period" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
+    return <ActionNodeLayout title="Effective base fee" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
         <div className="row micro-space">
             <div className="column column-50">
                 <label>
-                    <h4 style={{marginBottom: 0}}>Price quotes retention period</h4>
+                    <h4 style={{marginBottom: 0}}>Base fee</h4>
                     <span className="dimmed text-tiny">
-                        (How long quoted prices will be available for contract consumers after creation, in milliseconds)
+                        (Network fee required per operation, in stroops)
                     </span>
-                    <input type="text" className="micro-space" value={contract?.period || ''} onChange={updatePeriod}/>
+                    <input type="text" className="micro-space" value={contract?.baseFee || ''} onChange={updateBaseFee}/>
                 </label>
             </div>
         </div>

@@ -4,8 +4,8 @@ import {parseQuery} from '@stellar-expert/navigation'
 import UpdateNodeView from '../server-config/update-node-view'
 import AddAssetsView from '../server-config/add-assets-view'
 import UpdatePeriodView from '../server-config/update-period-view'
-import UpdateContractView from '../server-config/update-contract-view'
 import ConfigurationChangesView from '../server-config/configuration-changes-view'
+import UpdateBaseFeeView from "../server-config/update-base-fee-view"
 import ConfigurationHistoryView from './configuration-history-view'
 import ConfigurationLogsView from './server-logs-view'
 import NotificationSettingsView from './notification-settings-view'
@@ -21,19 +21,17 @@ export default function SettingsSectionView({configuration}) {
     const settings = {
         description: '',
         expirationDate: '',
-        timestamp: '',
-        config: {...configuration.currentConfig.config.config, minDate: ''}
+        timestamp: 0,
+        config: {...configuration.currentConfig.config.config, minDate: 0}
     }
 
     switch (section) {
-        case 'nodes':
-            return <UpdateNodeView settings={settings}/>
         case 'assets':
             return <AddAssetsView settings={settings} contractId={contract}/>
         case 'period':
             return <UpdatePeriodView settings={settings} contractId={contract}/>
-        case 'contract':
-            return <UpdateContractView settings={settings}/>
+        case 'baseFee':
+            return <UpdateBaseFeeView settings={settings} contractId={contract}/>
         case 'upgrade':
             return <ConfigurationChangesView configuration={configuration}/>
         case 'history':
@@ -42,8 +40,9 @@ export default function SettingsSectionView({configuration}) {
             return <ConfigurationLogsView/>
         case 'notification':
             return <NotificationSettingsView/>
+        case 'nodes':
         default:
-            return <AboutSectionView/>
+            return <UpdateNodeView settings={settings}/>
     }
 }
 

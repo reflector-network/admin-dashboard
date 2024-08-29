@@ -1,69 +1,72 @@
 import React, {useCallback, useState} from 'react'
-import {Button, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {Button, DateSelector} from '@stellar-expert/ui-framework'
+import {trimIsoDateSeconds} from "@stellar-expert/ui-framework/date/date-selector"
+import {normalizeDate} from "@stellar-expert/formatter/src/timestamp-format"
 import {navigation} from '@stellar-expert/navigation'
 import {postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 
-export function updateTimeValidation({timestamp, expirationDate, ...settings}) {
+export const minDateUpdate = trimIsoDateSeconds(new Date().getTime() + 30 * 60 * 1000)
+export const maxDateUpdate = trimIsoDateSeconds(new Date().getTime() + 10 * 24 * 60 * 60 * 1000)
+export const maxExpirationDate = trimIsoDateSeconds(new Date().getTime() + 1000 * 24 * 60 * 60 * 1000)
+
+export function validateTimestamp({timestamp, expirationDate, ...settings}) {
     const minDate = settings.config.minDate
-    const min = new Date().getTime() + 30 * 60 * 1000
-    const max = new Date().getTime() + 10 * 24 * 60 * 60 * 1000
     if (timestamp === 0 && minDate === 0 && expirationDate)
         return true
     if (!timestamp && !minDate || !expirationDate)
-        return
+        return false
     //check only minDate, if set minDate timestamp will be with same value
-    if (minDate < min || minDate > max)
-        return
+    if (minDate < minDateUpdate || minDate > maxDateUpdate)
+        return false
     return true
 }
 
 export default function ActionConfirmationFormView({settings, timeframe, toggleShowForm}) {
     const [changedSettings, setChangedSettings] = useState(settings)
+    const [isOpenTimestamp, setIsOpenTimestamp] = useState(false)
+    const [isOpenMinDate, setIsOpenMinDate] = useState(false)
     const [isReady, setIsReady] = useState(false)
-    const [isValidTime, setIsValidTime] = useState(false)
+    const [allowEarlySubmission, setAllowEarlySubmission] = useState(false)
     const [inProgress, setInProgress] = useState(false)
 
-    const validateTime = useCallback(time => {
-        try {
-            setIsValidTime(!!new Date(time).getTime())
-        } catch (err) {
-            setIsValidTime(false)
-        }
+    const toggleAllowEarlySubmission = useCallback(() => setAllowEarlySubmission(prev => !prev), [])
+    const toggleTimestamp = useCallback(() => setIsOpenTimestamp(prev => !prev), [])
+    const toggleMinDate = useCallback(() => setIsOpenMinDate(prev => !prev), [])
+
+    const updateTime = useCallback(({minDate, timestamp}) => {
+        setChangedSettings(prev => {
+            const newSettings = {...prev, timestamp: timestamp || 0}
+            newSettings.config.minDate = minDate ? minDate : timestamp || 0
+            setIsReady(validateTimestamp(newSettings))
+            return newSettings
+        })
     }, [])
 
+    const clearTime = useCallback(() => {
+        updateTime({timestamp: 0})
+        setIsOpenTimestamp(false)
+        setIsOpenMinDate(false)
+    }, [updateTime, setIsOpenTimestamp, setIsOpenMinDate])
 
-    const updateTimestamp = useCallback(e => {
-        const timestamp = parseInt(e.target.value, 10) || 0
-        setChangedSettings(prev => {
-            const newSettings = {...prev, timestamp}
-            newSettings.config.minDate = timestamp
-            setIsReady(updateTimeValidation(newSettings))
-            return newSettings
-        })
-        validateTime(timestamp)
-    }, [validateTime])
+    const changeTimestamp = useCallback(timestamp => {
+        updateTime({timestamp})
+        setIsOpenMinDate(true)
+    }, [updateTime])
 
-    const updateMinDate = useCallback(e => {
-        const minDate = parseInt(e.target.value, 10) || 0
-        setChangedSettings(prev => {
-            const newSettings = {...prev, timestamp: 0}
-            newSettings.config.minDate = minDate
-            setIsReady(updateTimeValidation(newSettings))
-            return newSettings
-        })
-        validateTime(minDate)
-    }, [validateTime])
+    const changeMinDate = useCallback(minDate => {
+        updateTime({minDate})
+        setIsOpenTimestamp(false)
+    }, [updateTime])
 
-    const changeExpirationDate = useCallback(e => {
-        const expirationDate = parseInt(e.target.value, 10) || 0
+    const changeExpirationDate = useCallback(val => {
+        const expirationDate = new Date(normalizeDate(val || 0)).getTime()
         setChangedSettings(prev => {
             const newSettings = {...prev, expirationDate}
-            setIsReady(updateTimeValidation(newSettings))
+            setIsReady(validateTimestamp(newSettings))
             return newSettings
         })
-        validateTime(expirationDate)
-    }, [validateTime])
+    }, [])
 
     const changeDescription = useCallback(e => {
         setChangedSettings(prev => ({...prev, description: e.target.value}))
@@ -76,94 +79,85 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
     }, [timeframe])
 
     const normalizeTimestamp = useCallback(e => {
-        const val = parseInt(e.target.value, 10) || 0
+        const val = new Date(normalizeDate(e.target.value || 0)).getTime()
         const timestamp = val ? timeFormatter(val) : val
-        setChangedSettings(prev => {
-            const newSettings = {...prev, timestamp}
-            newSettings.config.minDate = timestamp
-            return newSettings
-        })
-    }, [timeFormatter])
+        updateTime({timestamp})
+    }, [timeFormatter, updateTime])
 
     const normalizeMinDate = useCallback(e => {
-        const val = parseInt(e.target.value, 10) || 0
+        const val = new Date(normalizeDate(e.target.value || 0)).getTime()
         const minDate = val ? timeFormatter(val) : val
-        setChangedSettings(prev => {
-            const newSettings = {...prev, timestamp: 0}
-            newSettings.config.minDate = minDate
-            return newSettings
-        })
-    }, [timeFormatter])
+        updateTime({minDate})
+    }, [timeFormatter, updateTime])
 
     const confirmUpdates = useCallback(async () => {
         setInProgress(true)
         const signature = await clientStatus.createSignature(changedSettings.config)
-
         postApi('config', {
             ...changedSettings,
+            allowEarlySubmission,
             signatures: [signature]
         })
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
                 //reload configuration after update
+                toggleShowForm()
                 navigation.updateQuery({reload: 1})
                 notify({type: 'success', message: 'Update submitted'})
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
-    }, [changedSettings])
+    }, [allowEarlySubmission, changedSettings, toggleShowForm])
 
     return <div className="row">
-        <div className="column column-50">
-            <div className="space"/>
-            <label>Scheduled quorum update time (UTC)<br/>
-                <span className="dimmed text-tiny">
-                    (Set the date for no more than 10 days, in milliseconds)
-                </span>
-                <input className="micro-space" value={changedSettings.timestamp} onChange={updateTimestamp} onBlur={normalizeTimestamp}/>
-                <div className="dimmed text-tiny">
-                    {(!!isValidTime && !!changedSettings.timestamp) ? (<UtcTimestamp date={changedSettings.timestamp}/>) : <>&nbsp;</>}
-                </div>
-            </label>
+        <div className="column column-33">
+            <div className="space">Scheduled quorum update time (UTC)</div>
+            {!!isOpenTimestamp && <>
+                <DateSelector value={changedSettings.timestamp} onChange={changeTimestamp} onBlur={normalizeTimestamp}
+                              min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
+                <a className="icon-cancel" onClick={clearTime}/></>}
+            {!isOpenTimestamp && <DateInput value={isOpenTimestamp} onChange={toggleTimestamp}/>}
         </div>
-        <div className="column column-50">
-            <div className="space"/>
-            <label>Min date of quorum update time (UTC)<br/>
-                <span className="dimmed text-tiny">
-                    (Set the date for no more than 10 days, in milliseconds)
-                </span>
-                <input className="micro-space" value={changedSettings.config.minDate} onChange={updateMinDate} onBlur={normalizeMinDate}/>
-                <div className="dimmed text-tiny">
-                    {(!!isValidTime && !!changedSettings.config.minDate) ?
-                        (<UtcTimestamp date={changedSettings.config.minDate}/>) : <>&nbsp;</>}
-                </div>
-            </label>
+        <div className="column column-33">
+            <div className="space">Min date of quorum update time (UTC)</div>
+            {!!isOpenMinDate && <>
+                <DateSelector value={changedSettings.config.minDate} onChange={changeMinDate} onBlur={normalizeMinDate}
+                              min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
+                <a className="icon-cancel" onClick={clearTime}/></>}
+            {!isOpenMinDate && <DateInput value={isOpenMinDate} onChange={toggleMinDate}/>}
         </div>
-        <div className="column column-50">
+        <div className="column column-33">
             <div className="space"/>
             <label>Expiration date of update (UTC)<br/>
-                <span className="dimmed text-tiny">
-                    (Set the date in milliseconds)
-                </span>
-                <input className="micro-space" value={changedSettings.expirationDate} onChange={changeExpirationDate}/>
-                <div className="dimmed text-tiny">
-                    {(!!isValidTime && !!changedSettings.expirationDate) ?
-                        (<UtcTimestamp date={changedSettings.expirationDate}/>) : <>&nbsp;</>}
-                </div>
+                <DateSelector value={changedSettings.expirationDate} onChange={changeExpirationDate}
+                              min={maxDateUpdate} max={maxExpirationDate} className="micro-space" style={{'width': '13em'}}/>
             </label>
         </div>
-        <div className="column column-50">
+        <div className="column">
             <div className="space"/>
             <label>Information about configuration update<br/>
                 <textarea value={changedSettings.description || ''} onChange={changeDescription} style={{marginTop: '0.55em'}}/>
             </label>
         </div>
-        <div className="column column-25 column-offset-50">
+        <div className="column column-50">
+            <label className="micro-space">
+                <input onChange={toggleAllowEarlySubmission} type="checkbox" checked={allowEarlySubmission}/>&nbsp;
+                Submit when all ready
+            </label>
+        </div>
+        <div className="column column-25">
             <Button block disabled={!isReady || inProgress} onClick={confirmUpdates}>Confirm</Button>
         </div>
         <div className="column column-25">
             <Button block outline onClick={toggleShowForm}>Cancel</Button>
         </div>
     </div>
+}
+
+export function DateInput({value, onChange}) {
+    return <label className="space">
+        <input type="checkbox" value={value} onChange={onChange} style={{'marginRight': '0.75em', 'top': '-0.4em'}}/>
+        set the date manually
+    </label>
 }

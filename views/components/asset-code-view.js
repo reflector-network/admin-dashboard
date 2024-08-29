@@ -4,7 +4,7 @@ import {shortenString} from '@stellar-expert/formatter'
 
 export default function AssetCodeView({asset}) {
     if (!asset)
-        return <></>
+        return null
     const type = parseInt(asset.type, 10)
     if (type === 1 && asset.code.length === 56) {
         return <b title={asset.code}>{shortenString(asset.code, 8)}</b>

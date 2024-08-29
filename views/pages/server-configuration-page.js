@@ -1,12 +1,14 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Button, UtcTimestamp} from '@stellar-expert/ui-framework'
+import {Button, DateSelector} from '@stellar-expert/ui-framework'
+import {normalizeDate} from '@stellar-expert/formatter/src/timestamp-format'
 import {getCurrentConfig, postApi} from '../../api/interface'
+import {DateInput, maxDateUpdate, maxExpirationDate, minDateUpdate} from "../server-config/action-form-confirmation-view"
 import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 
-function validation(configuration) {
-    if (isNaN(parseInt(configuration.timestamp, 10)) || !configuration.expirationDate || !configuration.config)
-        return
+function validation({timestamp, expirationDate, config}) {
+    if (isNaN(parseInt(timestamp, 10)) || !expirationDate || !config)
+        return false
     return true
 }
 
@@ -15,15 +17,11 @@ export default function ServerConfigurationPage() {
     const [configProperties, setConfigProperties] = useState('')
     const [inProgress, setInProgress] = useState(false)
     const [isValid, setIsValid] = useState(false)
-    const [isValidTime, setIsValidTime] = useState(false)
+    const [isOpenTimestamp, setIsOpenTimestamp] = useState(false)
+    const [allowEarlySubmission, setAllowEarlySubmission] = useState(false)
 
-    const validateTime = useCallback(time => {
-        try {
-            setIsValidTime(!!new Date(time).getTime())
-        } catch (err) {
-            setIsValidTime(false)
-        }
-    }, [])
+    const toggleAllowEarlySubmission = useCallback(() => setAllowEarlySubmission(prev => !prev), [])
+    const toggleTimestamp = useCallback(() => setIsOpenTimestamp(prev => !prev), [])
 
     useEffect(() => {
         getCurrentConfig()
@@ -53,31 +51,34 @@ export default function ServerConfigurationPage() {
                 return configuration
             })
         } catch (e) {
-            console.error(e)
+            notify({type: 'error', message: e.error?.message || 'Failed to parse configuration'})
             setConfiguration(prev => ({...prev, config: null}))
             setIsValid(false)
         }
     }, [])
 
-    const changeTimestamp = useCallback(e => {
-        const timestamp = parseInt(e.target.value, 10) || 0
+    const changeTimestamp = useCallback(val => {
+        const timestamp = new Date(normalizeDate(val || 0)).getTime()
         setConfiguration(prev => {
-            const configuration = {...prev, timestamp}
+            const configuration = {...prev, timestamp: val ? timestamp : 0}
             setIsValid(validation(configuration))
             return configuration
         })
-        validateTime(timestamp)
-    }, [validateTime])
+    }, [])
 
-    const changeExpirationDate = useCallback(e => {
-        const expirationDate = parseInt(e.target.value, 10) || 0
+    const clearTime = useCallback(() => {
+        changeTimestamp(0)
+        setIsOpenTimestamp(false)
+    }, [changeTimestamp, setIsOpenTimestamp])
+
+    const changeExpirationDate = useCallback(val => {
+        const expirationDate = new Date(normalizeDate(val || 0)).getTime()
         setConfiguration(prev => {
             const configuration = {...prev, expirationDate}
             setIsValid(validation(configuration))
             return configuration
         })
-        validateTime(expirationDate)
-    }, [validateTime])
+    }, [])
 
     const changeDescription = useCallback(e => {
         setConfiguration(prev => ({...prev, description: e.target.value}))
@@ -89,6 +90,7 @@ export default function ServerConfigurationPage() {
 
         postApi('config', {
             ...configuration,
+            allowEarlySubmission,
             signatures: [signature]
         })
             .then(res => {
@@ -98,7 +100,7 @@ export default function ServerConfigurationPage() {
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update data'}))
             .finally(() => setInProgress(false))
-    }, [configuration])
+    }, [configuration, allowEarlySubmission])
 
     return <div className="segment blank">
         <h3>Quorum configuration file</h3>
@@ -107,18 +109,17 @@ export default function ServerConfigurationPage() {
             <div className="column column-50">
                 <div className="space"/>
                 <label>Timestamp</label>
-                <input value={configuration.timestamp} onChange={changeTimestamp}/>
-                {(!!isValidTime && !!configuration.timestamp) && <div className="dimmed text-tiny">
-                    (<UtcTimestamp date={configuration.timestamp}/>)
-                </div>}
+                {!!isOpenTimestamp && <>
+                    <DateSelector value={configuration.timestamp} onChange={changeTimestamp}
+                                  min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
+                    <a className="icon-cancel" onClick={clearTime}/></>}
+                {!isOpenTimestamp && <DateInput value={isOpenTimestamp} onChange={toggleTimestamp}/>}
             </div>
             <div className="column column-50">
                 <div className="space"/>
                 <label>Expiration date</label>
-                <input value={configuration.expirationDate} onChange={changeExpirationDate}/>
-                {(!!isValidTime && !!configuration.expirationDate) && <div className="dimmed text-tiny">
-                    (<UtcTimestamp date={configuration.expirationDate}/>)
-                </div>}
+                <DateSelector value={configuration.expirationDate} onChange={changeExpirationDate}
+                              min={maxDateUpdate} max={maxExpirationDate} className="micro-space" style={{'width': '13em'}}/>
             </div>
         </div>
         <div className="space">
@@ -132,11 +133,11 @@ export default function ServerConfigurationPage() {
                       placeholder="Set up configuration"/>
         </div>
         <div className="space row">
-            <div className="column column-75 text-center">
-                {!!inProgress && <>
-                    <div className="loader inline"/>
-                    <span className="dimmed text-small"> In progress...</span>
-                </>}
+            <div className="column column-75">
+                <label className="micro-space">
+                    <input onChange={toggleAllowEarlySubmission} type="checkbox" checked={allowEarlySubmission}/>&nbsp;
+                    Submit when all ready
+                </label>
             </div>
             <div className="column column-25">
                 <Button block disabled={!isValid || inProgress} onClick={submitUpdates}>Submit</Button>

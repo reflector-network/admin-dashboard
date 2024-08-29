@@ -11,9 +11,8 @@ export default observer(function AddSorobanTokenEntry({contract, save}) {
     const validate = useCallback(val => {
         if (val.length !== 56 || !val.startsWith('C'))
             return false
-        if (contract.assets.findIndex(asset => asset.code === val) !== -1) {
+        if (contract.assets.some(asset => asset.code === val))
             return false
-        }
         return true
     }, [contract])
 
@@ -27,6 +26,9 @@ export default observer(function AddSorobanTokenEntry({contract, save}) {
 
     return <AddAssetEntryLayout title="Add soroban token" ref={currentInput} asset={asset}
                                 isEntered={isEntered} isValid={isValid} save={save}>
-        <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="Asset symbol"/>
+        <label>
+            <span className="dimmed">Soroban contract address</span>
+            <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="CDK7..."/>
+        </label>
     </AddAssetEntryLayout>
 })

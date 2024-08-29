@@ -5,8 +5,8 @@ import clientStatus from '../state/client-status'
  * Check whether we have alive Albedo session
  * @return {boolean}
  */
-export function checkAlbedoSession() {
-    return albedo.isImplicitSessionAllowed('sign_message', clientStatus.clientPublicKey)
+export function checkAlbedoSession(pubkey) {
+    return albedo.isImplicitSessionAllowed('sign_message', pubkey || clientStatus.clientPublicKey)
 }
 
 /**
@@ -15,11 +15,6 @@ export function checkAlbedoSession() {
  */
 export async function requestAlbedoSession() {
     try {
-        //check whether the session is saved and valid
-        const savedAlbedoSession = JSON.parse(localStorage.getItem('albedo_session'))
-        if (savedAlbedoSession?.valid_until > Date.now())
-            return savedAlbedoSession.pubkey
-
         const {grants, session, pubkey, valid_until} = await albedo.implicitFlow({
             intents: 'sign_message'
         })
@@ -30,6 +25,14 @@ export async function requestAlbedoSession() {
         notify({type: 'error', message: e.error?.message || 'Failed to obtain session permission'})
         return null
     }
+}
+
+export async function retrieveAlbedoSession() {
+    //check whether the session is saved and valid
+    const savedAlbedoSession = JSON.parse(localStorage.getItem('albedo_session'))
+    if (savedAlbedoSession?.valid_until > Date.now())
+        return savedAlbedoSession.pubkey
+
 }
 
 /**
@@ -58,12 +61,15 @@ export async function signData(data) {
     }
 }
 
-export function dropSession() {
-    if (clientStatus.clientPublicKey) {
-        //forget session
-        albedo.forgetImplicitSession(clientStatus.clientPublicKey)//update status
-        localStorage.removeItem('albedo_session')
-        clientStatus.clientPublicKey = ''
-        clientStatus.pollSession()
+export function dropSession(authPubkey) {
+    //forget session
+    if (typeof authPubkey ==='string') {
+        albedo.forgetImplicitSession(authPubkey || clientStatus.clientPublicKey)
     }
+    if (clientStatus.clientPublicKey) {
+        albedo.forgetImplicitSession(clientStatus.clientPublicKey)
+    }
+    localStorage.removeItem('albedo_session')
+    clientStatus.clientPublicKey = ''
+    clientStatus.pollSession()
 }
