@@ -39,7 +39,7 @@ export default function NodeStatisticsRecordView({stat}) {
                 </div> :
                 <span className="inline-block"><i className="icon-warning color-warning"/> Peer nodes not connected</span>}
         </div>
-        {!!Object.keys(stat.contractStatistics || {}).length && <ContractStatisticsView statistics={Object.values(stat.contractStatistics)}/>}
+        {!!Object.keys(stat.contractStatistics || stat.oracleStatistics || {}).length && <ContractStatisticsView statistics={Object.values(stat.contractStatistics || stat.oracleStatistics)}/>}
     </div>
 }
 
@@ -62,7 +62,7 @@ function ContractStatisticsView({statistics = []}) {
                 ? <div>
                     <span className="dimmed">Root hash: </span>
                     <span className="inline-block account-key">
-                        {stat.syncDataHash ? shortenString(stat.syncDataHash, 4) : 'No data'}
+                        {stat.syncDataHash ? shortenString(stat.syncDataHash, 8) : 'No data'}
                     </span>
                 </div>
                 : <div>
