@@ -10,7 +10,7 @@ export default observer(function AuthLayout({children}) {
     const [authorized, setAuthorized] = useState(null)
     const [inProgress, setInProgress] = useState(false)
 
-    const establishSession = useCallback((authPubkey) => {
+    const establishSession = useCallback(function (authPubkey) {
         getNodePublicKeys()
             .then(res => {
                 if (!(res && res.indexOf(authPubkey) >= 0)) {
@@ -18,8 +18,8 @@ export default observer(function AuthLayout({children}) {
                     throw new Error('Please check the key you are using to log in.')
                 }
                 clientStatus.setNodePubkey(authPubkey)
+                clientStatus.hasSession = true
                 setInProgress(true)
-                //for some reason, immediately after session created, sign data is not working
                 setTimeout(() => {
                     setInProgress(false)
                     setAuthorized(true)
@@ -29,7 +29,7 @@ export default observer(function AuthLayout({children}) {
                 setAuthorized(false)
                 notify({type: 'error', message: 'Authorization failed. ' + error?.message || ''})
             })
-    }, [])
+    }, [setAuthorized, setInProgress])
 
     const authorize = useCallback(() => {
         let authPubkey = null
@@ -40,16 +40,16 @@ export default observer(function AuthLayout({children}) {
                 authPubkey = pubkey
                 return establishSession(pubkey)
             })
-    }, [])
+    }, [establishSession, requestAlbedoSession])
 
     useEffect(() => {
         retrieveAlbedoSession()
             .then(pubkey => {
-                if (checkAlbedoSession(pubkey)) {
+                if (true || checkAlbedoSession(pubkey)) {
                     establishSession(pubkey)
                 }
             })
-    }, [authorize])
+    }, [authorize, establishSession, retrieveAlbedoSession])
 
     return <div>
         {(!authorized || !clientStatus.hasSession) ?
