@@ -11,8 +11,8 @@ export default function AddGatewayView({challenge, gateways, onFinished}) {
         if (!challenge)
             return setValidation('')
         signData(challenge)
-            .then(signature => setValidation(signature))
-            .catch(e=>{
+            .then(signature => setValidation(Buffer.from(signature, 'hex').toString('base64')))
+            .catch(e => {
                 console.error(e)
                 notify({type: 'error', message: 'Failed to generate gateway validation message'})
             })
@@ -28,10 +28,11 @@ export default function AddGatewayView({challenge, gateways, onFinished}) {
         const parsedPort = parseInt(port, 10)
         if (!parsedPort || parsedPort < 1 || parsedPort > 65535)
             return notify({type: 'warning', message: 'Invalid server port number'})
-        const newGatewayAddress = ip + ':' + port
+        const newGatewayAddress = `http://${ip}:${port}`
         if (gateways.includes(newGatewayAddress))
             return notify({type: 'warning', message: 'Gateway with the same address has been already registered'})
-        updateGatewaysInfo({challenge, gateways})
+        gateways.push(newGatewayAddress)
+        updateGatewaysInfo({challenge, urls: gateways})
             .then(() => {
                 notify({type: 'success', message: 'Gateway successfully added to the node config'})
                 onFinished()
