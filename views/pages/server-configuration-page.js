@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {Button, DateSelector} from '@stellar-expert/ui-framework'
-import {normalizeDate} from '@stellar-expert/formatter/src/timestamp-format'
+import {normalizeDate} from '@stellar-expert/formatter'
 import {getCurrentConfig, postApi} from '../../api/interface'
 import {DateInput, maxDateUpdate, maxExpirationDate, minDateUpdate} from "../server-config/changes/action-form-confirmation-view"
 import clientStatus from '../../state/client-status'
