@@ -1,14 +1,13 @@
 import {signData} from '../providers/albedo-provider'
 import clientStatus from '../state/client-status'
-import objectKeySorter from './../views/util/object-key-sorter'
+import sortObjectKeys from './../views/util/object-key-sorter'
 
 /**
- *
- * @param {any} payload - payload to sign with nonce
+ * @param {{}} payload - payload to sign with nonce
  * @param {number} nonce - nonce to include in header
  * @returns {Promise<string>}
  */
-async function tryGetAuthHeader(payload, nonce) {
+async function generateAuthHeader(payload, nonce) {
     const signature = await signData(payload)
     return `${clientStatus.clientPublicKey}.${signature}.${nonce}`
 }
@@ -19,17 +18,17 @@ async function getApi(endpoint, data = {}, anonymous = false) {
     let authorizationHeader = null
     if (!anonymous) {
         const nonce = generateNonce()
-        const payloadData = getRelativeUrl(new URLSearchParams(objectKeySorter({...data, nonce})))
-        authorizationHeader = clientStatus.hasSession ? await tryGetAuthHeader(payloadData, nonce) : null
+        const payloadData = getRelativeUrl(new URLSearchParams(sortObjectKeys({...data, nonce})))
+        authorizationHeader = clientStatus.hasSession ? await generateAuthHeader(payloadData, nonce) : null
     }
     return await fetchApi(relativeUrl, {authorizationHeader})
 }
 
 export async function postApi(action, data) {
     const nonce = generateNonce()
-    const payload = objectKeySorter({...data, nonce})
+    const payload = sortObjectKeys({...data, nonce})
 
-    const authorizationHeader = clientStatus.hasSession ? await tryGetAuthHeader(payload, nonce) : null
+    const authorizationHeader = clientStatus.hasSession ? await generateAuthHeader(payload, nonce) : null
     return await fetchApi(action, {
         method: 'POST',
         authorizationHeader,
@@ -63,6 +62,14 @@ export function getStatistics() {
 
 export function getNotificationSettings() {
     return getApi('settings/node')
+}
+
+export function getGatewaysInfo(){
+    return getApi('gateways')
+}
+
+export function updateGatewaysInfo({challenge, urls}) {
+    return postApi('gateways', {challenge, urls})
 }
 
 export async function getTx(hash) {
