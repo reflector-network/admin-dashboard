@@ -90,5 +90,5 @@ function formatConfig(validation, port) {
 runcmd:
   - ufw allow ${port}/tcp
   - ufw --force enable
-  - docker run -d -p ${port}:8080 --name gateway --restart=unless-stopped -e PROXY_VALIDATION_KEY=${validation} reflectornet/reflector-gateway:latest`
+  - docker run -d -p ${port}:8080 --name gateway --restart=unless-stopped -e GATEWAY_VALIDATION_KEY=${validation} reflectornet/reflector-gateway:latest`
 }
