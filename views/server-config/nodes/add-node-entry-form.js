@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {AccountAddress, Button} from '@stellar-expert/ui-framework'
 import {StrKey} from '@stellar/stellar-sdk'
-import DialogView from '../components/dialog-view'
+import DialogView from '../../components/dialog-view'
 
 function validateNode(node) {
     if (!StrKey.isValidEd25519PublicKey(node.pubkey))

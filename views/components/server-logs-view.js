@@ -1,21 +1,23 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {getLogFile, getServerLogs, postApi} from '../../api/interface'
+import ConfigLayout from '../server-config/config-layout'
 import TabularDataView from './tabular-data-view'
 
 export default function ConfigurationLogsView() {
     const [links, setLinks] = useState(['error.log'])
     const [isTraceEnabled, setIsTraceEnabled] = useState(false)
 
-    const updateTrace = useCallback(() => {
-        postApi('logs/trace', {isTraceEnabled: !isTraceEnabled})
+    const updateTrace = useCallback(e => {
+        const enabled = e.target.checked
+        postApi('logs/trace', {isTraceEnabled: enabled})
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                notify({type: 'success', message: 'Update completed'})
-                setIsTraceEnabled(!isTraceEnabled)
+                notify({type: 'success', message: 'Trace settings updated'})
+                setIsTraceEnabled(enabled)
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing'}))
-    }, [isTraceEnabled])
+    }, [])
 
     useEffect(() => {
         getServerLogs()
@@ -29,26 +31,14 @@ export default function ConfigurationLogsView() {
             })
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration history'}))
     }, [])
-
-    return <div className="segment blank h-100">
-        <div>
-            <h3>Server logs</h3>
-            <hr className="flare"/>
-            <div className="space">
-                <span className="dimmed">Tracing: </span>
-                <span className="inline-block">
-                    {isTraceEnabled ? 'Enabled' : 'Disabled'}&emsp;|&emsp;
-                    <a onClick={updateTrace} title="Enable/Disable tracing">
-                        {!isTraceEnabled ? 'enable' : 'disable'}
-                    </a>
-                </span>
-            </div>
-            <div className="space">Download log:</div>
-            {links.length ?
-                <PaginatedLogView links={links}/> :
-                <div className="space text-center">There are no entries</div>}
-        </div>
+    const tracingControl = <div className="micro-space">
+        <label><input type="checkbox" checked={isTraceEnabled} onChange={updateTrace}/> Tracing enabled</label>
     </div>
+    return <ConfigLayout title="Server logs" primaryAction={tracingControl}>
+        {links.length ?
+            <PaginatedLogView links={links}/> :
+            <div className="space text-center">There are no entries</div>}
+    </ConfigLayout>
 }
 
 function PaginatedLogView({links, limit = 20}) {

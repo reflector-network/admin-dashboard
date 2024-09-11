@@ -1,6 +1,6 @@
 import {makeAutoObservable} from 'mobx'
 import {checkAlbedoSession, signData} from '../providers/albedo-provider'
-import objectKeySorter from '../views/util/object-key-sorter'
+import sortObjectKeys from '../views/util/object-key-sorter'
 
 class ClientStatus {
     constructor() {
@@ -53,7 +53,7 @@ class ClientStatus {
         const payload = {...data, nonce}
         if (rejected)
             payload.rejected = true
-        const signature = await signData(objectKeySorter(payload))
+        const signature = await signData(sortObjectKeys(payload))
         return {
             signature,
             pubkey: this.clientPublicKey,

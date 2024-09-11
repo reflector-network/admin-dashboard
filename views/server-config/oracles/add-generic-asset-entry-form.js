@@ -24,12 +24,11 @@ export default observer(function AddGenericAssetEntry({contract, save}) {
     //save on "Enter"
     const onKeyDown = useCallback(e => setIsEntered(e.keyCode === 13 && isValid), [isValid])
 
-    return <AddAssetEntryLayout title="Add generic asset" ref={currentInput} asset={asset}
+    return <AddAssetEntryLayout title="Add external symbol" ref={currentInput} asset={asset}
                                 isEntered={isEntered} isValid={isValid} save={save}>
         <label>
             <span className="dimmed">Asset symbol</span>
             <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="e.g. USD"/>
         </label>
-
     </AddAssetEntryLayout>
 })

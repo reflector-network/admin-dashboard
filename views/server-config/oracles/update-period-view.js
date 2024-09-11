@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
-import detectConfigChanges from '../util/config-changes-detector'
-import ActionNodeLayout from './action-node-layout'
+import detectConfigChanges from '../../util/config-changes-detector'
+import ActionNodeLayout from '../action-node-layout'
 
 export default function UpdatePeriodView({settings, contractId}) {
     const [isValid, setIsValid] = useState(false)
@@ -35,17 +35,29 @@ export default function UpdatePeriodView({settings, contractId}) {
         })
     }, [contractId, validation])
 
-    return <ActionNodeLayout title="Retention period" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
+    return <ActionNodeLayout title="Price quotes retention period" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid} description={
+        <UpdatePeriodDescription/>}>
         <div className="row micro-space">
             <div className="column column-50">
                 <label>
-                    <h4 style={{marginBottom: 0}}>Price quotes retention period</h4>
                     <span className="dimmed text-tiny">
-                        (How long quoted prices will be available for contract consumers after creation, in milliseconds)
+                        Retention period (in milliseconds)
                     </span>
                     <input type="text" className="micro-space" value={contract?.period || ''} onChange={updatePeriod}/>
                 </label>
             </div>
         </div>
     </ActionNodeLayout>
+}
+
+function UpdatePeriodDescription() {
+    return <>
+        <p>
+            Retention period determines how long quoted prices will be available for contract consumers after creation.
+        </p>
+        <p>
+            Price feeds receive updates regularly. Reflector oracles operate non-stop nad price data is written to the temporary storage and
+            can be evicted over time.
+        </p>
+    </>
 }

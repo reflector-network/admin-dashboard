@@ -9,11 +9,13 @@ export default function Layout({children}) {
                 <h1>
                     <a href="/" className="logo">
                         <img src="/img/logo.svg" alt="Reflector logo" style={{height: '3.2rem'}}/>
-                        <span className="condensed" style={{color: '#789EC6', fontSize: '4rem', lineHeight: 0.85}}>REFLECTOR</span>
+                        <span className="condensed" style={{color: '#789EC6', fontSize: '4rem', lineHeight: 0.85}}>
+                            REFLECTOR <span style={{fontSize: '2.6rem'}}>/ NODE ADMIN DASHBOARD</span>
+                        </span>
                     </a>
                 </h1>
             </div>
-            <div className="container space">
+            <div className="container">
                 <ErrorBoundary>{children}</ErrorBoundary>
             </div>
         </div>

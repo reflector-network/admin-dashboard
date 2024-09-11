@@ -1,12 +1,18 @@
-export default function objectKeySorter(obj) {
-    if (typeof obj !== 'object' || obj === null) {
-        return obj
+/**
+ * @param {{}} source
+ * @return {{}}
+ */
+export default function sortObjectKeys(source) {
+    if (!source || typeof source !== 'object')
+        return source
+
+    if (Array.isArray(source))
+        return source.map(sortObjectKeys)
+
+    const sortedKeys = Object.keys(source).sort()
+    const sortedObj = {}
+    for (let key of sortedKeys) {
+        sortedObj[key] = sortObjectKeys(source[key])
     }
-    if (Array.isArray(obj)) {
-        return obj.map(objectKeySorter)
-    }
-    return Object.keys(obj).sort().reduce((sortedObj, key) => {
-        sortedObj[key] = objectKeySorter(obj[key])
-        return sortedObj
-    }, {})
+    return sortedObj
 }

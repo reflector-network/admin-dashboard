@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
 import {getNotificationSettings, postApi} from '../../api/interface'
+import ConfigLayout from '../server-config/config-layout'
 import AddNotificationEntry from './add-notification-entry-form'
 
 export default function NotificationSettingsView() {
@@ -44,33 +45,29 @@ export default function NotificationSettingsView() {
             .finally(() => setInProgress(false))
     }, [notifications])
 
-    return <div className="segment blank h-100">
+    return <ConfigLayout title="Notification settings">
         <div>
-            <h3>Notification settings</h3>
-            <hr className="flare"/>
-            <div className="space">
-                <h4>Email notifications</h4>
-                {notifications?.emails.length ?
-                    notifications.emails.map(entry =>
-                        <NotificationEntryView key={entry.email} notification={entry}
-                                               update={setNotifications} setHasChanges={setHasChanges}/>) :
-                    <p className="micro-space">There are no notification emails</p>}
-            </div>
-            <AddNotificationEntry title={<><i className="icon-plus"/>Add new email</>} save={updateNotifications}/>
-            {!!hasChanges && <div className="space row">
-                <div className="column column-66">
-                    {!inProgress && <div className="dimmed text-small micro-space"> You have unsaved pending changes</div>}
-                    {!!inProgress && <>
-                        <div className="loader inline"/>
-                        <span className="dimmed text-small"> In progress...</span>
-                    </>}
-                </div>
-                <div className="column column-33">
-                    <Button block disabled={inProgress || !hasChanges} onClick={saveNotifications}>Save</Button>
-                </div>
-            </div>}
+            <h4>Email notifications</h4>
+            {notifications?.emails.length ?
+                notifications.emails.map(entry =>
+                    <NotificationEntryView key={entry.email} notification={entry}
+                                           update={setNotifications} setHasChanges={setHasChanges}/>) :
+                <p className="micro-space">There are no notification emails</p>}
         </div>
-    </div>
+        <AddNotificationEntry title={<><i className="icon-add-circle"/>Add new email</>} save={updateNotifications}/>
+        {!!hasChanges && <div className="space row">
+            <div className="column column-66">
+                {!inProgress && <div className="dimmed text-small micro-space"> You have unsaved pending changes</div>}
+                {!!inProgress && <>
+                    <div className="loader inline"/>
+                    <span className="dimmed text-small"> In progress...</span>
+                </>}
+            </div>
+            <div className="column column-33">
+                <Button block disabled={inProgress || !hasChanges} onClick={saveNotifications}>Save</Button>
+            </div>
+        </div>}
+    </ConfigLayout>
 }
 
 function NotificationEntryView({notification, update, setHasChanges}) {

@@ -1,6 +1,6 @@
 import React, {forwardRef, useCallback, useEffect, useState} from 'react'
 import {Button} from '@stellar-expert/ui-framework'
-import DialogView from '../components/dialog-view'
+import DialogView from '../../components/dialog-view'
 
 export default forwardRef(function AddAssetEntryLayout(props, ref) {
     const {title, asset, isValid, isEntered, save, children} = props
@@ -27,7 +27,7 @@ export default forwardRef(function AddAssetEntryLayout(props, ref) {
     }, [isEntered, onSave])
 
     return <>
-        <a onClick={toggleShowForm}>{title}</a>
+        <a href="#" className="icon-add-circle" onClick={toggleShowForm}>{title}</a>
         <DialogView dialogOpen={isOpen} smaller>
             <h3>{title}</h3>
             <hr className="flare"/>

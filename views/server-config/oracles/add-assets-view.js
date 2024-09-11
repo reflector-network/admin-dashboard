@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
-import AssetCodeView from '../components/asset-code-view'
-import detectConfigChanges from '../util/config-changes-detector'
+import AssetCodeView from '../../components/asset-code-view'
+import detectConfigChanges from '../../util/config-changes-detector'
 import AddGenericAssetEntry from './add-generic-asset-entry-form'
 import AddClassicAssetEntry from './add-classic-asset-entry-form'
 import AddSorobanTokenEntry from './add-soroban-token-entry-form'
-import ActionNodeLayout from './action-node-layout'
+import ActionNodeLayout from '../action-node-layout'
 
 export default function AddAssetsView({settings, contractId}) {
     const supportedAssets = settings.config.contracts[contractId].assets
@@ -57,13 +57,8 @@ export default function AddAssetsView({settings, contractId}) {
         updateAssets([...editableAssets, asset])
     }, [contract, editableAssets, updateAssets])
 
-    return <ActionNodeLayout title="Tracked assets" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
-        <div className="space">
-            <h4 style={{marginBottom: 0}}>Supported assets</h4>
-            <span className="dimmed text-tiny">
-                (List of assets with prices tracked by the quorum nodes)
-            </span>
-        </div>
+    return <ActionNodeLayout title="Tracked assets" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid} description={
+        <AddAssetsDescription/>}>
         {supportedAssets?.map(asset =>
             <AssetEntryLayout key={asset.code} asset={asset}/>)}
         {!!editableAssets.length && <h4 className="space">New assets</h4>}
@@ -72,11 +67,25 @@ export default function AddAssetsView({settings, contractId}) {
         <div className="space">
             <AddClassicAssetEntry contract={contract} save={addAsset}/>
             &nbsp;or&nbsp;
-            <AddSorobanTokenEntry contract={contract} save={addAsset}/>
-            &nbsp;or&nbsp;
             <AddGenericAssetEntry contract={contract} save={addAsset}/>
         </div>
     </ActionNodeLayout>
+}
+
+function AddAssetsDescription() {
+    return <>
+        <p>
+            List of assets/symbols tracked by the cluster nodes for this oracle.
+        </p>
+        <p>
+            For on-chain Stellar assets price feed data retrieval Reflector relies on a quorum of nodes connected to Stellar validators.
+            Each node fetches trades information directly from the Stellar Core database.
+        </p>
+        <p>
+            Price feeds for external symbols are updated in a similar fashion, but nodes have to agree on information pulled from external
+            sources (CEX/DEX API, price aggregators, stock exchanges, derivative platforms, etc.)
+        </p>
+    </>
 }
 
 function AssetEntryLayout({asset, editableAssets = [], updateAssets}) {

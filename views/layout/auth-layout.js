@@ -8,9 +8,11 @@ import SimplePageLayout from './simple-page-layout'
 
 export default observer(function AuthLayout({children}) {
     const [authorized, setAuthorized] = useState(null)
+    const [sessionLoading, setSessionLoading] = useState(true)
     const [inProgress, setInProgress] = useState(false)
 
     const establishSession = useCallback(function (authPubkey) {
+        setInProgress(true)
         getNodePublicKeys()
             .then(res => {
                 if (!(res && res.indexOf(authPubkey) >= 0)) {
@@ -19,15 +21,16 @@ export default observer(function AuthLayout({children}) {
                 }
                 clientStatus.setNodePubkey(authPubkey)
                 clientStatus.hasSession = true
-                setInProgress(true)
                 setTimeout(() => {
                     setInProgress(false)
                     setAuthorized(true)
-                }, 1000)
+                    setSessionLoading(false)
+                }, 100)
             })
             .catch(error => {
                 setAuthorized(false)
                 notify({type: 'error', message: 'Authorization failed. ' + error?.message || ''})
+                setSessionLoading(false)
             })
     }, [setAuthorized, setInProgress])
 
@@ -45,25 +48,29 @@ export default observer(function AuthLayout({children}) {
     useEffect(() => {
         retrieveAlbedoSession()
             .then(pubkey => {
-                if (true || checkAlbedoSession(pubkey)) {
+                if (checkAlbedoSession(pubkey)) {
                     establishSession(pubkey)
+                } else {
+                    setSessionLoading(false)
                 }
             })
     }, [authorize, establishSession, retrieveAlbedoSession])
 
-    return <div>
-        {(!authorized || !clientStatus.hasSession) ?
-            <SimplePageLayout title="Authorization">
-                <div className="text-center">
-                    Please authorize Albedo to cryptographically sign<br/>server requests on behalf of your Reflector node
-                    <div className="space">
-                        {!inProgress ?
-                            <Button onClick={authorize} style={{width: '50%'}}>Authorize</Button> :
-                            <div className="loader inline"/>
-                        }
-                    </div>
+    if (sessionLoading)
+        return <div className="loader"/>
+
+    if (!authorized || !clientStatus.hasSession)
+        return <SimplePageLayout title="Authorization">
+            <div className="text-center">
+                Please authorize Albedo to cryptographically sign<br/>server requests on behalf of your Reflector node
+                <div className="space">
+                    {!inProgress ?
+                        <Button onClick={authorize} style={{width: '50%'}}>Authorize</Button> :
+                        <div className="loader inline"/>
+                    }
                 </div>
-            </SimplePageLayout> :
-            children}
-    </div>
+            </div>
+        </SimplePageLayout>
+
+    return <>{children}</>
 })

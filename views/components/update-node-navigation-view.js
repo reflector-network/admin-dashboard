@@ -4,9 +4,10 @@ import {parseQuery} from '@stellar-expert/navigation'
 import {AccountAddress} from '@stellar-expert/ui-framework'
 
 const allSections = [
-    {name: 'nodes', title: 'Peer nodes'},
+    {name: 'nodes', title: 'Cluster nodes'},
     {name: 'contracts', hasChild: true},
-    {name: 'upgrade', title: 'Quorum upgrade'},
+    {name: 'upgrade', title: 'Pending updates'},
+    {name: 'gateways', title: 'Node gateways'},
     {name: 'history', title: 'Changes history'},
     {name: 'logs', title: 'Server logs'},
     {name: 'notification', title: 'Notifications'}
@@ -31,9 +32,9 @@ export default function UpdateNodeNavigationView({configuration}) {
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
             {section.hasChild ? Object.keys(contracts || []).map(contract => {
-                const type = contracts[contract].type === 'subscriptions' ? 'Subscriptions' : 'Oracle'
-                const list = contractSections.filter(item => item.type === type.toLowerCase())
-                return <span key={contract}>
+                    const type = contracts[contract].type === 'subscriptions' ? 'Subscriptions' : 'Oracle'
+                    const list = contractSections.filter(item => item.type === type.toLowerCase())
+                    return <span key={contract}>
                     {type} <AccountAddress account={contract} className="condensed"/>
                     <ul key={contract} style={{margin: '0.3em 1em'}}>
                         {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>

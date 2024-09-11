@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {navigation} from '@stellar-expert/navigation'
-import detectConfigChanges from '../util/config-changes-detector'
-import ActionNodeLayout from './action-node-layout'
+import detectConfigChanges from '../../util/config-changes-detector'
+import ActionNodeLayout from '../action-node-layout'
 
 export default function UpdateBaseFeeView({settings, contractId}) {
     const [isValid, setIsValid] = useState(false)
@@ -33,17 +33,27 @@ export default function UpdateBaseFeeView({settings, contractId}) {
         })
     }, [contractId, validation])
 
-    return <ActionNodeLayout title="Effective base fee" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}>
+    return <ActionNodeLayout title="Subscription base fee" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid} description={
+        <SubscriptionBaseFeeDescription/>}>
         <div className="row micro-space">
             <div className="column column-50">
                 <label>
-                    <h4 style={{marginBottom: 0}}>Base fee</h4>
                     <span className="dimmed text-tiny">
-                        (Network fee required per operation, in stroops)
+                        Subscription base fee (in stroops)
                     </span>
                     <input type="text" className="micro-space" value={contract?.baseFee || ''} onChange={updateBaseFee}/>
                 </label>
             </div>
         </div>
     </ActionNodeLayout>
+}
+
+function SubscriptionBaseFeeDescription() {
+    return <>
+        <p>Basis for the calculation of fees charged by the cluster nodes for subscriptions processing and retention.</p>
+        <p>
+            This fee is deducted from the subscription XRF balance on the daily basis. Actual amount depends on the base fee,
+            heartbeat interval, and subscription assets.
+        </p>
+    </>
 }

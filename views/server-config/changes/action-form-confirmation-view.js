@@ -1,10 +1,10 @@
 import React, {useCallback, useState} from 'react'
 import {Button, DateSelector} from '@stellar-expert/ui-framework'
-import {trimIsoDateSeconds} from "@stellar-expert/ui-framework/date/date-selector"
-import {normalizeDate} from "@stellar-expert/formatter/src/timestamp-format"
+import {trimIsoDateSeconds} from '@stellar-expert/ui-framework/date/date-selector'
+import {normalizeDate} from '@stellar-expert/formatter/src/timestamp-format'
 import {navigation} from '@stellar-expert/navigation'
-import {postApi} from '../../api/interface'
-import clientStatus from '../../state/client-status'
+import {postApi} from '../../../api/interface'
+import clientStatus from '../../../state/client-status'
 
 export const minDateUpdate = trimIsoDateSeconds(new Date().getTime() + 30 * 60 * 1000)
 export const maxDateUpdate = trimIsoDateSeconds(new Date().getTime() + 10 * 24 * 60 * 60 * 1000)
@@ -110,54 +110,64 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
             .finally(() => setInProgress(false))
     }, [allowEarlySubmission, changedSettings, toggleShowForm])
 
-    return <div className="row">
-        <div className="column column-33">
-            <div className="space">Scheduled quorum update time (UTC)</div>
+    return <>
+        <div className="space">
+            <div>Scheduled</div>
+            <span className="dimmed text-tiny">Planned quorum update timestamp (UTC). The update will be applied at this time if
+                supported by the majority.</span><br/>
             {!!isOpenTimestamp && <>
                 <DateSelector value={changedSettings.timestamp} onChange={changeTimestamp} onBlur={normalizeTimestamp}
                               min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
                 <a className="icon-cancel" onClick={clearTime}/></>}
             {!isOpenTimestamp && <DateInput value={isOpenTimestamp} onChange={toggleTimestamp}/>}
         </div>
-        <div className="column column-33">
-            <div className="space">Min date of quorum update time (UTC)</div>
+        <div className="space">
+            <div>Minimum date</div>
+            <span className="dimmed text-tiny">Minimum allowed quorum update timestamp (UTC). The update cannot be applied earlier.</span>
+            <br/>
             {!!isOpenMinDate && <>
                 <DateSelector value={changedSettings.config.minDate} onChange={changeMinDate} onBlur={normalizeMinDate}
                               min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
                 <a className="icon-cancel" onClick={clearTime}/></>}
             {!isOpenMinDate && <DateInput value={isOpenMinDate} onChange={toggleMinDate}/>}
         </div>
-        <div className="column column-33">
-            <div className="space"/>
-            <label>Expiration date of update (UTC)<br/>
+        <div className="space">
+            <label>Expires<br/>
+                <span className="dimmed text-tiny">Expiration timestamp (UTC). If the proposed update doesn't get the majority until
+                    this time, it will be discarded automatically.</span><br/>
                 <DateSelector value={changedSettings.expirationDate} onChange={changeExpirationDate}
                               min={maxDateUpdate} max={maxExpirationDate} className="micro-space" style={{'width': '13em'}}/>
             </label>
         </div>
-        <div className="column">
-            <div className="space"/>
-            <label>Information about configuration update<br/>
+        <div className="space">
+            <label>
+                <input onChange={toggleAllowEarlySubmission} type="checkbox" checked={allowEarlySubmission}/>&nbsp;
+                Allow update cluster earlier on consensus
+            </label>
+            <div className="dimmed text-tiny">
+                Allow applying updated settings earlier than scheduled if all node operators confirm the update
+            </div>
+        </div>
+        <div className="space">
+            <label>Short configuration update description<br/>
+                <span className="dimmed text-tiny">Visible to operators in "Pending updates" and in cluster upgrades history</span>
                 <textarea value={changedSettings.description || ''} onChange={changeDescription} style={{marginTop: '0.55em'}}/>
             </label>
         </div>
-        <div className="column column-50">
-            <label className="micro-space">
-                <input onChange={toggleAllowEarlySubmission} type="checkbox" checked={allowEarlySubmission}/>&nbsp;
-                Submit when all ready
-            </label>
+        <div className="row">
+            <div className="column column-25 column-offset-50">
+                <Button block disabled={!isReady || inProgress} onClick={confirmUpdates}>Confirm</Button>
+            </div>
+            <div className="column column-25">
+                <Button block outline onClick={toggleShowForm}>Cancel</Button>
+            </div>
         </div>
-        <div className="column column-25">
-            <Button block disabled={!isReady || inProgress} onClick={confirmUpdates}>Confirm</Button>
-        </div>
-        <div className="column column-25">
-            <Button block outline onClick={toggleShowForm}>Cancel</Button>
-        </div>
-    </div>
+    </>
 }
 
 export function DateInput({value, onChange}) {
-    return <label className="space">
-        <input type="checkbox" value={value} onChange={onChange} style={{'marginRight': '0.75em', 'top': '-0.4em'}}/>
-        set the date manually
+    return <label>
+        <input type="checkbox" checked={!value} onChange={onChange} style={{'marginRight': '0.75em', 'top': '-0.4em'}}/>
+        Set automatically
     </label>
 }
