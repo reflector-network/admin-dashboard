@@ -42,20 +42,22 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
         })
     }, [])
 
-    const clearTime = useCallback(() => {
-        updateTime({timestamp: 0})
+    const clearTimestamp = useCallback(() => {
+        updateTime({timestamp: 0, minDate: changedSettings.config.minDate})
         setIsOpenTimestamp(false)
+    }, [changedSettings, updateTime, setIsOpenTimestamp])
+
+    const clearMinDate = useCallback(() => {
+        updateTime({minDate: 0, timestamp: changedSettings.timestamp})
         setIsOpenMinDate(false)
-    }, [updateTime, setIsOpenTimestamp, setIsOpenMinDate])
+    }, [changedSettings, updateTime, setIsOpenMinDate])
 
     const changeTimestamp = useCallback(timestamp => {
         updateTime({timestamp})
-        setIsOpenMinDate(true)
     }, [updateTime])
 
     const changeMinDate = useCallback(minDate => {
         updateTime({minDate})
-        setIsOpenTimestamp(false)
     }, [updateTime])
 
     const changeExpirationDate = useCallback(val => {
@@ -117,7 +119,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
             {!!isOpenTimestamp && <>
                 <DateSelector value={changedSettings.timestamp} onChange={changeTimestamp} onBlur={normalizeTimestamp}
                               min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
-                <a className="icon-cancel" onClick={clearTime}/></>}
+                <a className="icon-cancel" onClick={clearTimestamp}/></>}
             {!isOpenTimestamp && <DateInput value={isOpenTimestamp} onChange={toggleTimestamp}/>}
         </div>
         <div className="space">
@@ -127,7 +129,7 @@ export default function ActionConfirmationFormView({settings, timeframe, toggleS
             {!!isOpenMinDate && <>
                 <DateSelector value={changedSettings.config.minDate} onChange={changeMinDate} onBlur={normalizeMinDate}
                               min={minDateUpdate} max={maxDateUpdate} className="micro-space" style={{'width': '13em'}}/>
-                <a className="icon-cancel" onClick={clearTime}/></>}
+                <a className="icon-cancel" onClick={clearMinDate}/></>}
             {!isOpenMinDate && <DateInput value={isOpenMinDate} onChange={toggleMinDate}/>}
         </div>
         <div className="space">
