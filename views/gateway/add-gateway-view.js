@@ -1,9 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {Button, CodeBlock} from '@stellar-expert/ui-framework'
-import {updateGatewaysInfo} from '../../api/interface'
 import {signData} from '../../providers/albedo-provider'
 
-export default function AddGatewayView({challenge, gateways, onFinished}) {
+export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
     const [ip, setIp] = useState('')
     const [port, setPort] = useState('8080') //65,535
     const [validation, setValidation] = useState('')
@@ -31,20 +30,13 @@ export default function AddGatewayView({challenge, gateways, onFinished}) {
         const newGatewayAddress = `http://${ip}:${port}`
         if (gateways.includes(newGatewayAddress))
             return notify({type: 'warning', message: 'Gateway with the same address has been already registered'})
-        gateways.push(newGatewayAddress)
-        updateGatewaysInfo({challenge, urls: gateways})
-            .then(() => {
-                notify({type: 'success', message: 'Gateway successfully added to the node config'})
-                onFinished()
-            })
-            .catch(() => {
-                notify({type: 'error', message: 'Failed to add new gateway'})
-            })
+        onAdd(newGatewayAddress)
     }
 
     if (!validation)
         return <div className="loader"/>
     return <div>
+        <hr className="flare"/>
         <h3>Cloud-init config script</h3>
         <div className="dimmed text-tiny">
             <p>
@@ -76,7 +68,7 @@ export default function AddGatewayView({challenge, gateways, onFinished}) {
         <hr className="flare"/>
         <div className="row space">
             <div className="column column-50">
-                <Button outline block onClick={onFinished}>Cancel</Button>
+                <Button outline block onClick={onCancel}>Cancel</Button>
             </div>
             <div className="column column-50">
                 <Button block onClick={add}>Add</Button>
