@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {Button, CodeBlock} from '@stellar-expert/ui-framework'
+import {Button, CodeBlock, CopyToClipboard} from '@stellar-expert/ui-framework'
 import {signData} from '../../providers/albedo-provider'
 
 export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
@@ -33,29 +33,38 @@ export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
         onAdd(newGatewayAddress)
     }
 
-    function onKeyDown(e){
-        if (e.key === 'Enter'){
+    function onKeyDown(e) {
+        if (e.key === 'Enter') {
             add()
         }
     }
 
     if (!validation)
         return <div className="loader"/>
+
+    const cloudInit = formatConfig(validation, port)
+
     return <div className="space">
         <hr/>
         <h3>Cloud-init config script</h3>
         <div className="dimmed text-tiny">
             <p>
-                Use this config to deploy gateway instances. Cloud-init format is widely supported by the majority of cloud providers and
-                automation tools, like Terraform. There are no specific requirements for the hardware. The machine or a virtual server must
-                have at least 1GB of RAM and a dedicated public IP. Any basic image with Docker installed should be sufficient.
+                Use this config script to deploy gateway instances. Cloud-init format is widely supported by the majority of cloud providers
+                and automation tools, like Terraform. There are no specific requirements for the hardware.
+                The machine or a virtual server must have at least 1GB of RAM and a dedicated public IP.
+                Any basic image with Docker installed should be sufficient.
             </p>
             <p>
                 Please DO NOT deploy gateways in United States or sanctioned jurisdictions because many crypto platforms block incoming
                 API requests from such countries.
             </p>
         </div>
-        <CodeBlock lang="plain">{formatConfig(validation, port)}</CodeBlock>
+        <div className="relative">
+            <CodeBlock lang="plain">{formatConfig(validation, port)}</CodeBlock>
+            <div style={{position: 'absolute', top: '0.2em', right: '0.1em', fontSize: '1.4em'}}>
+                <CopyToClipboard text={cloudInit} title="Copy cloud-init script to clipboard"/>
+            </div>
+        </div>
         <h3>Add gateway server</h3>
         <p className="dimmed text-tiny">
             Deploy new server or cloud instance following the instructions above, then copy-paste IP address here to register new gateway.
