@@ -33,10 +33,16 @@ export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
         onAdd(newGatewayAddress)
     }
 
+    function onKeyDown(e){
+        if (e.key === 'Enter'){
+            add()
+        }
+    }
+
     if (!validation)
         return <div className="loader"/>
-    return <div>
-        <hr className="flare"/>
+    return <div className="space">
+        <hr/>
         <h3>Cloud-init config script</h3>
         <div className="dimmed text-tiny">
             <p>
@@ -58,14 +64,14 @@ export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
         <div className="row">
             <div className="column column-60">
                 <label>IP address</label>
-                <input type="text" value={ip} onChange={changeIp}/>
+                <input type="text" value={ip} onChange={changeIp} onKeyDown={onKeyDown}/>
             </div>
             <div className="column column-40">
                 <label>Port</label>
-                <input type="text" value={port} onChange={changePort}/>
+                <input type="text" value={port} onChange={changePort} onKeyDown={onKeyDown}/>
             </div>
         </div>
-        <hr className="flare"/>
+        <hr/>
         <div className="row space">
             <div className="column column-50">
                 <Button outline block onClick={onCancel}>Cancel</Button>

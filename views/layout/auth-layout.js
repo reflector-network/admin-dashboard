@@ -6,32 +6,33 @@ import {getNodePublicKeys} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import SimplePageLayout from './simple-page-layout'
 
-export default observer(function AuthLayout({children}) {
+export default observer(function AuthLayout({children, skipClusterValidation = false}) {
     const [authorized, setAuthorized] = useState(null)
     const [sessionLoading, setSessionLoading] = useState(true)
     const [inProgress, setInProgress] = useState(false)
 
-    const establishSession = useCallback(function (authPubkey) {
+    const establishSession = useCallback(async function (authPubkey) {
         setInProgress(true)
-        getNodePublicKeys()
-            .then(res => {
-                if (!(res && res.indexOf(authPubkey) >= 0)) {
+        try {
+            if (!skipClusterValidation) {
+                const allNodePubkeys = await getNodePublicKeys()
+                if (!(allNodePubkeys && allNodePubkeys.indexOf(authPubkey) >= 0)) {
                     dropSession(authPubkey)
                     throw new Error('Please check the key you are using to log in.')
                 }
-                clientStatus.setNodePubkey(authPubkey)
-                clientStatus.hasSession = true
-                setTimeout(() => {
-                    setInProgress(false)
-                    setAuthorized(true)
-                    setSessionLoading(false)
-                }, 100)
-            })
-            .catch(error => {
-                setAuthorized(false)
-                notify({type: 'error', message: 'Authorization failed. ' + error?.message || ''})
+            }
+            clientStatus.setNodePubkey(authPubkey)
+            clientStatus.hasSession = true
+            setTimeout(() => {
+                setInProgress(false)
+                setAuthorized(true)
                 setSessionLoading(false)
-            })
+            }, 100)
+        } catch (e) {
+            setAuthorized(false)
+            notify({type: 'error', message: 'Authorization failed. ' + e?.message || ''})
+            setSessionLoading(false)
+        }
     }, [setAuthorized, setInProgress])
 
     const authorize = useCallback(() => {

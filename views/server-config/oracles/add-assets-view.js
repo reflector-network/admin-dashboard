@@ -57,8 +57,8 @@ export default function AddAssetsView({settings, contractId}) {
         updateAssets([...editableAssets, asset])
     }, [contract, editableAssets, updateAssets])
 
-    return <ActionNodeLayout title="Tracked assets" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid} description={
-        <AddAssetsDescription/>}>
+    return <ActionNodeLayout title="Tracked assets" settings={changedSettings} timeframe={contract?.timeframe} isValid={isValid}
+                             description={<AddAssetsDescription/>}>
         {supportedAssets?.map(asset =>
             <AssetEntryLayout key={asset.code} asset={asset}/>)}
         {!!editableAssets.length && <h4 className="space">New assets</h4>}
