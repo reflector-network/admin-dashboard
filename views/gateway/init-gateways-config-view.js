@@ -10,7 +10,7 @@ export default function InitGatewaysConfigView({forceSetup = false}) {
 
     if (!setup)
         return <p className="space">
-            Failed to load node gateways configuration. Please check whether your <code>.gateways.json</code> config file is correct.
+            Failed to load node gateways configuration. Please check whether your <code>gateways.json</code> config file is correct.
             If there's no gateway configuration yet, <a href="#" onClick={() => setSetup(true)}>create new initial config</a>.
         </p>
 
@@ -19,7 +19,7 @@ export default function InitGatewaysConfigView({forceSetup = false}) {
         <GatewayListView gateways={gateways} challenge={challenge} updateGateways={setGateways} alwaysReveal/>
         {gateways.length >= 3 && <div className="space">
             <CopyToClipboard text={gatewayConfig}><a href="#" className="icon-copy">Copy generated config</a></CopyToClipboard> and save it
-            as <code>.gateways.json</code> in the node home directory.
+            as <code>gateways.json</code> in the node home directory.
         </div>}
     </div>
 }
