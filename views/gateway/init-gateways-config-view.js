@@ -28,7 +28,12 @@ export default function InitGatewaysConfigView({forceSetup = false}) {
 }
 
 function generateRandomChallenge() {
-    const key = new Uint8Array(32)
-    globalThis.crypto.getRandomValues(key)
-    return Buffer.from(key).toString('base64')
+    let challenge = localStorage.getItem('tmp_challenge')
+    if (!challenge) {
+        const key = new Uint8Array(32)
+        globalThis.crypto.getRandomValues(key)
+        challenge = Buffer.from(key).toString('base64')
+        localStorage.setItem('tmp_challenge', challenge)
+    }
+    return challenge
 }

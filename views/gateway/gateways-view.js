@@ -15,6 +15,7 @@ export default function GatewaysView() {
             .then(res => {
                 setGateways(res.urls || [])
                 setChallenge(res.challenge)
+                localStorage.removeItem('tmp_challenge')
             })
             .catch(e => {
                 console.error(e)
