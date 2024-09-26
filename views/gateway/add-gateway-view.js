@@ -22,7 +22,7 @@ export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
 
     function add() {
         const ipParts = ip.split('.').map(p => parseInt(p, 10))
-        if (ipParts.length !== 4 || ipParts.some(p => !p || p < 1 || p > 255))
+        if (ipParts.length !== 4 || ipParts.some(p => !p || p < 0 || p > 255))
             return notify({type: 'warning', message: 'Invalid IP address'})
         const parsedPort = parseInt(port, 10)
         if (!parsedPort || parsedPort < 1 || parsedPort > 65535)
