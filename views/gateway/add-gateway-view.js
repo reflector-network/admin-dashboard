@@ -1,21 +1,9 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useState} from 'react'
 import {Button, CodeBlock, CopyToClipboard} from '@stellar-expert/ui-framework'
-import {signData} from '../../providers/albedo-provider'
 
-export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
+export default function AddGatewayView({validationKey, gateways, onAdd, onCancel}) {
     const [ip, setIp] = useState('')
     const [port, setPort] = useState('8080') //65,535
-    const [validation, setValidation] = useState('')
-    useEffect(() => {
-        if (!challenge)
-            return setValidation('')
-        signData(challenge)
-            .then(signature => setValidation(Buffer.from(signature, 'hex').toString('base64')))
-            .catch(e => {
-                console.error(e)
-                notify({type: 'error', message: 'Failed to generate gateway validation message'})
-            })
-    }, [challenge])
 
     const changeIp = useCallback(e => setIp(e.target.value.replace(/[^\d.]/g, '')), [])
     const changePort = useCallback(e => setPort(e.target.value.replace(/\D/g, '')), [])
@@ -30,6 +18,7 @@ export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
         const newGatewayAddress = `http://${ip}:${port}`
         if (gateways.includes(newGatewayAddress))
             return notify({type: 'warning', message: 'Gateway with the same address has been already registered'})
+
         onAdd(newGatewayAddress)
     }
 
@@ -39,10 +28,10 @@ export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
         }
     }
 
-    if (!validation)
+    if (!validationKey)
         return <div className="loader"/>
 
-    const cloudInit = formatConfig(validation, port)
+    const cloudInit = formatConfig(validationKey, port)
 
     return <div className="space">
         <hr/>
@@ -60,7 +49,7 @@ export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
             </p>
         </div>
         <div className="relative">
-            <CodeBlock lang="plain">{formatConfig(validation, port)}</CodeBlock>
+            <CodeBlock lang="plain">{cloudInit}</CodeBlock>
             <div style={{position: 'absolute', top: '0.2em', right: '0.1em', fontSize: '1.4em'}}>
                 <CopyToClipboard text={cloudInit} title="Copy cloud-init script to clipboard"/>
             </div>
@@ -92,10 +81,10 @@ export default function AddGatewayView({challenge, gateways, onAdd, onCancel}) {
     </div>
 }
 
-function formatConfig(validation, port) {
+function formatConfig(validationKey, port) {
     return `#cloud-config
 runcmd:
   - ufw allow ${port}/tcp
   - ufw --force enable
-  - docker run -d -p ${port}:8080 --name gateway --restart=unless-stopped -e GATEWAY_VALIDATION_KEY=${validation} reflectornet/reflector-gateway:latest`
+  - docker run -d -p ${port}:8080 --name gateway --restart=unless-stopped -e GATEWAY_VALIDATION_KEY=${validationKey} reflectornet/reflector-gateway:latest`
 }
