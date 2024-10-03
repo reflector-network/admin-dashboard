@@ -6,8 +6,8 @@ import {AccountAddress} from '@stellar-expert/ui-framework'
 const allSections = [
     {name: 'nodes', title: 'Cluster nodes'},
     {name: 'contracts', hasChild: true},
+    {name: 'gateways', title: 'Gateway servers'},
     {name: 'upgrade', title: 'Pending updates'},
-    {name: 'gateways', title: 'Node gateways'},
     {name: 'history', title: 'Changes history'},
     {name: 'logs', title: 'Server logs'},
     {name: 'notification', title: 'Notifications'}
