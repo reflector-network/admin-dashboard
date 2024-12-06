@@ -6,6 +6,7 @@ import NotFoundPage from './pages/not-found-page'
 import DashboardPage from './pages/dashboard-page'
 import ServerConfigurationPage from './pages/server-configuration-page'
 import PublicInitialGatewaysConfigView from './gateway/public-initial-gateways-config-view'
+import MetricsView from './status/metrics-view'
 
 export default function AppRouter({history}) {
     return <Router history={history}>
@@ -19,6 +20,9 @@ export default function AppRouter({history}) {
                 </Route>
                 <Route path="/gateway-initial-config" exact>
                     <PublicInitialGatewaysConfigView/>
+                </Route>
+                <Route path="/gateway-metrics" exact>
+                    <AuthLayout><MetricsView/></AuthLayout>
                 </Route>
                 <Route component={NotFoundPage}/>
             </Switch>

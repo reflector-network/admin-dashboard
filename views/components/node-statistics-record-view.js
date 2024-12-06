@@ -48,9 +48,18 @@ function ContractStatisticsView({statistics = []}) {
     if (!statistics.length)
         return null
 
-    return statistics.map(stat => <div key={stat.contractId || stat.oracleId}>
-        {stat.type === 'subscriptions' ? <SubscriptionStatsView stat={stat}/> : <OracleStatsView stat={stat}/>}
-    </div>)
+    return statistics.map(stat => <div key={stat.contractId || stat.oracleId}><Stats stat={stat}/></div>)
+}
+
+function Stats({stat}){
+    switch(stat.type){
+        case 'subscriptions':
+            return <SubscriptionStatsView stat={stat}/>
+        case 'dao':
+            return <DaoStatsView stat={stat}/>
+        default:
+            return <OracleStatsView stat={stat}/>
+    }
 }
 
 function SubscriptionStatsView({stat}) {
@@ -70,6 +79,26 @@ function SubscriptionStatsView({stat}) {
                 <span className="inline-block account-key">
                     {stat.syncDataHash ? shortenString(stat.syncDataHash, 8) : 'No data'}
                 </span>
+            </div>
+            <div>
+                <span className="dimmed">Processed transactions: </span>
+                <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
+            </div>
+        </div>
+    </>
+}
+
+function DaoStatsView({stat}) {
+    return <>
+        <h4>DAO <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
+        <div className="block-indent text-small">
+            <div>
+                <span className="dimmed">Contract status: </span>
+                <span className="inline-block">{stat.isInitialized ? 'Initialized' : 'Not initialized'}</span>
+            </div>
+            <div>
+                <span className="dimmed">Contract type: </span>
+                <span className="inline-block">DAO</span>
             </div>
             <div>
                 <span className="dimmed">Processed transactions: </span>

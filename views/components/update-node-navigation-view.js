@@ -32,10 +32,10 @@ export default function UpdateNodeNavigationView({configuration}) {
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
             {section.hasChild ? Object.keys(contracts || []).map(contract => {
-                    const type = contracts[contract].type === 'subscriptions' ? 'Subscriptions' : 'Oracle'
-                    const list = contractSections.filter(item => item.type === type.toLowerCase())
+                    const type = contracts[contract].type || 'oracle'
+                    const list = contractSections.filter(item => item.type === type)
                     return <span key={contract}>
-                    {type} <AccountAddress account={contract} className="condensed"/>
+                    {resolveTitle(contracts[contract].type)} <AccountAddress account={contract} className="condensed"/>
                     <ul key={contract} style={{margin: '0.3em 1em'}}>
                         {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
                             {(subSection.name === activeSection && currentContract === contract) ?
@@ -51,6 +51,17 @@ export default function UpdateNodeNavigationView({configuration}) {
                     <NavigationItemView title={section.title} link={'/?section=' + section.name}/>)}
         </li>)}
     </ul>
+}
+
+function resolveTitle(type) {
+    switch (type) {
+        case 'subscriptions':
+            return 'Subscriptions'
+        case 'dao':
+            return 'DAO'
+        default:
+            return 'Oracle'
+    }
 }
 
 function NavigationItemView({title, link}) {

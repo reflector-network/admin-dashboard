@@ -6,9 +6,8 @@ import AssetCodeView from './asset-code-view'
 export default function ChangesRecordView({data}) {
     switch (data.category) {
         case 'contract':
-            const type = data.type === 'subscriptions' ? 'Subscriptions' : 'Oracle'
             return <div className="micro-space">
-                <i className="icon-puzzle"/> {type} <span title={data.uid}>{shortenString(data.uid)}</span> {data.action}:
+                <i className="icon-puzzle"/> {data.type||'oracle'} <span title={data.uid}>{shortenString(data.uid)}</span> {data.action}:
                 <div className="block-indent">
                     {data.action === 'updated' ?
                         data.changes.map(property => {

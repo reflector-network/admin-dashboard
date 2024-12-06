@@ -60,6 +60,10 @@ export function getStatistics() {
     return getApi('statistics', {}, true)
 }
 
+export function getMetrics() {
+    return getApi('metrics', {})
+}
+
 export function getNotificationSettings() {
     return getApi('settings/node')
 }
