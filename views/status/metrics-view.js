@@ -32,7 +32,7 @@ export default withErrorBoundary(function MetricsView() {
     const nodes = Object.entries(metrics.gatewaysMetrics)
         .map(([publicKey, props]) => ({
             key: publicKey,
-            title: publicKey,
+            title: <><i className={!props.length ? 'icon-warning color-warning' : 'icon-cloud'}/> {publicKey}</>,
             content: <div key={publicKey}>
                 {props.map((record, i) => <div key={i + publicKey}>
                     <div className="text-small block-indent">
@@ -52,7 +52,6 @@ export default withErrorBoundary(function MetricsView() {
                                     <code>{code}</code>: {num}</div>)}
                             </div>
                         </div>}
-
                     </div>
                     <CodeBlock lang="json" style={{maxHeight: '40vh'}}>
                         {JSON.stringify(record.dataStreams, null, 2)}
