@@ -46,7 +46,7 @@ export default function GatewayListView({gateways, challenge, updateGateways, lo
             return
         validateGateways(gateways, validationKey)
             .then(setGatewaysStatus)
-    }, [gateways])
+    }, [gateways, validationKey])
 
     if (!gateways)
         return <div className="loader"/>
