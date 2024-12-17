@@ -54,7 +54,7 @@ export default withErrorBoundary(function MetricsView() {
                         </div>}
                     </div>
                     <CodeBlock lang="json" style={{maxHeight: '40vh'}}>
-                        {JSON.stringify(record.dataStreams, null, 2)}
+                        {record.dataStreams ? JSON.stringify(record.dataStreams, null, 2) : '(no data streams)'}
                     </CodeBlock>
                 </div>)}
             </div>
