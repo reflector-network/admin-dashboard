@@ -3,7 +3,7 @@ import {getLogFile, getServerLogs, postApi} from '../../api/interface'
 import ConfigLayout from '../server-config/config-layout'
 import TabularDataView from './tabular-data-view'
 
-export default function ConfigurationLogsView() {
+export default function ServerLogsView() {
     const [links, setLinks] = useState(['error.log'])
     const [isTraceEnabled, setIsTraceEnabled] = useState(false)
 
@@ -13,10 +13,10 @@ export default function ConfigurationLogsView() {
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
-                notify({type: 'success', message: 'Trace settings updated'})
+                notify({type: 'success', message: 'Log trace settings updated'})
                 setIsTraceEnabled(enabled)
             })
-            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing'}))
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing settings'}))
     }, [])
 
     useEffect(() => {
@@ -29,19 +29,19 @@ export default function ConfigurationLogsView() {
                 setLinks(logs)
                 setIsTraceEnabled(res.isTraceEnabled)
             })
-            .catch(error => notify({type: 'error', message: error?.message || 'Failed to get configuration history'}))
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to load logs'}))
     }, [])
     const tracingControl = <div className="micro-space">
         <label><input type="checkbox" checked={isTraceEnabled} onChange={updateTrace}/> Tracing enabled</label>
     </div>
-    return <ConfigLayout title="Server logs" primaryAction={tracingControl}>
+    return <ConfigLayout title="Server Logs" primaryAction={tracingControl}>
         {links.length ?
             <PaginatedLogView links={links}/> :
-            <div className="space text-center">There are no entries</div>}
+            <div className="space text-center">No log entries</div>}
     </ConfigLayout>
 }
 
-function PaginatedLogView({links, limit = 20}) {
+function PaginatedLogView({links, limit = 30}) {
     const [partialLinks, setPartialLinks] = useState(links.slice(0, limit))
 
     const updatePartialLinks = useCallback((page, limit) =>
@@ -61,10 +61,9 @@ function PaginatedLogView({links, limit = 20}) {
                 document.body.appendChild(tempLink)
                 tempLink.click()
                 document.body.removeChild(tempLink)
-
                 window.URL.revokeObjectURL(downloadUrl)
             })
-            .catch(error => notify({type: 'error', message: error?.message || 'Failed to download log'}))
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to download logs'}))
     }, [])
 
     return <TabularDataView dataList={partialLinks} updateList={updatePartialLinks}>

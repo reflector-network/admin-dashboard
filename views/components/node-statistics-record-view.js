@@ -13,7 +13,7 @@ export default function NodeStatisticsRecordView({stat}) {
             <span className="dimmed">Uptime: </span>
             <span className="inline-block">
                 {stat.startTime ?
-                    <><ElapsedTime ts={stat.startTime}/> <span className="dimmed text-tiny">(from <UtcTimestamp date={stat.startTime}/>)</span></> :
+                    <><ElapsedTime ts={stat.startTime}/> <span className="dimmed text-tiny">since <UtcTimestamp date={stat.startTime}/></span></> :
                     'No data'}
             </span>
         </div>

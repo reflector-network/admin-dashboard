@@ -7,6 +7,7 @@ import DashboardPage from './pages/dashboard-page'
 import ServerConfigurationPage from './pages/server-configuration-page'
 import PublicInitialGatewaysConfigView from './gateway/public-initial-gateways-config-view'
 import MetricsView from './status/metrics-view'
+import LogsView from './status/logs-view'
 
 export default function AppRouter({history}) {
     return <Router history={history}>
@@ -23,6 +24,9 @@ export default function AppRouter({history}) {
                 </Route>
                 <Route path="/gateway-metrics" exact>
                     <AuthLayout><MetricsView/></AuthLayout>
+                </Route>
+                <Route path="/node-logs" exact>
+                    <AuthLayout><LogsView/></AuthLayout>
                 </Route>
                 <Route component={NotFoundPage}/>
             </Switch>

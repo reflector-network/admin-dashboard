@@ -1,7 +1,7 @@
 {
   "name": "@reflector/admin-dashboard",
   "private": true,
-  "version": "0.6.6",
+  "version": "0.6.7",
   "author": "team@stellar.expert",
   "description": "Admin dashboard for Reflector nodes",
   "scripts": {
