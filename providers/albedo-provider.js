@@ -63,7 +63,7 @@ export async function signData(data) {
 
 export function dropSession(authPubkey) {
     //forget session
-    if (typeof authPubkey ==='string') {
+    if (typeof authPubkey === 'string') {
         albedo.forgetImplicitSession(authPubkey || clientStatus.clientPublicKey)
     }
     if (clientStatus.clientPublicKey) {
@@ -72,4 +72,8 @@ export function dropSession(authPubkey) {
     localStorage.removeItem('albedo_session')
     clientStatus.clientPublicKey = ''
     clientStatus.pollSession()
+}
+
+export function signTx(txXdr, pubkey, network, description, submit = false) {
+    return albedo.tx({xdr: txXdr, pubkey, network, submit, description})
 }

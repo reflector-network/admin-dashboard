@@ -6,7 +6,7 @@ export default function ConfigLayout({title, description, children, primaryActio
             <div className="column column-66">
                 <h2>{title}</h2>
             </div>
-            {!!primaryAction && <div className="column column-34 text-right mobile-left" style={{paddingTop: '0.5em'}}>
+            {!!primaryAction && <div className="column column-34 desktop-right" style={{paddingTop: '0.5em'}}>
                 {primaryAction}
             </div>}
         </div>

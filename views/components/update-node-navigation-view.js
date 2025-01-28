@@ -2,6 +2,7 @@ import React from 'react'
 import {useLocation} from 'react-router'
 import {parseQuery} from '@stellar-expert/navigation'
 import {AccountAddress} from '@stellar-expert/ui-framework'
+import {NavigationItemView} from './nav-item'
 
 const allSections = [
     {name: 'nodes', title: 'Cluster nodes'},
@@ -62,10 +63,4 @@ function resolveTitle(type) {
         default:
             return 'Oracle'
     }
-}
-
-function NavigationItemView({title, link}) {
-    if (link)
-        return <a href={link}>{title}</a>
-    return <span><i className="icon-angle-double-right"/>{title}</span>
 }

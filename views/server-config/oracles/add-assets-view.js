@@ -91,9 +91,10 @@ function AddAssetsDescription() {
 function AssetEntryLayout({asset, editableAssets = [], updateAssets}) {
     const removeAsset = useCallback(() => {
         const confirmation = `Do you really want to remove this asset?`
-        if (confirm(confirmation)) {
-            updateAssets(editableAssets.filter(a => a.code !== asset.code))
-        }
+        confirm(confirmation)
+            .then(() => {
+                updateAssets(editableAssets.filter(a => a.code !== asset.code))
+            })
     }, [asset, editableAssets, updateAssets])
 
     return <div key={asset.code} className="micro-space">

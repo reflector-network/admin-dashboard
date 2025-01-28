@@ -1,7 +1,7 @@
 {
   "name": "@reflector/admin-dashboard",
   "private": true,
-  "version": "0.6.7",
+  "version": "0.7.0",
   "author": "team@stellar.expert",
   "description": "Admin dashboard for Reflector nodes",
   "scripts": {
@@ -17,8 +17,9 @@
     "@stellar-expert/formatter": "^2.5.0",
     "@stellar-expert/client-cache": "github:stellar-expert/client-cache",
     "@stellar-expert/navigation": "github:stellar-expert/navigation#v1.0.2",
-    "@stellar-expert/ui-framework": "1.13.5",
-    "@stellar/stellar-sdk": "^12.2.0",
+    "@stellar-expert/ui-framework": "1.14.3",
+    "@stellar/stellar-sdk": "^13.1.0",
+    "@reflector/dao-client": "^1.1.0",
     "classnames": "^2.5.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

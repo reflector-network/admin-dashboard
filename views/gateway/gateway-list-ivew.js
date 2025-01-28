@@ -24,21 +24,23 @@ export default function GatewayListView({gateways, challenge, updateGateways, lo
 
     const finishEditing = useCallback(() => setShowEditor(false), [])
     const removeGateway = useCallback(gatewayToRemove => {
-        if (!confirm(`Remove ${gatewayToRemove} from the gateway list?`))
-            return
-        const newList = gateways.slice(0)
-        newList.splice(newList.indexOf(gatewayToRemove), 1)
-        updateGateways(newList)
-        setShowEditor(false)
+        confirm(`Remove ${gatewayToRemove} from the gateway list?`)
+            .then(() => {
+                const newList = gateways.slice(0)
+                newList.splice(newList.indexOf(gatewayToRemove), 1)
+                updateGateways(newList)
+                setShowEditor(false)
+            })
     }, [gateways, updateGateways])
 
     const addGateway = useCallback(gatewayToAdd => {
-        if (!confirm(`Add ${gatewayToAdd} to the gateway list?`))
-            return
-        const newList = gateways.slice(0)
-        newList.push(gatewayToAdd)
-        updateGateways(newList)
-        setShowEditor(false)
+        confirm(`Add ${gatewayToAdd} to the gateway list?`)
+            .then(() => {
+                const newList = gateways.slice(0)
+                newList.push(gatewayToAdd)
+                updateGateways(newList)
+                setShowEditor(false)
+            })
     }, [gateways, updateGateways])
 
     useEffect(() => {
