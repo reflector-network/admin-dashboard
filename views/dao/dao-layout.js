@@ -19,7 +19,7 @@ export default function DaoLayout() {
                     <Route path="/dao/claim">
                         <ClaimDaoRewardsView/>
                     </Route>
-                    <Route path="/dao/vote-tx/:ballotId">
+                    <Route path="/dao/vote-tx">
                         <DaoBallotTxView/>
                     </Route>
                 </Switch>
