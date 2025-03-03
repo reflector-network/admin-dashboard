@@ -84,7 +84,7 @@ export async function getTx(hash) {
 }
 
 async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null, body = undefined}) {
-    const url = apiOrigin + relativeUrl
+    const url = orchestratorApiOrigin + relativeUrl
     const headers = {'Content-Type': 'application/json'}
     if (authorizationHeader) {
         headers.Authorization = authorizationHeader

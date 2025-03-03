@@ -2,7 +2,7 @@ import React from 'react'
 import {Route, Switch, useLocation} from 'react-router'
 import ClaimDaoRewardsView from './claim-dao-rewards-view'
 import {NavigationItemView} from '../components/nav-item'
-import GovernanceVoteView from './governance-vote-view'
+import DaoBallotTxView from './dao-ballot-tx-generator-view'
 
 export default function DaoLayout() {
     return <>
@@ -19,8 +19,8 @@ export default function DaoLayout() {
                     <Route path="/dao/claim">
                         <ClaimDaoRewardsView/>
                     </Route>
-                    <Route path="/dao/vote">
-                        <GovernanceVoteView/>
+                    <Route path="/dao/vote-tx/:ballotId">
+                        <DaoBallotTxView/>
                     </Route>
                 </Switch>
             </div>
@@ -42,5 +42,4 @@ function DaoNav() {
             <NavigationItemView link={pathname === link.href ? undefined : link.href} title={link.text}/>
         </li>)}
     </ul>
-
 }

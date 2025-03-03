@@ -1,11 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {StrKey, TransactionBuilder} from '@stellar/stellar-sdk'
+import {StrKey} from '@stellar/stellar-sdk'
 import {Amount, Button, InfoTooltip, useStellarNetwork} from '@stellar-expert/ui-framework'
 import {fromStroops, toStroops} from '@stellar-expert/formatter'
-import DaoClient from '@reflector/dao-client'
 import clientStatus from '../../state/client-status'
-import {signTx} from '../../providers/albedo-provider'
 import ConfigLayout from '../server-config/config-layout'
+import {createdDaoClient} from './dao-client'
 
 const xrf = 'XRF-GCHI6I3X62ND5XUMWINNNKXS2HPYZWKFQBZZYBSMHJ4MIP2XJXSZTXRF'
 
@@ -17,8 +16,9 @@ export default function ClaimDaoRewardsView() {
 
     const updateAvailableAmount = useCallback(() => {
         setAvailable(undefined)
-        createdDaoClient(network)
-            .available(clientStatus.clientPublicKey)
+        const {clientPublicKey} = clientStatus
+        createdDaoClient(network, clientPublicKey)
+            .available(clientPublicKey)
             .then(available => {
                 setAvailable(available)
                 setAmount(fromStroops(available))
@@ -102,15 +102,4 @@ function ClaimRewardsDescription() {
             Additionally, Reflector developers receive 0.03% of XRF tokens remaining in the DAO fund.
         </p>
     </div>
-}
-
-function createdDaoClient(network, autoSubmit = false) {
-    return new DaoClient({
-        publicKey: clientStatus.clientPublicKey,
-        rpcUrl: network === 'testnet' ? 'https://soroban-testnet.stellar.org' : 'https://mainnet.sorobanrpc.com',
-        signTransaction: async function (tx, {network, networkPassphrase, accountToSign}) {
-            const res = await signTx(tx, accountToSign, networkPassphrase, null, autoSubmit)
-            return TransactionBuilder.fromXDR(res.signed_envelope_xdr, networkPassphrase)
-        }
-    })
 }
