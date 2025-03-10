@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {Dropdown, withErrorBoundary} from '@stellar-expert/ui-framework'
-import {getLogFile, getNodePublicKeys, getServerLogs} from '../../api/interface'
+import {getLogFile, getNodePublicKeys, getServerLogs, postApi} from '../../api/interface'
 
 export default function LogsView() {
     const [availableNodes, setAvailableNodes] = useState()
@@ -36,6 +36,19 @@ export default function LogsView() {
 
 const NodeLogs = withErrorBoundary(function NodeLogs({node, type}) {
     const [logs, setLogs] = useState()
+    const [isTraceEnabled, setIsTraceEnabled] = useState(false)
+
+    const updateTrace = useCallback(e => {
+        const enabled = e.target.checked
+        postApi('logs/trace', {isTraceEnabled: enabled, node})
+            .then(res => {
+                if (res.error)
+                    throw new Error(res.error)
+                notify({type: 'success', message: 'Log trace settings updated'})
+                setIsTraceEnabled(enabled)
+            })
+            .catch(error => notify({type: 'error', message: error?.message || 'Failed to update tracing settings'}))
+    }, [node])
     useEffect(() => {
         if (!node) {
             setLogs(null)
@@ -47,6 +60,7 @@ const NodeLogs = withErrorBoundary(function NodeLogs({node, type}) {
                     throw new Error(logs.error)
                 //getting the latest data
                 setLogs(logs)
+                setIsTraceEnabled(logs.isTraceEnabled)
             })
             .catch((error) => {
                 notify({
@@ -56,7 +70,6 @@ const NodeLogs = withErrorBoundary(function NodeLogs({node, type}) {
                 setLogs(null)
             })
     }, [node, type])
-
 
     if (!node)
         return null
@@ -70,6 +83,9 @@ const NodeLogs = withErrorBoundary(function NodeLogs({node, type}) {
         </div>
 
     return <div>
+        <div className="micro-space desktop-right">
+            <label><input type="checkbox" checked={isTraceEnabled} onChange={updateTrace}/> Tracing enabled</label>
+        </div>
         {logs.logFiles.map(link => <div key={link} className="nano-space">
             <a className="icon-download" data-link={link} data-node={node} onClick={downloadFile}>{link}</a>
         </div>)}
