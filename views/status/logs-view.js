@@ -40,7 +40,7 @@ const NodeLogs = withErrorBoundary(function NodeLogs({node, type}) {
 
     const updateTrace = useCallback(e => {
         const enabled = e.target.checked
-        postApi('logs/trace', {isTraceEnabled: enabled, node})
+        postApi('logs/trace?node=' + node, {isTraceEnabled: enabled})
             .then(res => {
                 if (res.error)
                     throw new Error(res.error)
