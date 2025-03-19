@@ -48,12 +48,12 @@ export function getConfigHistory(params) {
     return getApi('config/history', params)
 }
 
-export function getServerLogs() {
-    return getApi('logs')
+export function getServerLogs(node) {
+    return getApi('logs', withNodeParam(node))
 }
 
-export function getLogFile(filename) {
-    return getApi('logs/' + filename)
+export function getLogFile(filename, node) {
+    return getApi('logs/' + filename, withNodeParam(node))
 }
 
 export function getStatistics() {
@@ -64,12 +64,16 @@ export function getNotificationSettings() {
     return getApi('settings/node')
 }
 
-export function getGatewaysInfo(){
+export function getGatewaysInfo() {
     return getApi('gateways')
 }
 
 export function updateGatewaysInfo({challenge, urls}) {
     return postApi('gateways', {challenge, urls})
+}
+
+export function getMetrics() {
+    return getApi('metrics', {})
 }
 
 export async function getTx(hash) {
@@ -80,7 +84,7 @@ export async function getTx(hash) {
 }
 
 async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null, body = undefined}) {
-    const url = apiOrigin + relativeUrl
+    const url = orchestratorApiOrigin + relativeUrl
     const headers = {'Content-Type': 'application/json'}
     if (authorizationHeader) {
         headers.Authorization = authorizationHeader
@@ -95,4 +99,12 @@ async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null
 
 function generateNonce() {
     return new Date().getTime()
+}
+
+function withNodeParam(node) {
+    const params = {}
+    if (node) {
+        params.node = node
+    }
+    return params
 }

@@ -29,7 +29,7 @@ export default function InitGatewaysConfigView({forceSetup = false}) {
         <h3>Initial gateways configuration</h3>
         <GatewayListView gateways={gateways} challenge={challenge} updateGateways={setGateways} alwaysReveal loadConfig={loadConfig}/>
         {gateways.length >= 1 && <div className="space">
-            <a href={downloadHref} target="_blank" className="icon-download-circle" download="gateways.json">Download</a> or{' '}
+            <a href={downloadHref} className="icon-download-circle" download="gateways.json">Download</a> or{' '}
             <CopyToClipboard text={gatewayConfig}><a href="#" className="icon-copy">copy</a></CopyToClipboard> generated config and save it
             as <code>gateways.json</code> in the node home directory.
         </div>}

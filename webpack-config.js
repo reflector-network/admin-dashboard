@@ -16,7 +16,9 @@ module.exports = initWebpackConfig({
     },
     define: {
         appVersion: pkgInfo.version,
-        apiOrigin: process.env.apiOrigin || 'http://localhost:12274/'
+        orchestratorApiOrigin: process.env.ORCHESTRATOR_ORIGIN || process.env.apiOrigin || 'https://orchestrator.reflector.network/',
+        daoContractId: process.env.DAO_CONTRACTID || 'CBQSUF57OYX4RIMCZV62DKN6JFOTEKPHIZASMJYOUOCNHGNG2P3XQLSE',
+        daoAdmin: process.env.DAO_ADMIN || 'GDSRHC7U5XWNGHDML6SBU7HXLH67ILO7PCCCFMN55PPBYYCZEAU4FXRF'
     },
     devServer: {
         host: '0.0.0.0',

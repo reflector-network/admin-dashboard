@@ -2,12 +2,13 @@ import React from 'react'
 import {useLocation} from 'react-router'
 import {parseQuery} from '@stellar-expert/navigation'
 import {AccountAddress} from '@stellar-expert/ui-framework'
+import {NavigationItemView} from './nav-item'
 
 const allSections = [
     {name: 'nodes', title: 'Cluster nodes'},
     {name: 'contracts', hasChild: true},
+    {name: 'gateways', title: 'Gateway servers'},
     {name: 'upgrade', title: 'Pending updates'},
-    {name: 'gateways', title: 'Node gateways'},
     {name: 'history', title: 'Changes history'},
     {name: 'logs', title: 'Server logs'},
     {name: 'notification', title: 'Notifications'}
@@ -32,10 +33,10 @@ export default function UpdateNodeNavigationView({configuration}) {
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
             {section.hasChild ? Object.keys(contracts || []).map(contract => {
-                    const type = contracts[contract].type === 'subscriptions' ? 'Subscriptions' : 'Oracle'
-                    const list = contractSections.filter(item => item.type === type.toLowerCase())
+                    const type = contracts[contract].type || 'oracle'
+                    const list = contractSections.filter(item => item.type === type)
                     return <span key={contract}>
-                    {type} <AccountAddress account={contract} className="condensed"/>
+                    {resolveTitle(contracts[contract].type)} <AccountAddress account={contract} className="condensed"/>
                     <ul key={contract} style={{margin: '0.3em 1em'}}>
                         {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
                             {(subSection.name === activeSection && currentContract === contract) ?
@@ -53,8 +54,13 @@ export default function UpdateNodeNavigationView({configuration}) {
     </ul>
 }
 
-function NavigationItemView({title, link}) {
-    if (link)
-        return <a href={link}>{title}</a>
-    return <span><i className="icon-angle-double-right"/>{title}</span>
+function resolveTitle(type) {
+    switch (type) {
+        case 'subscriptions':
+            return 'Subscriptions'
+        case 'dao':
+            return 'DAO'
+        default:
+            return 'Oracle'
+    }
 }

@@ -6,10 +6,9 @@ import DialogView from '../../components/dialog-view'
 function validateNode(node) {
     if (!StrKey.isValidEd25519PublicKey(node.pubkey))
         return false
-    const pattern = new RegExp(/^(http:\/\/|https:\/\/|ws:\/\/|wss:\/\/)?(localhost|(([0-9]{1,3}\.){3}[0-9]{1,3})|([\da-z.-]+)\.([a-z.]{2,6}))(:(\d+))?$/)
-    if (!node.url?.length || !pattern.test(node.url))
+    if (!node.url?.length || !/^(|ws:\/\/|wss:\/\/)[\w-.:]+$/.test(node.url))
         return false
-    if (!node.domain?.length)
+    if (!node.domain?.length|| !/^[\w-.:]+$/.test(node.domain))
         return false
     return true
 }

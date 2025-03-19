@@ -62,12 +62,13 @@ function NodeEntryLayout({node, save, isLimitUpdates}) {
 
     const removeNode = useCallback(() => {
         const confirmation = `Do you really want to remove this node?`
-        if (confirm(confirmation)) {
-            save({
-                ...node,
-                remove: true
+        confirm(confirmation)
+            .then(() => {
+                save({
+                    ...node,
+                    remove: true
+                })
             })
-        }
     }, [node, save])
 
     const onSave = useCallback(node => {

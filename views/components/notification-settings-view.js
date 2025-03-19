@@ -78,15 +78,16 @@ function NotificationEntryView({notification, update, setHasChanges}) {
 
     const removeNotification = useCallback(() => {
         const confirmation = `Do you really want to remove this email?`
-        if (confirm(confirmation)) {
-            update(prev => {
-                const emails = [...prev.emails]
-                const index = prev.emails.findIndex(n => n.email === notification.email)
-                emails.splice(index, 1)
-                return {...prev, emails}
+        confirm(confirmation)
+            .then(() => {
+                update(prev => {
+                    const emails = [...prev.emails]
+                    const index = prev.emails.findIndex(n => n.email === notification.email)
+                    emails.splice(index, 1)
+                    return {...prev, emails}
+                })
+                setHasChanges(true)
             })
-            setHasChanges(true)
-        }
     }, [notification, update, setHasChanges])
 
     const onSave = useCallback(notification => {
