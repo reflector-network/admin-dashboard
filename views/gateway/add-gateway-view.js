@@ -3,10 +3,14 @@ import {Button, CodeBlock, CopyToClipboard} from '@stellar-expert/ui-framework'
 
 export default function AddGatewayView({validationKey, gateways, onAdd, onCancel}) {
     const [ip, setIp] = useState('')
-    const [port, setPort] = useState('8080') //65,535
+    const [port, setPort] = useState(sessionStorage.getItem('gateway-port') || '8080') //65,535
 
     const changeIp = useCallback(e => setIp(e.target.value.replace(/[^\d.]/g, '')), [])
-    const changePort = useCallback(e => setPort(e.target.value.replace(/\D/g, '')), [])
+    const changePort = useCallback(e => {
+        const port = e.target.value.replace(/\D/g, '')
+        setPort(port)
+        sessionStorage.setItem('gateway-port', port)
+    }, [])
 
     function add() {
         const ipParts = ip.split('.').map(p => parseInt(p, 10))

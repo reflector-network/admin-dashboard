@@ -7,14 +7,30 @@ export default function InitGatewaysConfigView({forceSetup = false}) {
     const [gateways, setGateways] = useState([])
     const [challenge, setChallenge] = useState(() => obtainTemporaryChallenge())
 
-    const loadConfig = useCallback(({gateways, challenge: newChallenge})=>{
+    const loadConfig = useCallback(({gateways, challenge: newChallenge}) => {
         if (!newChallenge)
             return notify({type: 'error', message: 'No challenge provided'})
         /*if (challenge&&newChallenge!==challenge)
             notify({type: 'warning', message: 'Please note, the loaded '})*/
         setGateways(gateways)
         setChallenge(newChallenge)
-    },[])
+    }, [])
+
+    const gatewayConfig = JSON.stringify({urls: gateways, challenge}, null, 2)
+
+    const initiateDownload = useCallback(e => {
+        const blob = new Blob([gatewayConfig], {type: 'application/json'})
+        const fileURL = URL.createObjectURL(blob)
+        const downloadLink = document.createElement('a')
+        downloadLink.href = fileURL
+        downloadLink.download = 'gateways.json'
+        document.body.appendChild(downloadLink)
+        downloadLink.click()
+        setTimeout(() => {
+            URL.revokeObjectURL(fileURL)
+            document.body.removeChild(downloadLink)
+        }, 1000)
+    }, [gatewayConfig])
 
     if (!setup)
         return <p className="space">
@@ -22,14 +38,12 @@ export default function InitGatewaysConfigView({forceSetup = false}) {
             If there's no gateway configuration yet, <a href="#" onClick={() => setSetup(true)}>create new initial config</a>.
         </p>
 
-    const gatewayConfig = JSON.stringify({urls: gateways, challenge}, null, 2)
-    const downloadHref = 'data:application/json,' + encodeURIComponent(gatewayConfig)
-
     return <div>
         <h3>Initial gateways configuration</h3>
         <GatewayListView gateways={gateways} challenge={challenge} updateGateways={setGateways} alwaysReveal loadConfig={loadConfig}/>
         {gateways.length >= 1 && <div className="space">
-            <a href={downloadHref} className="icon-download-circle" download="gateways.json">Download</a> or{' '}
+            <hr className="flare"/>
+            <a href="#" className="icon-download-circle" download="gateways.json" onClick={initiateDownload}>Download</a> or{' '}
             <CopyToClipboard text={gatewayConfig}><a href="#" className="icon-copy">copy</a></CopyToClipboard> generated config and save it
             as <code>gateways.json</code> in the node home directory.
         </div>}

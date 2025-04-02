@@ -16,7 +16,9 @@ export default function ConfigLayout({title, description, children, primaryActio
         {description ?
             <div className="row space" style={{minHeight: 'calc(100% - 7em)'}}>
                 <div className="column column-66">{children}</div>
-                <div className="column column-34 text-small dimmed space" style={{borderLeft: '1px solid #555', paddingLeft: '2em'}}>
+                <div className="column column-34 text-small dimmed space">
+                    <div className="space mobile-only"/>
+                    <div className="desktop-only" style={{borderLeft: '1px solid #555', margin: '0.5em 2em 0 0', float: 'left', height: '100%'}}></div>
                     {description}
                 </div>
             </div> :
