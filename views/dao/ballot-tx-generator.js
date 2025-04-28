@@ -21,7 +21,7 @@ async function buildVotingTx(ballotId, ballot, accepted) {
     const expires = new Date(Number(ballot.created) * 1000 + 14 * 24 * 60 * 60 * 1000)
     const txSource = await new Horizon.Server('https://horizon.stellar.org/').loadAccount(daoChannelAccount)
     const builder = new TransactionBuilder(txSource, {
-        fee: voteTx.built.fee,
+        fee: (parseInt(voteTx.built.fee, 10) + 5000000).toString(), //+0.5 XLM
         sorobanData: voteTx.simulationData.transactionData,
         networkPassphrase: Networks.PUBLIC
     })
