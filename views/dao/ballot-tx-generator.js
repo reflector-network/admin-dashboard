@@ -1,4 +1,5 @@
-import {Horizon, Networks, Operation, TransactionBuilder} from '@stellar/stellar-base'
+import {Networks, Operation, TransactionBuilder} from '@stellar/stellar-base'
+import {Horizon} from '@stellar/stellar-sdk'
 import {createdDaoClient} from './dao-client'
 
 const daoChannelAccount = 'GBPMF5VB7OS5J7DHWILIMHJJ7AP6ERRC66VW7BTGTGXD2PJ2XVFQRDAO'
