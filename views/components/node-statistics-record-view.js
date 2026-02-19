@@ -108,9 +108,9 @@ function DaoStatsView({stat}) {
     </>
 }
 
-function OracleStatsView({stat}) {
+function OracleStatsView({stat, type}) {
     return <>
-        <h4>Oracle <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
+        <h4>{type === 'oracle_beam' ? 'Oracle Beam' : 'Oracle'} <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
         <div className="block-indent text-small">
             <div>
                 <span className="dimmed">Contract status: </span>
@@ -118,7 +118,7 @@ function OracleStatsView({stat}) {
             </div>
             <div>
                 <span className="dimmed">Contract type: </span>
-                <span className="inline-block">Oracle</span>
+                <span className="inline-block">{type === 'oracle_beam' ? 'Oracle Beam' : 'Oracle'}</span>
             </div>
             <div>
                 <span className="dimmed">Last processed round: </span>

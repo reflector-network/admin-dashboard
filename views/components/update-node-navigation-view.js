@@ -15,9 +15,9 @@ const allSections = [
 ]
 
 const contractSections = [
-    {name: 'assets', title: 'Tracked assets', type: 'oracle'},
-    {name: 'period', title: 'Retention period', type: 'oracle'},
-    {name: 'baseFee', title: 'Base fee', type: 'subscriptions'}
+    {name: 'assets', title: 'Tracked assets', types: ['oracle', 'oracle_beam']},
+    {name: 'period', title: 'Retention period', types: ['oracle', 'oracle_beam']},
+    {name: 'baseFee', title: 'Base fee', types: ['subscriptions']}
 ]
 
 export default function UpdateNodeNavigationView({configuration}) {
@@ -34,18 +34,18 @@ export default function UpdateNodeNavigationView({configuration}) {
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
             {section.hasChild ? Object.keys(contracts || []).map(contract => {
                     const type = contracts[contract].type || 'oracle'
-                    const list = contractSections.filter(item => item.type === type)
+                    const list = contractSections.filter(item => item.types.includes(type))
                     return <span key={contract}>
-                    {resolveTitle(contracts[contract].type)} <AccountAddress account={contract} className="condensed"/>
-                    <ul key={contract} style={{margin: '0.3em 1em'}}>
-                        {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
-                            {(subSection.name === activeSection && currentContract === contract) ?
-                                <NavigationItemView title={subSection.title}/> :
-                                <NavigationItemView title={subSection.title}
-                                                    link={'/?section=' + subSection.name + '&contract=' + contract}/>}
-                        </li>)}
-                    </ul>
-                </span>
+                        {resolveTitle(contracts[contract].type)} <AccountAddress account={contract} className="condensed"/>
+                        <ul key={contract} style={{margin: '0.3em 1em'}}>
+                            {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
+                                {(subSection.name === activeSection && currentContract === contract) ?
+                                    <NavigationItemView title={subSection.title}/> :
+                                    <NavigationItemView title={subSection.title}
+                                                        link={'/?section=' + subSection.name + '&contract=' + contract}/>}
+                            </li>)}
+                        </ul>
+                    </span>
                 }) :
                 (section.name === activeSection ?
                     <NavigationItemView title={section.title}/> :
@@ -56,11 +56,13 @@ export default function UpdateNodeNavigationView({configuration}) {
 
 function resolveTitle(type) {
     switch (type) {
-        case 'subscriptions':
-            return 'Subscriptions'
-        case 'dao':
-            return 'DAO'
-        default:
-            return 'Oracle'
+    case 'subscriptions':
+        return 'Subscriptions'
+    case 'dao':
+        return 'DAO'
+    case 'oracle_beam':
+        return 'Oracle Beam'
+    default:
+        return 'Oracle'
     }
 }
