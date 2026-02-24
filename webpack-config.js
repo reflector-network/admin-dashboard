@@ -12,7 +12,11 @@ module.exports = initWebpackConfig({
     outputPath: path.join(__dirname, './public/'),
     staticFilesPath:'./static/',
     scss: {
-        additionalData: '@import "~@stellar-expert/ui-framework/basic-styles/variables.scss";'
+        additionalData: '@import "~@stellar-expert/ui-framework/basic-styles/variables.scss";',
+        sassOptions: {
+            quietDeps: true,
+            silenceDeprecations: ['import']
+        }
     },
     define: {
         appVersion: pkgInfo.version,
