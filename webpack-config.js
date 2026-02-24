@@ -22,7 +22,7 @@ module.exports = initWebpackConfig({
     },
     devServer: {
         host: '0.0.0.0',
-        https: false,
+        server: 'http',
         port: 9003
     }
 })
