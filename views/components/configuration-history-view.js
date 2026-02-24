@@ -97,7 +97,7 @@ export default function ConfigurationHistoryView() {
                     </table>
                 </TabularDataView>
             </> :
-            <div className="text-center double-space dimmed text-small">(no changes history yet)</div>}
+            <div className="text-center double-space dimmed text-small">(no config changes yet)</div>}
         <DialogView dialogOpen={isOpen}>
             {!!config && <div>
                 <h3>Quorum configuration file</h3>

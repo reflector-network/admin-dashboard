@@ -52,9 +52,10 @@ export default function NotificationSettingsView() {
                 notifications.emails.map(entry =>
                     <NotificationEntryView key={entry.email} notification={entry}
                                            update={setNotifications} setHasChanges={setHasChanges}/>) :
-                <p className="micro-space">There are no notification emails</p>}
+                <p className="micro-space dimmed">(email notifications not configured)</p>}
         </div>
-        <AddNotificationEntry title={<><i className="icon-add-circle"/>Add new email</>} save={updateNotifications}/>
+        <hr className="space"/>
+        <AddNotificationEntry title={<><i className="icon-add-circle"/>Add email</>} save={updateNotifications}/>
         {!!hasChanges && <div className="space row">
             <div className="column column-66">
                 {!inProgress && <div className="dimmed text-small micro-space"> You have unsaved pending changes</div>}

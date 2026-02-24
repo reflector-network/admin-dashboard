@@ -1,0 +1,20 @@
+.menu-nav-link {
+  position: relative;
+  &.selected{
+    color: var(--color-text);
+  }
+
+  &.sub:before {
+    content: '';
+    display: block;
+    position: absolute;
+
+    left: -0.8em;
+    top: -0.5em;
+    border: 1px solid #cccccc33;
+    border-right: none;
+    border-top: none;
+    width: 0.5em;
+    height: 1em;
+  }
+}

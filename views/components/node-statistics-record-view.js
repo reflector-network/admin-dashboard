@@ -13,7 +13,8 @@ export default function NodeStatisticsRecordView({stat}) {
             <span className="dimmed">Uptime: </span>
             <span className="inline-block">
                 {stat.startTime ?
-                    <><ElapsedTime ts={stat.startTime}/> <span className="dimmed text-tiny">since <UtcTimestamp date={stat.startTime}/></span></> :
+                    <><ElapsedTime ts={stat.startTime}/>
+                        <span className="dimmed text-tiny">since <UtcTimestamp date={stat.startTime}/></span></> :
                     'No data'}
             </span>
         </div>
@@ -51,8 +52,8 @@ function ContractStatisticsView({statistics = []}) {
     return statistics.map(stat => <div key={stat.contractId || stat.oracleId}><Stats stat={stat}/></div>)
 }
 
-function Stats({stat}){
-    switch(stat.type){
+function Stats({stat}) {
+    switch (stat.type) {
         case 'subscriptions':
             return <SubscriptionStatsView stat={stat}/>
         case 'dao':
@@ -66,14 +67,10 @@ function SubscriptionStatsView({stat}) {
     return <>
         <h4>Subscriptions <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
         <div className="block-indent text-small">
-            <div>
+            {!stat.isInitialized && <div>
                 <span className="dimmed">Contract status: </span>
-                <span className="inline-block">{stat.isInitialized ? 'Initialized' : 'Not initialized'}</span>
-            </div>
-            <div>
-                <span className="dimmed">Contract type: </span>
-                <span className="inline-block">Subscriptions</span>
-            </div>
+                <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
+            </div>}
             <div>
                 <span className="dimmed">Root hash: </span>
                 <span className="inline-block account-key">
@@ -92,14 +89,10 @@ function DaoStatsView({stat}) {
     return <>
         <h4>DAO <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
         <div className="block-indent text-small">
-            <div>
+            {!stat.isInitialized && <div>
                 <span className="dimmed">Contract status: </span>
-                <span className="inline-block">{stat.isInitialized ? 'Initialized' : 'Not initialized'}</span>
-            </div>
-            <div>
-                <span className="dimmed">Contract type: </span>
-                <span className="inline-block">DAO</span>
-            </div>
+                <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
+            </div>}
             <div>
                 <span className="dimmed">Processed transactions: </span>
                 <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
@@ -108,18 +101,14 @@ function DaoStatsView({stat}) {
     </>
 }
 
-function OracleStatsView({stat}) {
+function OracleStatsView({stat, type}) {
     return <>
-        <h4>Oracle <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
+        <h4>{type === 'oracle_beam' ? 'BeamOracle' : 'PulseOracle'} <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
         <div className="block-indent text-small">
-            <div>
+            {!stat.isInitialized && <div>
                 <span className="dimmed">Contract status: </span>
-                <span className="inline-block">{stat.isInitialized ? 'Initialized' : 'Not initialized'}</span>
-            </div>
-            <div>
-                <span className="dimmed">Contract type: </span>
-                <span className="inline-block">Oracle</span>
-            </div>
+                <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
+            </div>}
             <div>
                 <span className="dimmed">Last processed round: </span>
                 <span className="inline-block">

@@ -18,7 +18,7 @@ export default function ConfigFiltersView({updateFilters}) {
     }, [updateFilters])
 
 
-    return <div className="micro-space">
+    return <div className="text-right" style={{marginTop: '-3.5em'}}>
         <span className="icon-filter"/>Status:&nbsp;<Dropdown options={statusOptions} value={value} onChange={setFilterValue}/>
     </div>
 }

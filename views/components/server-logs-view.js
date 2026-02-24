@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react'
 import {getLogFile, getServerLogs, postApi} from '../../api/interface'
 import ConfigLayout from '../server-config/config-layout'
-import TabularDataView from './tabular-data-view'
+import './server-logs-view.scss'
 
 export default function ServerLogsView() {
     const [links, setLinks] = useState(['error.log'])
@@ -36,39 +36,39 @@ export default function ServerLogsView() {
     </div>
     return <ConfigLayout title="Server Logs" primaryAction={tracingControl}>
         {links.length ?
-            <PaginatedLogView links={links}/> :
-            <div className="space text-center">No log entries</div>}
+            <LogsList links={links}/> :
+            <div className="space text-center space dimmed">(no log entries)</div>}
     </ConfigLayout>
 }
 
-function PaginatedLogView({links, limit = 30}) {
-    const [partialLinks, setPartialLinks] = useState(links.slice(0, limit))
+function LogsList({links}) {
+    return <div>
+        <div className="dimmed">
+            Click to download log file:
+        </div>
+        <div className="log-file-container row text-small condensed">
+            {links.map(link => <div key={link} className="nano-space column column-33">
+                <a className="icon-download" data-link={link} onClick={downloadLogFile}>{link}</a>
+            </div>)}
+        </div>
+    </div>
+}
 
-    const updatePartialLinks = useCallback((page, limit) =>
-        setPartialLinks(links.slice(limit * (page - 1), limit * page)), [links])
+function downloadLogFile(e) {
+    const link = e.target.dataset.link
+    getLogFile(link)
+        .then(data => {
+            const blob = new Blob([data.logFile], {type: 'application/octet-stream'})
+            const downloadUrl = window.URL.createObjectURL(blob)
 
-    const handleDownload = useCallback(e => {
-        const link = e.target.dataset.link
-        getLogFile(link)
-            .then(data => {
-                const blob = new Blob([data.logFile], {type: 'application/octet-stream'})
-                const downloadUrl = window.URL.createObjectURL(blob)
-
-                //Create a temporary link to trigger the download
-                const tempLink = document.createElement('a')
-                tempLink.href = downloadUrl
-                tempLink.download = link //Set the filename for download
-                document.body.appendChild(tempLink)
-                tempLink.click()
-                document.body.removeChild(tempLink)
-                window.URL.revokeObjectURL(downloadUrl)
-            })
-            .catch(error => notify({type: 'error', message: error?.message || 'Failed to download logs'}))
-    }, [])
-
-    return <TabularDataView dataList={partialLinks} updateList={updatePartialLinks}>
-        {partialLinks.map(link => <div key={link} className="nano-space">
-            <a className="icon-download" data-link={link} onClick={handleDownload}>{link}</a>
-        </div>)}
-    </TabularDataView>
+            //Create a temporary link to trigger the download
+            const tempLink = document.createElement('a')
+            tempLink.href = downloadUrl
+            tempLink.download = link //Set the filename for download
+            document.body.appendChild(tempLink)
+            tempLink.click()
+            document.body.removeChild(tempLink)
+            window.URL.revokeObjectURL(downloadUrl)
+        })
+        .catch(error => notify({type: 'error', message: error?.message || 'Failed to download logs'}))
 }
