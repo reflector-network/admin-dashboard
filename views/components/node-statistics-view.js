@@ -1,7 +1,8 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState, useMemo} from 'react'
 import {AccountAddress, InfoTooltip, withErrorBoundary} from '@stellar-expert/ui-framework'
-import {getStatistics} from '../../api/interface'
+import {getCurrentConfig, getStatistics} from '../../api/interface'
 import NodeStatisticsRecordView from './node-statistics-record-view'
+import OracleHealthMapView from './oracle-health-map-view'
 
 const statsRefreshInterval = 30//30 seconds
 
@@ -14,7 +15,7 @@ export default withErrorBoundary(function NodeStatisticsView() {
                 if (statistics.error)
                     throw new Error(statistics.error)
                 //getting the latest data
-                setStatistics(statistics[0].nodeStatistics)
+                setStatistics(statistics)
             })
             .catch((error) => {
                 notify({
@@ -40,28 +41,35 @@ export default withErrorBoundary(function NodeStatisticsView() {
         </div>
 
     return <div className="segment blank">
-        <div>
-            <h3 style={{padding: 0}}><i className="icon-hexagon-dice"/>Quorum state</h3>
-            <hr className="flare"/>
-            <div className="row">
-                {Object.keys(statistics || {}).map(node => {
-                    const connectionIssues = statistics[node] ? [...statistics[node].connectionIssues] : []
-                    const timeshift = statistics[node]?.timeshift || 0
-                    //check server time
-                    if (Math.abs(timeshift) > 5000) {
-                        connectionIssues.push('Check server time')
-                    }
-                    return <div key={node} className="column column-33">
-                        <h3 className="space">
-                            Node <AccountAddress account={node} link={false} chars={12}/>
-                            <ConnectionIssuesView issues={connectionIssues}/></h3>
-                        {statistics[node] ?
-                            <div className="block-indent">
-                                <NodeStatisticsRecordView stat={statistics[node]}/>
-                            </div> :
-                            <div className="space text-center">Not connected</div>}
-                    </div>
-                })}
+        <h3 style={{padding: 0}}><i className="icon-hexagon-dice"/>Quorum state</h3>
+        <hr className="flare"/>
+
+        <div className="row">
+            <div className="column column-75">
+                <div className="row">
+                    {Object.keys(statistics.nodeStatistics || {}).map(node => {
+                        const connectionIssues = statistics.nodeStatistics[node] ? [...statistics.nodeStatistics[node].connectionIssues] : []
+                        const timeshift = statistics.nodeStatistics[node]?.timeshift || 0
+                        //check server time
+                        if (Math.abs(timeshift) > 5000) {
+                            connectionIssues.push('Check server time')
+                        }
+                        return <div key={node} className="column column-33">
+                            <h3 className="space">
+                                Node <AccountAddress account={node} link={false} chars={12}/>
+                                <ConnectionIssuesView issues={connectionIssues}/></h3>
+                            {statistics.nodeStatistics[node] ?
+                                <div className="block-indent">
+                                    <NodeStatisticsRecordView stat={statistics.nodeStatistics[node]}/>
+                                </div> :
+                                <div className="micro-space dimmed text-small icon-warning-circle">
+                                    Disconnected</div>}
+                        </div>
+                    })}
+                </div>
+            </div>
+            <div className="column column-25 align-right" style={{borderLeft: '1px solid #cccccc33'}}>
+                <OracleHealthMapView data={statistics}/>
             </div>
         </div>
     </div>
@@ -76,3 +84,4 @@ function ConnectionIssuesView({issues}) {
         </ul>
     </InfoTooltip>
 }
+

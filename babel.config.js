@@ -1,3 +1,4 @@
 const {createBabelConfig} = require('@stellar-expert/webpack-template')
 
-module.exports = createBabelConfig()
+const config = createBabelConfig()
+module.exports = config

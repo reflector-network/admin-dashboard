@@ -1,4 +1,5 @@
-import {Horizon, Networks, Operation, TransactionBuilder} from '@stellar/stellar-sdk'
+import {Networks, Operation, TransactionBuilder} from '@stellar/stellar-base'
+import {Horizon} from '@stellar/stellar-sdk'
 import {createdDaoClient} from './dao-client'
 
 const daoChannelAccount = 'GBPMF5VB7OS5J7DHWILIMHJJ7AP6ERRC66VW7BTGTGXD2PJ2XVFQRDAO'
@@ -21,7 +22,7 @@ async function buildVotingTx(ballotId, ballot, accepted) {
     const expires = new Date(Number(ballot.created) * 1000 + 14 * 24 * 60 * 60 * 1000)
     const txSource = await new Horizon.Server('https://horizon.stellar.org/').loadAccount(daoChannelAccount)
     const builder = new TransactionBuilder(txSource, {
-        fee: voteTx.built.fee,
+        fee: (parseInt(voteTx.built.fee, 10) + 5000000).toString(), //+0.5 XLM
         sorobanData: voteTx.simulationData.transactionData,
         networkPassphrase: Networks.PUBLIC
     })

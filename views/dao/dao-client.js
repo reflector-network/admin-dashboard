@@ -20,6 +20,7 @@ export function createdDaoClient(network, publicKey) {
                 signedTxXdr: res.signed_envelope_xdr,
                 signerAddress: res.pubkey
             }
-        }
+        },
+        fee: '11000000'
     })
 }

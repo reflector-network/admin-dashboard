@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {StrKey} from '@stellar/stellar-sdk'
+import {StrKey} from '@stellar/stellar-base'
 import {Amount, Button, InfoTooltip, useStellarNetwork} from '@stellar-expert/ui-framework'
 import {fromStroops, toStroops} from '@stellar-expert/formatter'
 import clientStatus from '../../state/client-status'
@@ -11,6 +11,7 @@ const xrf = 'XRF-GCHI6I3X62ND5XUMWINNNKXS2HPYZWKFQBZZYBSMHJ4MIP2XJXSZTXRF'
 export default function ClaimDaoRewardsView() {
     const [available, setAvailable] = useState(undefined)
     const [amount, setAmount] = useState('0')
+    const [inProgress, setInProgress] = useState(false)
     const [destination, setDestination] = useState('')
     const network = useStellarNetwork()
 
@@ -28,8 +29,12 @@ export default function ClaimDaoRewardsView() {
     useEffect(() => updateAvailableAmount(), [clientStatus.clientPublicKey, network])
 
     const updateAmount = useCallback(e => {
-        setAmount(e.target.value.replace(/[^\d.]/g, ''))
-    }, [setAmount])
+        let v = e.target.value.replace(/[^\d.]/g, '')
+        if (toStroops(v) > available) {
+            v = fromStroops(available)
+        }
+        setAmount(v)
+    }, [setAmount, available])
 
     const updateDestination = useCallback(e => {
         setDestination(e.target.value.replace(/[^A-Z0-9]/g, ''))
@@ -38,10 +43,12 @@ export default function ClaimDaoRewardsView() {
     const claim = useCallback(() => {
         if (!(amount > 0))
             return
+        const {clientPublicKey} = clientStatus
         if (destination && !(StrKey.isValidEd25519PublicKey(destination) || StrKey.isValidContract(destination)))
             return alert('Invalid recipient address')
-        const daoClient = createdDaoClient(network, true)
-        daoClient.claim(clientStatus.clientPublicKey, destination, toStroops(amount))
+        setInProgress(true)
+        const daoClient = createdDaoClient(network, clientPublicKey)
+        daoClient.claim(clientPublicKey, destination, toStroops(amount))
             .then(() => {
                 updateAvailableAmount()
                 notify({
@@ -51,8 +58,13 @@ export default function ClaimDaoRewardsView() {
             })
             .catch(e => {
                 console.error(e)
+                notify({
+                    type: 'error',
+                    message: `Failed to claim tokens`
+                })
                 updateAvailableAmount()
             })
+            .finally(() => setInProgress(false))
     }, [destination, amount, network])
 
     return <ConfigLayout title="Claim DAO rewards" description={<ClaimRewardsDescription/>} primaryAction={
@@ -82,7 +94,7 @@ export default function ClaimDaoRewardsView() {
                        value={destination} onChange={updateDestination}/>
             </div>
             <div className="column column-50 column-offset-50 space">
-                <Button block onClick={claim}>Claim</Button>
+                <Button block onClick={claim} disabled={inProgress || !(parseFloat(amount) > 0)} loading={inProgress}>Claim</Button>
             </div>
         </div>
     </ConfigLayout>

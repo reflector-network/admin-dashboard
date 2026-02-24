@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {AccountAddress, Button} from '@stellar-expert/ui-framework'
-import {StrKey} from '@stellar/stellar-sdk'
+import {StrKey} from '@stellar/stellar-base'
 import DialogView from '../../components/dialog-view'
 
 function validateNode(node) {
