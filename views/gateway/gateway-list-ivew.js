@@ -61,6 +61,7 @@ export default function GatewayListView({gateways, challenge, updateGateways, lo
                     <GatewayRecord key={gateway} gateway={gateway} validationKey={validationKey} onRemove={removeGateway}
                                    status={gatewaysStatus[gateway]} alwaysReveal={alwaysReveal}/>)}
             </ul>}
+        <hr className="space"/>
         {showEditor ?
             <AddGatewayView gateways={gateways} validationKey={validationKey} onCancel={finishEditing} onAdd={addGateway}/> :
             <div className="space"><a href="#" className="icon-add-circle" onClick={() => setShowEditor(true)}>Add gateway</a></div>

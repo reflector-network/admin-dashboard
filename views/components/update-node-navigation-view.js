@@ -29,7 +29,7 @@ export default function UpdateNodeNavigationView({configuration}) {
         </span>
     const contracts = configuration.currentConfig.config.config.contracts || {}
 
-    return <ul style={{margin: 0}}>
+    return <ul style={{margin: '0 -0.5em'}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
             {section.hasChild ? Object.keys(contracts || []).map(contract => {
                     const type = contracts[contract].type || 'oracle'
