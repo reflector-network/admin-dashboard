@@ -2,7 +2,7 @@ import React from 'react'
 import {useLocation} from 'react-router'
 import {parseQuery} from '@stellar-expert/navigation'
 import {AccountAddress} from '@stellar-expert/ui-framework'
-import {NavigationItemView} from './nav-item'
+import {MenuNavLink} from './nav-item'
 
 const allSections = [
     {name: 'nodes', title: 'Cluster nodes'},
@@ -23,33 +23,32 @@ const contractSections = [
 export default function UpdateNodeNavigationView({configuration}) {
     const location = useLocation()
     const {section: activeSection = allSections[0].name, contract: currentContract} = parseQuery(location.search)
-    const contracts = configuration.currentConfig?.config.config.contracts || {}
-
     if (!configuration.currentConfig)
         return <span style={{padding: '0.3em 0'}}>
             <i className="icon-angle-double-right"/>{allSections[0].title}
         </span>
+    const contracts = configuration.currentConfig.config.config.contracts || {}
 
     return <ul style={{margin: 0}}>
         {allSections.map(section => <li key={section.name} style={{padding: '0.3em 0'}}>
             {section.hasChild ? Object.keys(contracts || []).map(contract => {
                     const type = contracts[contract].type || 'oracle'
                     const list = contractSections.filter(item => item.types.includes(type))
-                    return <span key={contract}>
-                        {resolveTitle(contracts[contract].type)} <AccountAddress account={contract} className="condensed"/>
+                    return <span key={contract} className="text-small">
+                        <span className="dimmed">{resolveTitle(contracts[contract].type)}</span> <AccountAddress account={contract} className="condensed"/>
                         <ul key={contract} style={{margin: '0.3em 1em'}}>
-                            {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0.3em 0'}}>
+                            {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0'}}>
                                 {(subSection.name === activeSection && currentContract === contract) ?
-                                    <NavigationItemView title={subSection.title}/> :
-                                    <NavigationItemView title={subSection.title}
-                                                        link={'/?section=' + subSection.name + '&contract=' + contract}/>}
+                                    <MenuNavLink title={subSection.title} sub/> :
+                                    <MenuNavLink title={subSection.title} sub
+                                                 link={'/?section=' + subSection.name + '&contract=' + contract}/>}
                             </li>)}
                         </ul>
                     </span>
                 }) :
                 (section.name === activeSection ?
-                    <NavigationItemView title={section.title}/> :
-                    <NavigationItemView title={section.title} link={'/?section=' + section.name}/>)}
+                    <MenuNavLink title={section.title}/> :
+                    <MenuNavLink title={section.title} link={'/?section=' + section.name}/>)}
         </li>)}
     </ul>
 }
@@ -61,8 +60,8 @@ function resolveTitle(type) {
     case 'dao':
         return 'DAO'
     case 'oracle_beam':
-        return 'Oracle Beam'
+        return 'BeamOracle'
     default:
-        return 'Oracle'
+        return 'PulseOracle'
     }
 }
