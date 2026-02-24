@@ -3,6 +3,7 @@ import {useLocation} from 'react-router'
 import {parseQuery} from '@stellar-expert/navigation'
 import {AccountAddress} from '@stellar-expert/ui-framework'
 import {MenuNavLink} from './nav-item'
+import ContractType from './contract-type'
 
 const allSections = [
     {name: 'nodes', title: 'Cluster nodes'},
@@ -35,7 +36,7 @@ export default function UpdateNodeNavigationView({configuration}) {
                     const type = contracts[contract].type || 'oracle'
                     const list = contractSections.filter(item => item.types.includes(type))
                     return <span key={contract} className="text-small">
-                        <span className="dimmed">{resolveTitle(contracts[contract].type)}</span> <AccountAddress account={contract} className="condensed"/>
+                        <ContractType type={contracts[contract].type}/> <AccountAddress account={contract} className="condensed"/>
                         <ul key={contract} style={{margin: '0.3em 1em'}}>
                             {list.map(subSection => <li key={subSection.name + contract} style={{padding: '0'}}>
                                 {(subSection.name === activeSection && currentContract === contract) ?
@@ -51,17 +52,4 @@ export default function UpdateNodeNavigationView({configuration}) {
                     <MenuNavLink title={section.title} link={'/?section=' + section.name}/>)}
         </li>)}
     </ul>
-}
-
-function resolveTitle(type) {
-    switch (type) {
-    case 'subscriptions':
-        return 'Subscriptions'
-    case 'dao':
-        return 'DAO'
-    case 'oracle_beam':
-        return 'BeamOracle'
-    default:
-        return 'PulseOracle'
-    }
 }
