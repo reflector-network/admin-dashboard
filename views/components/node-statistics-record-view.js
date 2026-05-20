@@ -14,7 +14,7 @@ export default function NodeStatisticsRecordView({stat}) {
             <span className="inline-block">
                 {stat.startTime ?
                     <><ElapsedTime ts={stat.startTime}/>
-                        <span className="dimmed text-tiny">since <UtcTimestamp date={stat.startTime}/></span></> :
+                        <span className="dimmed text-tiny"> since <UtcTimestamp date={stat.startTime}/></span></> :
                     'No data'}
             </span>
         </div>
