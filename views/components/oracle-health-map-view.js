@@ -12,7 +12,7 @@ const OracleHealthMapView = withErrorBoundary(function OracleHealthMapView({data
         {Object.entries(data.timelines).map(([id, timeline]) => (
             <div key={id}>
                 <h4>
-                    <ContractType type={data.contractsInfo[id].type}/> <AccountAddress account={id} chars={8}/>
+                    <ContractType type={data.contractsInfo[id].type}/> <AccountAddress account={id} chars={8} name={false}/>
                 </h4>
                 <div className="oracle-health-timeline-container">
                     {Object.entries(timeline).map(([ts, update]) => (
