@@ -1,12 +1,12 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {observer} from 'mobx-react'
 import {Button} from '@stellar-expert/ui-framework'
 import {checkAlbedoSession, dropSession, requestAlbedoSession, retrieveAlbedoSession} from '../../providers/albedo-provider'
 import {getNodePublicKeys} from '../../api/interface'
-import clientStatus from '../../state/client-status'
+import {useClientStatus} from '../../state/client-status-hooks'
 import SimplePageLayout from './simple-page-layout'
 
-export default observer(function AuthLayout({children, skipClusterValidation = false}) {
+export default function AuthLayout({children, skipClusterValidation = false}) {
+    const clientStatus = useClientStatus()
     const [authorized, setAuthorized] = useState(null)
     const [sessionLoading, setSessionLoading] = useState(true)
     const [inProgress, setInProgress] = useState(false)
@@ -22,7 +22,7 @@ export default observer(function AuthLayout({children, skipClusterValidation = f
                 }
             }
             clientStatus.setNodePubkey(authPubkey)
-            clientStatus.hasSession = true
+            clientStatus.setHasSession(true)
             setTimeout(() => {
                 setInProgress(false)
                 setAuthorized(true)
@@ -74,4 +74,4 @@ export default observer(function AuthLayout({children, skipClusterValidation = f
         </SimplePageLayout>
 
     return <>{children}</>
-})
+}
