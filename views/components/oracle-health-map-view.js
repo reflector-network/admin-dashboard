@@ -30,41 +30,41 @@ function TimelineCell({ts, update, nodes}) {
     let icon = 'icon-ok'
     let opacity = 1
     let missingNodes = null
+    const threshold = Math.ceil(nodes.length / 2 + 0.01)
     switch (update) {
-    case -1:
-        tooltip = 'Missing update'
-        color = '#ff4d4f'
-        icon = 'icon-warning'
-        break
-    case 0:
-        tooltip = 'Pending'
-        color = 'gray'
-        icon = 'icon-clock'
-        break
-    case 1: //oracle doesn't have active assets
-        tooltip = 'Not Required'
-        color = 'lightgray'
-        icon = 'icon-minus-circle'
-        break
-    default:
-        if (update.signers && update.signers.length !== nodes.length) {
-            opacity = (update.signers.length || 1) / nodes.length
-            missingNodes = nodes.filter(node => !update.signers.includes(node.pubkey))
-        }
-        tooltip = <>
-            <span>Updated </span>
-            <a href={formatExplorerLink('tx', update?.tx || update)} target="_blank" rel="noreferrer">{shortenString(update?.tx, 10)}<i className="icon-open-new-window"/></a>
-        </>
+        case -1:
+            tooltip = 'Missing update'
+            color = '#ff4d4f'
+            icon = 'icon-warning'
+            break
+        case 0:
+            tooltip = 'Pending'
+            color = 'gray'
+            icon = 'icon-clock'
+            break
+        case 1: //oracle doesn't have active assets
+            tooltip = 'Not Required'
+            color = 'lightgray'
+            icon = 'icon-minus-circle'
+            break
+        default:
+            if (update.signers && update.signers.length !== nodes.length) {
+                opacity = (update.signers.length - threshold + 1) / threshold
+                missingNodes = nodes.filter(node => !update.signers.includes(node.pubkey))
+            }
+            tooltip = <>
+                <span>Updated </span>
+                <a href={formatExplorerLink('tx', update?.tx || update)} target="_blank" rel="noreferrer">{shortenString(update?.tx, 10)}<i
+                    className="icon-open-new-window"/></a>
+            </>
     }
 
     return <Tooltip maxWidth="16em" trigger={
         <div className="timeline-cell condensed" style={{backgroundColor: color, opacity}}/>} desiredPlace="top" offset={{top: 8, left: 8}}>
-        <div>
-            <UtcTimestamp date={ts}/>
-        </div>
+        <div><UtcTimestamp date={ts}/></div>
         <i className={icon} style={{color}}/> {tooltip}
         {missingNodes && missingNodes.length > 0 ? <div className="missing-nodes condensed">
-            <span className="dimmed">Missing Nodes: </span>
+            <span className="dimmed">Out of consensus: </span>
             <span className="text-small ">{missingNodes.map(node => node.domain).join(', ')}</span>
         </div> : null}
     </Tooltip>
