@@ -1,0 +1,6 @@
+.health-map {
+  border-left: 1px solid #cccccc33;
+  @media (max-width: $responsive-mobile-browser-width) {
+    border-left: none;
+  }
+}

@@ -70,8 +70,7 @@ export function dropSession(authPubkey) {
         albedo.forgetImplicitSession(clientStatus.clientPublicKey)
     }
     localStorage.removeItem('albedo_session')
-    clientStatus.clientPublicKey = ''
-    clientStatus.pollSession()
+    clientStatus.setNodePubkey('')
 }
 
 export function signTx(txXdr, pubkey, network, description, submit = false) {

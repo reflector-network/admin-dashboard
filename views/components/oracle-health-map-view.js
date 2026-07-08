@@ -12,11 +12,11 @@ const OracleHealthMapView = withErrorBoundary(function OracleHealthMapView({data
         {Object.entries(data.timelines).map(([id, timeline]) => (
             <div key={id}>
                 <h4>
-                    <ContractType type={data.contractsInfo[id].type}/> <AccountAddress account={id} chars={8}/>
+                    <ContractType type={data.contractsInfo[id].type}/> <AccountAddress account={id} chars={8} name={false}/>
                 </h4>
                 <div className="oracle-health-timeline-container">
-                    {Object.entries(timeline).map(([ts, hash]) => (
-                        <TimelineCell key={ts} ts={ts} hash={hash}/>
+                    {Object.entries(timeline).map(([ts, update]) => (
+                        <TimelineCell key={ts} ts={ts} update={update} nodes={data.nodes}/>
                     ))}
                 </div>
             </div>
@@ -24,11 +24,14 @@ const OracleHealthMapView = withErrorBoundary(function OracleHealthMapView({data
     </div>
 })
 
-function TimelineCell({ts, hash}) {
+function TimelineCell({ts, update, nodes}) {
     let tooltip
     let color = '#39d353'
     let icon = 'icon-ok'
-    switch (hash) {
+    let opacity = 1
+    let missingNodes = null
+    const threshold = Math.ceil(nodes.length / 2 + 0.01)
+    switch (update) {
         case -1:
             tooltip = 'Missing update'
             color = '#ff4d4f'
@@ -45,18 +48,25 @@ function TimelineCell({ts, hash}) {
             icon = 'icon-minus-circle'
             break
         default:
+            if (update.signers && update.signers.length !== nodes.length) {
+                opacity = (update.signers.length - threshold + 1) / threshold
+                missingNodes = nodes.filter(node => !update.signers.includes(node.pubkey))
+            }
             tooltip = <>
                 <span>Updated </span>
-                <a href={formatExplorerLink('tx', hash)} target="_blank">{shortenString(hash, 10)}<i className="icon-open-new-window"/></a>
+                <a href={formatExplorerLink('tx', update?.tx || update)} target="_blank" rel="noreferrer">{shortenString(update?.tx, 10)}<i
+                    className="icon-open-new-window"/></a>
             </>
     }
 
     return <Tooltip maxWidth="16em" trigger={
-        <div className="timeline-cell condensed" style={{backgroundColor: color}}/>} desiredPlace="top" offset={{top: 8, left: 8}}>
-        <div>
-            <UtcTimestamp date={ts}/>
-        </div>
+        <div className="timeline-cell condensed" style={{backgroundColor: color, opacity}}/>} desiredPlace="top" offset={{top: 8, left: 8}}>
+        <div><UtcTimestamp date={ts}/></div>
         <i className={icon} style={{color}}/> {tooltip}
+        {missingNodes && missingNodes.length > 0 ? <div className="missing-nodes condensed">
+            <span className="dimmed">Out of consensus: </span>
+            <span className="text-small ">{missingNodes.map(node => node.domain).join(', ')}</span>
+        </div> : null}
     </Tooltip>
 }
 

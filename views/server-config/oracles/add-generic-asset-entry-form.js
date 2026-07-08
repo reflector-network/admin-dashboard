@@ -1,8 +1,7 @@
 import React, {useCallback, useRef, useState} from 'react'
-import {observer} from 'mobx-react'
 import AddAssetEntryLayout from './add-asset-entry-layout'
 
-export default observer(function AddGenericAssetEntry({contract, save}) {
+export default function AddGenericAssetEntry({contract, save}) {
     const [asset, setAsset] = useState('')
     const [isValid, setIsValid] = useState(false)
     const [isEntered, setIsEntered] = useState(false)
@@ -31,4 +30,4 @@ export default observer(function AddGenericAssetEntry({contract, save}) {
             <input ref={currentInput} onChange={onChangeCode} onKeyDown={onKeyDown} placeholder="e.g. USD"/>
         </label>
     </AddAssetEntryLayout>
-})
+}

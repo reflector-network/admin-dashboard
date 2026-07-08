@@ -1,12 +1,14 @@
-import React, {useCallback, useEffect, useState, useMemo} from 'react'
-import {AccountAddress, InfoTooltip, withErrorBoundary} from '@stellar-expert/ui-framework'
-import {getCurrentConfig, getStatistics} from '../../api/interface'
+import React, {useCallback, useEffect, useState} from 'react'
+import {InfoTooltip, withErrorBoundary} from '@stellar-expert/ui-framework'
+import {getNodeKeys, getStatistics, resolveNodeName} from '../../api/interface'
 import NodeStatisticsRecordView from './node-statistics-record-view'
 import OracleHealthMapView from './oracle-health-map-view'
+import './node-statistics-view.scss'
 
 const statsRefreshInterval = 30//30 seconds
 
 export default withErrorBoundary(function NodeStatisticsView() {
+    const allNodes = getNodeKeys()
     const [statistics, setStatistics] = useState()
 
     const updateStatistics = useCallback(() => {
@@ -55,20 +57,19 @@ export default withErrorBoundary(function NodeStatisticsView() {
                             connectionIssues.push('Check server time')
                         }
                         return <div key={node} className="column column-33">
-                            <h3 className="space">
-                                Node <AccountAddress account={node} link={false} chars={12}/>
+                            <h3 style={{marginBottom: '0.2em'}}>
+                                {resolveNodeName(node).toUpperCase()} NODE
                                 <ConnectionIssuesView issues={connectionIssues}/></h3>
                             {statistics.nodeStatistics[node] ?
-                                <div className="block-indent">
-                                    <NodeStatisticsRecordView stat={statistics.nodeStatistics[node]}/>
-                                </div> :
+                                <NodeStatisticsRecordView stat={statistics.nodeStatistics[node]} allNodes={allNodes} pubkey={node}/> :
                                 <div className="micro-space dimmed text-small icon-warning-circle">
                                     Disconnected</div>}
+                            <div className="space"/>
                         </div>
                     })}
                 </div>
             </div>
-            <div className="column column-25 align-right" style={{borderLeft: '1px solid #cccccc33'}}>
+            <div className="column column-25 align-right health-map">
                 <OracleHealthMapView data={statistics}/>
             </div>
         </div>

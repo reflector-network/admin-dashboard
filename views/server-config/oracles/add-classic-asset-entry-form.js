@@ -1,9 +1,8 @@
 import React, {useCallback, useRef, useState} from 'react'
-import {observer} from 'mobx-react'
 import {StrKey} from '@stellar/stellar-base'
 import AddAssetEntryLayout from './add-asset-entry-layout'
 
-export default observer(function AddClassicAssetEntry({contract, save}) {
+export default function AddClassicAssetEntry({contract, save}) {
     const [asset, setAsset] = useState({})
     const [isValid, setIsValid] = useState(false)
     const [isEntered, setIsEntered] = useState(false)
@@ -47,4 +46,4 @@ export default observer(function AddClassicAssetEntry({contract, save}) {
             <input value={asset.issuer || ''} onChange={onChangeIssuer} onKeyDown={onKeyDown} placeholder="GC3N..."/>
         </label>
     </AddAssetEntryLayout>
-})
+}

@@ -1,9 +1,12 @@
 import React from 'react'
 import {AccountAddress, ElapsedTime, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {shortenString} from '@stellar-expert/formatter'
+import {resolveNodeName} from '../../api/interface'
 
-export default function NodeStatisticsRecordView({stat}) {
+export default function NodeStatisticsRecordView({pubkey, stat, allNodes}) {
     const contractStatistics = Object.values(stat.contractStatistics || stat.oracleStatistics || {})
+    const disconnectedNodes = stat.connectedNodes.length === allNodes.length - 1 ? [] :
+        allNodes.filter(node => node !== pubkey && !stat.connectedNodes.includes(node))
     return <div className="text-small">
         <div>
             <span className="dimmed">Software version: </span>
@@ -30,17 +33,16 @@ export default function NodeStatisticsRecordView({stat}) {
                 {stat.submittedTransactions || 'No data'}
             </span>
         </div>
-        <div>
-            <span className="dimmed">Connected nodes: </span>
-            {stat?.connectedNodes.length ?
-                <div className="text-small block-indent">
-                    {stat.connectedNodes.map(node => <div key={node} className="nano-space">
-                        <i className="icon-hexagon-dice color-success"/>
-                        <AccountAddress account={node} link={false} chars={16}/>
-                    </div>)}
-                </div> :
-                <span className="inline-block"><i className="icon-warning color-warning"/> Peer nodes not connected</span>}
-        </div>
+        {disconnectedNodes.length > 0 && <div>
+            <span className="dimmed"><span className="icon-warning color-warning"/>Disconnected nodes: </span>
+            <div className="text-small block-indent">
+                {disconnectedNodes.map(node => <div key={node} className="nano-space">
+                    <i className="icon-hexagon-dice color-warning"/>
+                    {resolveNodeName(node)}
+                </div>)}
+            </div>
+        </div>}
+
         <ContractStatisticsView statistics={contractStatistics}/>
     </div>
 }
@@ -64,63 +66,63 @@ function Stats({stat}) {
 }
 
 function SubscriptionStatsView({stat}) {
-    return <>
-        <h4>Subscriptions <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
-        <div className="block-indent text-small">
-            {!stat.isInitialized && <div>
-                <span className="dimmed">Contract status: </span>
-                <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
-            </div>}
-            <div>
-                <span className="dimmed">Root hash: </span>
-                <span className="inline-block account-key">
+    return <ContractStatWrapper stat={stat} title="Subscriptions">
+        {!stat.isInitialized && <div>
+            <span className="dimmed">Contract status: </span>
+            <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
+        </div>}
+        <div>
+            <span className="dimmed">Root hash: </span>
+            <span className="inline-block account-key">
                     {stat.syncDataHash ? shortenString(stat.syncDataHash, 8) : 'No data'}
                 </span>
-            </div>
-            <div>
-                <span className="dimmed">Processed transactions: </span>
-                <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
-            </div>
         </div>
-    </>
+        <div>
+            <span className="dimmed">Processed transactions: </span>
+            <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
+        </div>
+    </ContractStatWrapper>
 }
 
 function DaoStatsView({stat}) {
-    return <>
-        <h4>DAO <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
-        <div className="block-indent text-small">
-            {!stat.isInitialized && <div>
-                <span className="dimmed">Contract status: </span>
-                <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
-            </div>}
-            <div>
-                <span className="dimmed">Processed transactions: </span>
-                <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
-            </div>
+    return <ContractStatWrapper stat={stat} title="DAO">
+        {!stat.isInitialized && <div>
+            <span className="dimmed">Contract status: </span>
+            <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
+        </div>}
+        <div>
+            <span className="dimmed">Processed transactions: </span>
+            <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
         </div>
-    </>
+    </ContractStatWrapper>
 }
 
 function OracleStatsView({stat, type}) {
-    return <>
-        <h4>{type === 'oracle_beam' ? 'BeamOracle' : 'PulseOracle'} <AccountAddress account={stat.contractId || stat.oracleId}/></h4>
-        <div className="block-indent text-small">
-            {!stat.isInitialized && <div>
-                <span className="dimmed">Contract status: </span>
-                <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
-            </div>}
-            <div>
-                <span className="dimmed">Last processed round: </span>
-                <span className="inline-block">
+    return <ContractStatWrapper stat={stat} title={type === 'oracle_beam' ? 'BeamOracle' : 'PulseOracle'}>
+        {!stat.isInitialized && <div>
+            <span className="dimmed">Contract status: </span>
+            <span className="inline-block"><i className="icon-warning-circle color-warning"/> Not initialized</span>
+        </div>}
+        <div>
+            <span className="dimmed">Last processed round: </span>
+            <span className="inline-block">
                     {stat.lastOracleTimestamp ?
                         <ElapsedTime ts={stat.lastOracleTimestamp} suffix={<span className="dimmed"> ago</span>}/> :
                         'No data'}
                 </span>
-            </div>
-            <div>
-                <span className="dimmed">Processed transactions: </span>
-                <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
-            </div>
         </div>
+        <div>
+            <span className="dimmed">Processed transactions: </span>
+            <span className="inline-block">{stat.totalProcessed || 'No data'}</span>
+        </div>
+    </ContractStatWrapper>
+}
+
+function ContractStatWrapper({title, stat, children}) {
+    return <>
+        <h4 style={{margin: 0}}>
+            {title} <AccountAddress account={stat.contractId || stat.oracleId} name={false}/>
+        </h4>
+        <div className="block-indent text-small">{children}</div>
     </>
 }

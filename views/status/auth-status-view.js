@@ -1,10 +1,10 @@
 import React from 'react'
-import {observer} from 'mobx-react'
 import {AccountAddress} from '@stellar-expert/ui-framework'
 import {dropSession} from '../../providers/albedo-provider'
-import clientStatus from '../../state/client-status'
+import {useClientStatus} from '../../state/client-status-hooks'
 
-export default observer(function AuthStatusView() {
+export default function AuthStatusView() {
+    const clientStatus = useClientStatus()
     if (!clientStatus.clientPublicKey)
         return <div><i className="icon-circle color-danger"/> Authentication required</div>
     const status = !clientStatus.isMatchingKey ?
@@ -15,4 +15,4 @@ export default observer(function AuthStatusView() {
         {status} <AccountAddress account={clientStatus.clientPublicKey} chars={12} link={false}/>&emsp;|&emsp;
         <a href="#" className="dimmed text-tiny" onClick={dropSession} title="Change authentication">change</a>
     </div>
-})
+}
