@@ -4,9 +4,17 @@ import {createdDaoClient} from './dao-client'
 import {generateVotingTransactions} from './ballot-tx-generator'
 import {StrKey} from '@stellar/stellar-base'
 
+const daoChannelAccounts = [
+    'GBPMF5VB7OS5J7DHWILIMHJJ7AP6ERRC66VW7BTGTGXD2PJ2XVFQRDAO',
+    'GAOQ6DWV5PMVC3ZCRJ2P3IOMTMFPAYCL6MKS7MFHWRDVGEL6CEZXECDI',
+    'GDTU7VQMK7SWZZE6KSGUVV7KOC6LJZDYUVTDSCHVTVTWVSYW7HA5OHEX',
+    'GCYYPP4SGODHBBGHYTJNFLB3R65QDFA4V2JYWDEGO6J2O47ALX7FPNA7',
+    'GBNG2UB3YDSK2V2FP7EI63IJA7POESGUBXZNLL3SRA2EP3KZWIRKQGDQ',
+]
+
 export default function DaoBallotTxGeneratorView() {
     const [ballotId, setBallotId] = useState()
-    const [source, setSource] = useState('GBPMF5VB7OS5J7DHWILIMHJJ7AP6ERRC66VW7BTGTGXD2PJ2XVFQRDAO')
+    const [source, setSource] = useState(daoChannelAccounts[0])
     const [inProgress, setInProgress] = useState(false)
     const [links, setLinks] = useState()
     const updateBallotId = useCallback(e => {
@@ -56,7 +64,14 @@ Against: ${links.against}
                     </label>
                 </div>
             </div>
-
+            <div className="dimmed text-small">
+                Other channel accounts:
+                {daoChannelAccounts.map((account) => (
+                    <div key={account}>
+                        <a href="#" onClick={() => setSource(account)}>{account}</a>
+                    </div>
+                ))}
+            </div>
             <div className="space row">
                 <div className="column column-75"></div>
                 <div className="column column-25">
