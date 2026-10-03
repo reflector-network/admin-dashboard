@@ -29,8 +29,9 @@ export async function validateGateways(gateways, validationKey) {
         }
     } catch (e) {
         console.error(e)
+        //the orchestrator's reason, for example a url the gateway rules refuse, instead of a bare failure
         for (let gateway of gatewaysToValidate) {
-            res[gateway] = 'unknown (validation request failed)'
+            res[gateway] = `unknown (${e?.message || 'validation request failed'})`
         }
     }
     return res

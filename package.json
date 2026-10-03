@@ -6,7 +6,8 @@
   "description": "Admin dashboard for Reflector nodes",
   "scripts": {
     "build": "webpack --mode=production --config ./webpack-config.js",
-    "dev-server": "webpack serve --mode=development --config ./webpack-config.js"
+    "dev-server": "webpack serve --mode=development --config ./webpack-config.js",
+    "test": "node --test \"api/*.test.mjs\" \"views/**/*.test.mjs\""
   },
   "repository": {
     "type": "git",
