@@ -10,6 +10,8 @@ export default function LogsView() {
             .then(keys => {
                 setAvailableNodes(keys)
             })
+            //a refusal now rejects (readApiResponse); it is shown the way a refusal body was shown before
+            .catch(e => setAvailableNodes({error: e?.message || 'Request failed'}))
     }, [])
 
 

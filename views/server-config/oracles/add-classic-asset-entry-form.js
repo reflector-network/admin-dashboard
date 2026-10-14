@@ -1,5 +1,5 @@
 import React, {useCallback, useRef, useState} from 'react'
-import {StrKey} from '@stellar/stellar-base'
+import {StrKey} from '@stellar/stellar-sdk'
 import AddAssetEntryLayout from './add-asset-entry-layout'
 
 export default function AddClassicAssetEntry({contract, save}) {

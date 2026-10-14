@@ -2,6 +2,8 @@ import {signData} from '../providers/albedo-provider'
 import clientStatus from '../state/client-status'
 import sortObjectKeys from './../views/util/object-key-sorter'
 import {shortenString} from '@stellar-expert/formatter'
+import {buildRouteBinding} from './route-binding.mjs'
+import {readApiResponse} from './api-response.mjs'
 
 const nodesMapping = new Map()
 
@@ -78,7 +80,8 @@ export function getNodeKeys() {
 
 export async function postApi(action, data) {
     const nonce = generateNonce()
-    const payload = sortObjectKeys({...data, nonce})
+    //the signature covers the route and its query as well; without it every POST is refused
+    const payload = sortObjectKeys({...data, nonce, path: buildRouteBinding(action, nonce)})
 
     const authorizationHeader = clientStatus.hasSession ? await generateAuthHeader(payload, nonce) : null
     return await fetchApi(action, {
@@ -121,7 +124,7 @@ async function fetchApi(relativeUrl, {method = 'GET', authorizationHeader = null
         headers,
         body
     })
-    return res.json()
+    return await readApiResponse(res)
 }
 
 function generateNonce() {

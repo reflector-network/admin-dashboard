@@ -1,5 +1,4 @@
-import {Networks, Operation, TransactionBuilder} from '@stellar/stellar-base'
-import {Horizon} from '@stellar/stellar-sdk'
+import {Networks, Operation, TransactionBuilder, Horizon, xdr} from '@stellar/stellar-sdk'
 import {createdDaoClient} from './dao-client'
 
 /**
@@ -33,9 +32,9 @@ async function buildVotingTx(ballotId, ballot, accepted, channelAccount) {
     })
 
     const built = builder.setTimebounds(0, expires).build()
-    const hash = built.hash().toString('hex')
+    const hash = xdr.encodeBytes(built.hash(), 'hex')
     console.log('Tx vote ' + accepted + ' ' + hash)
-    console.log(built.toXDR())
+    console.log(built.toXdr())
     //check if already exists
     try {
         await submitTxToRefractor(built)
@@ -51,7 +50,7 @@ async function submitTxToRefractor(tx) {
         method: 'POST',
         body: JSON.stringify({
             network: 'public',
-            xdr: tx.toXDR(),
+            xdr: tx.toXdr(),
             submit: true
         }),
         headers: {'Content-Type': 'application/json'}
@@ -62,6 +61,6 @@ function parseRefractorXdr(res) {
     const {xdr, network} = res
     if (!xdr)
         throw res
-    const parsed = TransactionBuilder.fromXDR(xdr, Networks[network.toUpperCase()])
+    const parsed = TransactionBuilder.fromXdr(xdr, Networks[network.toUpperCase()])
     return {xdr, parsed}
 }

@@ -2,7 +2,7 @@ import React, {useCallback, useState} from 'react'
 import {Button, CodeBlock} from '@stellar-expert/ui-framework'
 import {createdDaoClient} from './dao-client'
 import {generateVotingTransactions} from './ballot-tx-generator'
-import {StrKey} from '@stellar/stellar-base'
+import {StrKey} from '@stellar/stellar-sdk'
 
 const daoChannelAccounts = [
     'GBPMF5VB7OS5J7DHWILIMHJJ7AP6ERRC66VW7BTGTGXD2PJ2XVFQRDAO',

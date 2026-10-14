@@ -5,15 +5,22 @@ import {getCurrentConfig, postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'
 import invocationFormatter from '../util/invocation-formatter'
 import DialogView from './dialog-view'
+import {readVoteState} from './update-vote-state.mjs'
 
 const configRefreshInterval = 30//30 seconds
+
+const ownVoteText = {
+    approved: 'You approved this update',
+    rejected: 'You rejected this update'
+}
 
 export default function UpdateRequestVotingView({configuration}) {
     const [actualConfig, setActualConfig] = useState(configuration)
     const [isOpen, setIsOpen] = useState(false)
-    const votingSettings = actualConfig.pendingConfig?.config || actualConfig.currentConfig?.config
-    const ownSign = votingSettings?.signatures.filter(sign => sign.pubkey === clientStatus.clientPublicKey).length
-    const readonlyConfigProperties = invocationFormatter(votingSettings.config || {}, 1)
+    const [confirming, setConfirming] = useState(null)
+    const voteState = readVoteState(actualConfig, clientStatus.clientPublicKey)
+    const votingSettings = voteState?.update
+    const readonlyConfigProperties = invocationFormatter(votingSettings?.config || {}, 1)
 
     useEffect(() => {
         setActualConfig(configuration)
@@ -29,8 +36,9 @@ export default function UpdateRequestVotingView({configuration}) {
         return () => clearInterval(refreshConfig)
     }, [configuration])
 
-    const vote = useCallback(async (vote) => {
-        const signature = await clientStatus.createSignature(votingSettings.config, !vote)
+    //a vote on an update that is already scheduled carries its stored timestamp, which the envelope keeps
+    const vote = useCallback(async (reject) => {
+        const signature = await clientStatus.createSignature(votingSettings.config, reject)
 
         const {id, initiator, status, ...otherSettings} = votingSettings
         postApi('config', {
@@ -47,9 +55,19 @@ export default function UpdateRequestVotingView({configuration}) {
             .catch(error => notify({type: 'error', message: error?.message || 'Failed to vote'}))
     }, [votingSettings])
 
-    const confirm = useCallback(() => vote(true), [vote])
+    const runAction = useCallback(action => {
+        if (action.confirm)
+            return setConfirming(action)
+        vote(action.reject)
+    }, [vote])
 
-    const reject = useCallback(() => vote(false), [vote])
+    const confirmAction = useCallback(() => {
+        const action = confirming
+        setConfirming(null)
+        vote(action.reject)
+    }, [confirming, vote])
+
+    const cancelAction = useCallback(() => setConfirming(null), [])
 
     const toggleShowConfig = useCallback(() => setIsOpen(prev => !prev), [])
 
@@ -58,8 +76,7 @@ export default function UpdateRequestVotingView({configuration}) {
         setIsOpen(false)
     }, [])
 
-    //hide confirmation if the update request doesn't exist or is signed
-    if (!votingSettings || (votingSettings && !!ownSign))
+    if (!voteState)
         return <></>
 
     return <>
@@ -70,18 +87,35 @@ export default function UpdateRequestVotingView({configuration}) {
                     <div className="dimmed">
                         {votingSettings.description || 'Without description'}
                         <div className="text-tiny micro-space">
+                            {voteState.statusText}
+                            {!!voteState.ownVote && <>. {ownVoteText[voteState.ownVote]}</>}
+                        </div>
+                        <div className="text-tiny micro-space">
                             Expiration date:&nbsp;
                             <UtcTimestamp date={votingSettings.expirationDate}/>
                         </div>
                     </div>
                 </div>
                 <div className="column column-33">
-                    <Button className="button-clear" onClick={confirm}>Approve</Button>
-                    <Button className="button-clear" onClick={reject}>Reject</Button>
+                    {voteState.actions.map(action =>
+                        <Button key={action.label} className="button-clear" onClick={() => runAction(action)}>{action.label}</Button>)}
                 </div>
             </div>
         </div>
         <div className="space"/>
+        <DialogView dialogOpen={!!confirming} smaller>
+            <h3>{confirming?.label} the update</h3>
+            <hr className="flare"/>
+            <div className="space">{confirming?.confirm}</div>
+            <div className="row space">
+                <div className="column column-50">
+                    <Button block onClick={confirmAction}>{confirming?.label}</Button>
+                </div>
+                <div className="column column-50">
+                    <Button block outline onClick={cancelAction}>Cancel</Button>
+                </div>
+            </div>
+        </DialogView>
         <DialogView dialogOpen={isOpen}>
             <div>
                 <h3>Quorum configuration file</h3>

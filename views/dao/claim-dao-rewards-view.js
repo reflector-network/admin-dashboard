@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {StrKey} from '@stellar/stellar-base'
+import {StrKey} from '@stellar/stellar-sdk'
 import {Amount, Button, InfoTooltip, useStellarNetwork} from '@stellar-expert/ui-framework'
 import {fromStroops, toStroops} from '@stellar-expert/formatter'
 import clientStatus from '../../state/client-status'
