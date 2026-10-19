@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react'
 import {Button, DateSelector, trimIsoDateSeconds} from '@stellar-expert/ui-framework'
 import {normalizeDate} from '@stellar-expert/formatter'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {postApi} from '../../../api/interface'
 import clientStatus from '../../../state/client-status'
 

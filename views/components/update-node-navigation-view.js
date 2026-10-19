@@ -1,6 +1,5 @@
 import React from 'react'
-import {useLocation} from 'react-router'
-import {parseQuery} from '@stellar-expert/navigation'
+import {parseQuery, useLocation} from '@stellar-expert/ui-framework'
 import {AccountAddress} from '@stellar-expert/ui-framework'
 import {MenuNavLink} from './nav-item'
 import ContractType from './contract-type'

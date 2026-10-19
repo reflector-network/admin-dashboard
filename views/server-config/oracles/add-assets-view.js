@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import AssetCodeView from '../../components/asset-code-view'
 import detectConfigChanges from '../../util/config-changes-detector'
 import AddGenericAssetEntry from './add-generic-asset-entry-form'

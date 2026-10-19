@@ -1,6 +1,5 @@
 import React from 'react'
-import {useLocation} from 'react-router'
-import {parseQuery} from '@stellar-expert/navigation'
+import {parseQuery, useLocation} from '@stellar-expert/ui-framework'
 import UpdateNodeView from '../server-config/nodes/update-node-view'
 import AddAssetsView from '../server-config/oracles/add-assets-view'
 import UpdatePeriodView from '../server-config/oracles/update-period-view'
