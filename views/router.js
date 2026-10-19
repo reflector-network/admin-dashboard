@@ -1,6 +1,5 @@
 import React from 'react'
-import {Switch, Router, Route} from 'react-router'
-import {SystemDialog} from '@stellar-expert/ui-framework'
+import {SystemDialog, Router, RouterSwitch, Route} from '@stellar-expert/ui-framework'
 import Layout from './top-layout/layout-view'
 import AuthLayout from './layout/auth-layout'
 import NotFoundPage from './pages/not-found-page'
@@ -14,7 +13,7 @@ import DaoLayout from './dao/dao-layout'
 export default function AppRouter({history}) {
     return <Router history={history}>
         <Layout>
-            <Switch>
+            <RouterSwitch>
                 <Route path="/" exact>
                     <AuthLayout><DashboardPage/></AuthLayout>
                 </Route>
@@ -34,7 +33,7 @@ export default function AppRouter({history}) {
                     <AuthLayout><LogsView/></AuthLayout>
                 </Route>
                 <Route component={NotFoundPage}/>
-            </Switch>
+            </RouterSwitch>
         </Layout>
         <SystemDialog/>
     </Router>

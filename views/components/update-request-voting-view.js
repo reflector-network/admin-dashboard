@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import {Button, CodeBlock, UtcTimestamp} from '@stellar-expert/ui-framework'
 import {getCurrentConfig, postApi} from '../../api/interface'
 import clientStatus from '../../state/client-status'

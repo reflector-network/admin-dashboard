@@ -1,8 +1,8 @@
 import React from 'react'
-import {Route, Switch, useLocation} from 'react-router'
-import ClaimDaoRewardsView from './claim-dao-rewards-view'
+import {Route, RouterSwitch, useLocation} from '@stellar-expert/ui-framework'
 import {MenuNavLink} from '../components/nav-item'
 import DaoBallotTxView from './dao-ballot-tx-generator-view'
+import ClaimDaoRewardsView from './claim-dao-rewards-view'
 
 export default function DaoLayout() {
     return <>
@@ -15,14 +15,14 @@ export default function DaoLayout() {
                 <div className="space mobile-only"/>
             </div>
             <div className="column column-75">
-                <Switch>
+                <RouterSwitch>
                     <Route path="/dao/claim">
                         <ClaimDaoRewardsView/>
                     </Route>
                     <Route path="/dao/vote-tx">
                         <DaoBallotTxView/>
                     </Route>
-                </Switch>
+                </RouterSwitch>
             </div>
         </div>
         <div className="space">

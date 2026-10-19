@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react'
-import {navigation} from '@stellar-expert/navigation'
+import {navigation} from '@stellar-expert/ui-framework'
 import detectConfigChanges from '../../util/config-changes-detector'
 import ActionNodeLayout from '../action-node-layout'
 

@@ -1,7 +1,7 @@
 {
   "name": "@reflector/admin-dashboard",
   "private": true,
-  "version": "0.10.1",
+  "version": "0.11.0",
   "author": "team@stellar.expert",
   "description": "Admin dashboard for Reflector nodes",
   "scripts": {
@@ -16,11 +16,9 @@
   "dependencies": {
     "@albedo-link/intent": "0.13.0",
     "@reflector/dao-client": "1.5.0",
-    "@stellar-expert/client-cache": "1.1.0",
-    "@stellar-expert/formatter": "3.0.0",
-    "@stellar-expert/navigation": "1.1.0",
-    "@stellar-expert/ui-framework": "1.19.2",
-    "@stellar/stellar-sdk": "17.0.1",
+    "@stellar-expert/formatter": "3.2.0",
+    "@stellar-expert/ui-framework": "3.0.1",
+    "@stellar/stellar-sdk": "17.2.1",
     "classnames": "2.5.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -33,13 +31,6 @@
     "@stellar-expert/webpack-template": "1.5.1"
   },
   "overrides": {
-    "@stellar/stellar-base": "15.0.0",
-    "@stellar/stellar-sdk": "17.0.1"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "core-js",
-      "node-sass"
-    ]
+    "@stellar/stellar-sdk": "17.2.1"
   }
 }

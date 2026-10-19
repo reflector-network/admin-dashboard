@@ -7,7 +7,7 @@ export default function ChangesRecordView({data}) {
     switch (data.category) {
         case 'contract':
             return <div className="micro-space">
-                <i className="icon-puzzle"/> {data.type||'oracle'} <span title={data.uid}>{shortenString(data.uid)}</span> {data.action}:
+                <i className="icon-puzzle"/> {data.type || 'oracle'} <span title={data.uid}>{shortenString(data.uid)}</span> {data.action}:
                 <div className="block-indent">
                     {data.action === 'updated' ?
                         data.changes.map(property => {
@@ -73,10 +73,14 @@ function ContractRecordView({property, action, changes}) {
                 <AccountAddress account={changes[property]}/>
             </div>
         default:
+            let val = changes[property]
+            if (typeof val === 'object') {
+                val = JSON.stringify(val)
+            }
             return <div>
                 <span className="dimmed micro-space">{property}: </span>
                 <span className="text-small word-break">
-                    {changes[property]}
+                    {val}
                 </span>
             </div>
     }
